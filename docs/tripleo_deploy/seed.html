@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>3. 种子节点部署 &mdash; UOS Director  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="static/favicon-v2.ico"/>
+  
+
+  
+  
+    
+  
+
+  
+  
+    <link rel="stylesheet" href="static/css/theme.css" type="text/css" />
+  
+
+  
+
+  <link rel="stylesheet" href="static/css/header.css" />
+  <link rel="stylesheet" href="static/css/normalize.css" />
+  <link rel="stylesheet" href="static/css/footer.css" />
+        <link rel="index" title="Index" href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+
+    <link rel="top" title="UOS Director  documentation" href="index.html"/>
+        <link rel="next" title="4. UnderCloud 部署" href="undercloud-deploy.html"/>
+        <link rel="prev" title="2. 环境规划与准备" href="plan.html"/> 
+
+  
+  <script type="text/javascript" src="static/js/modernizr.min.js"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+    <div class="nav">
+      <a href="https://www.ustack.com" title="UnitedStack" class="logo"></a>
+      <div class="nav-inner-r">
+        <ul class="nav-menu"></ul>
+      </div>
+    </div>
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+
+        
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">1. UOS Director 简介</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plan.html">2. 环境规划与准备</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">3. 种子节点部署</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">3.1. 部署前准备</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">3.2. 安装种子节点操作系统</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">3.3. 配置软件源</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#opt-repos">3.3.1. 将本地软件源拷贝至 /opt/repos 中</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ngnix">3.3.2. 配置本地软件源，并安装 Ngnix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#etc-nginx-nginx-conf">3.3.3. 编辑 /etc/nginx/nginx.conf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nginx">3.3.4. 启动 Nginx</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">3.4. 种子节点网络配置</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#openvswitch">3.4.1. 安装 OpenvSwitch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#overcloud-external">3.4.2. 在种子节点上添加 OverCloud External 的网桥</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pxe">3.4.3. 在种子节点上添加 PXE 网桥</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ip">3.4.4. 为种子节点分配 IP 地址</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#libvirt">3.4.5. 创建 Libvirt 网络</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">3.5. 配置种子节点虚拟机</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="undercloud-deploy.html">4. UnderCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overcloud-deploy.html">5. OverCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="add-on.html">6. 额外组件部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="post-deploy.html">7. OverCloud 初始化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opstools/index.html">8. 运维工具部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">9. UOS 升级</a></li>
+</ul>
+
+        
+      </div>
+
+      <div class="wy-side-nav-search">
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">UOS Director</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>3. 种子节点部署</li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="id1">
+<h1>3. 种子节点部署<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>UOS Seed Node 是作为承载 UnderCloud 以及 OpsServer 的一台 Hypervisor。</p>
+<div class="section" id="id2">
+<h2>3.1. 部署前准备<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>实施前需要准备以下内容：</p>
+<ul class="simple">
+<li>CentOS7-1611.iso</li>
+<li>CentOS7-1611.qcow2</li>
+<li>overcloud-full.tar</li>
+<li>完整的 UOS 软件源</li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h2>3.2. 安装种子节点操作系统<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>系统推荐使用 CentOS 7 1611 版本（已测试）。其他版本理论上也可以使用，但是我们没有测试其他版本。 安装方式可以是 USB 安装、CD 安装、IPMI 安装。安装系统时可以不配置IP。</p>
+<p>注意：分区时除了必要分区外，剩余空间都给根分区。</p>
+</div>
+<div class="section" id="id4">
+<h2>3.3. 配置软件源<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="opt-repos">
+<h3>3.3.1. 将本地软件源拷贝至 /opt/repos 中<a class="headerlink" href="#opt-repos" title="Permalink to this headline">¶</a></h3>
+<p>目录结构应该如下：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/opt/repos/
+└── uos-4.0-production
+    ├── ceph-jewel
+    ├── epel
+    ├── extras
+    ├── images
+    ├── kvm-common
+    ├── openstack-newton
+    ├── opstools
+    ├── os
+    ├── trunk
+    ├── uos-4.0-production.repo
+    ├── uos-opstools
+    ├── updates
+    ├── ustack
+    └── zabbix-3.0
+</pre></div>
+</div>
+</div>
+<div class="section" id="ngnix">
+<h3>3.3.2. 配置本地软件源，并安装 Ngnix<a class="headerlink" href="#ngnix" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 删除所有现有repo</span>
+$ sudo rm -f /etc/yum.repos.d/*.repo
+
+<span class="c1"># 拷贝 repo 文件到 /etc/yum.repos.d/</span>
+$ sudo cp /opt/repos/uos-4.0.production/uos-4.0-production.repo /etc/yum.repos.d/uos-4.0-production.repo
+
+<span class="c1"># 替换 repo 中的 url 为 file</span>
+$ sudo sed -i ‘s#http://repo.ustack.com/uos-4.0-production#file:///opt/repos#’ /etc/yum.repos.d/uos-4.0.repo
+$ sudo yum clean metadata <span class="o">&amp;&amp;</span> yum makecache
+$ sudo yum install -y yum-plugin-priorities
+
+<span class="c1"># 安装 Nginx</span>
+$ sudo yum install -y nginx
+</pre></div>
+</div>
+</div>
+<div class="section" id="etc-nginx-nginx-conf">
+<h3>3.3.3. 编辑 /etc/nginx/nginx.conf<a class="headerlink" href="#etc-nginx-nginx-conf" title="Permalink to this headline">¶</a></h3>
+<p>修改 root 目录，并在 location / 中开启 autoindex</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>server <span class="o">{</span>
+    listen       <span class="m">80</span> default_server<span class="p">;</span>
+    listen       <span class="o">[</span>::<span class="o">]</span>:80 default_server<span class="p">;</span>
+    server_name  _<span class="p">;</span>
+    root         /opt/repos<span class="p">;</span>
+    <span class="c1"># Load configuration files for the default server block.</span>
+    include /etc/nginx/default.d/*.conf<span class="p">;</span>
+    location / <span class="o">{</span>
+      autoindex on<span class="p">;</span>
+    <span class="o">}</span>
+
+    error_page <span class="m">404</span> /404.html<span class="p">;</span>
+        <span class="nv">location</span> <span class="o">=</span> /40x.html <span class="o">{</span>
+    <span class="o">}</span>
+
+    error_page <span class="m">500</span> <span class="m">502</span> <span class="m">503</span> <span class="m">504</span> /50x.html<span class="p">;</span>
+        <span class="nv">location</span> <span class="o">=</span> /50x.html <span class="o">{</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="nginx">
+<h3>3.3.4. 启动 Nginx<a class="headerlink" href="#nginx" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ systemctl restart nginx
+$ systemctl <span class="nb">enable</span> nginx
+
+<span class="c1"># 将 yum repo 中的地址修改为种子节点的地址</span>
+$ sed -i ‘s#repo.ustack.com#x.x.x.x#’  /opt/repos/uos-4.0.production/uos-4.0-production.repo
+
+<span class="c1"># 安装 KVM</span>
+$ yum install -y libvirt-client libvirt-daemon qemu-kvm libvirt-daemon-driver-qemu libvirt-daemon-kvm virt-install bridge-utils rsync libguestfs-tools-c
+</pre></div>
+</div>
+<p>重启机器。</p>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>3.4. 种子节点网络配置<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>按照规划，种子节点的网络应该这样划分：第一块千兆网卡用于 External 网络。第一、第二块万兆用于 PXE 网络。种子节点的访问入口放在 PXE 网络的网桥上。</p>
+<div class="section" id="openvswitch">
+<h3>3.4.1. 安装 OpenvSwitch<a class="headerlink" href="#openvswitch" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo yum install -y openvswitch
+$ sudo systemctl <span class="nb">enable</span> openvswitch
+$ sudo systemctl start openvswitch
+</pre></div>
+</div>
+</div>
+<div class="section" id="overcloud-external">
+<h3>3.4.2. 在种子节点上添加 OverCloud External 的网桥<a class="headerlink" href="#overcloud-external" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 创建外部网络的 ovs</span>
+$ sudo ovs-vsctl add-br ovs-external
+
+<span class="c1"># 添加 OverCloud External 网络所属网卡，比如 em1 是第一块千兆网卡</span>
+$ sudo ovs-vsctl add-port ovs-external em1
+</pre></div>
+</div>
+</div>
+<div class="section" id="pxe">
+<h3>3.4.3. 在种子节点上添加 PXE 网桥<a class="headerlink" href="#pxe" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 创建 PXE 网络 ovs</span>
+$ sudo ovs-vsctl add-br ovs-pxe
+
+<span class="c1"># 如果部署环境使用 bond pxe，就需要创建 bond port</span>
+$ sudo ovs-vsctl add-bond ovs-pxe bond1 em3 em4 <span class="nv">lacp</span><span class="o">=</span>active <span class="nv">bond_mode</span><span class="o">=</span>balance-slb
+
+<span class="c1"># 如果部署环境不使用 bond pxe，只需要创建普通 port</span>
+$ sudo ovs-vsctl add-port ovs-pxe em3
+</pre></div>
+</div>
+</div>
+<div class="section" id="ip">
+<h3>3.4.4. 为种子节点分配 IP 地址<a class="headerlink" href="#ip" title="Permalink to this headline">¶</a></h3>
+<p>一般我们选择部署网络的网桥作为种子节点的访问入口。</p>
+<p>创建 ifcfg-ovs-pxe</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo vim /etc/sysconfig/network-scripts/ifcfg-ovs-pxe
+
+<span class="nv">DEVICE</span><span class="o">=</span>ovs-pxe
+<span class="nv">ONBOOT</span><span class="o">=</span>yes
+<span class="nv">HOTPLUG</span><span class="o">=</span>no
+<span class="nv">NM_CONTROLLED</span><span class="o">=</span>no
+<span class="nv">PEERDNS</span><span class="o">=</span>no
+<span class="nv">DEVICETYPE</span><span class="o">=</span>ovs
+<span class="nv">TYPE</span><span class="o">=</span>OVSBridge
+<span class="nv">MTU</span><span class="o">=</span><span class="m">1500</span>
+<span class="nv">BOOTPROTO</span><span class="o">=</span>static
+<span class="nv">IPADDR</span><span class="o">=</span>X.X.X.X
+<span class="nv">PREFIX</span><span class="o">=</span><span class="m">24</span>
+<span class="nv">GATEWAY</span><span class="o">=</span>X.X.X.X
+</pre></div>
+</div>
+<p>禁用其他没有使用到的网卡。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo vim /etc/sysconfig/network-scripts/ifcfg-enoX
+
+<span class="nv">BOOTPROTO</span><span class="o">=</span><span class="s2">&quot;none&quot;</span>
+<span class="nv">ONBOOT</span><span class="o">=</span><span class="s2">&quot;no&quot;</span>
+
+$ sudo systemctl restart network
+</pre></div>
+</div>
+</div>
+<div class="section" id="libvirt">
+<h3>3.4.5. 创建 Libvirt 网络<a class="headerlink" href="#libvirt" title="Permalink to this headline">¶</a></h3>
+<p>创建以下网络配置 XML 文件</p>
+<div class="code xml highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># file: ovs-mgmt.xml</span>
+
+<span class="o">&lt;</span><span class="n">network</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">ovs</span><span class="o">-</span><span class="n">mgmt</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">forward</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;bridge&#39;</span><span class="o">/&gt;</span>
+  <span class="o">&lt;</span><span class="n">bridge</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ovs-mgmt&#39;</span><span class="o">/&gt;</span>
+  <span class="o">&lt;</span><span class="n">virtualport</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;openvswitch&#39;</span><span class="o">/&gt;</span>
+<span class="o">&lt;/</span><span class="n">network</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo virsh net-define ovs-mgmt.xml
+$ sudo virsh net-start ovs-mgmt
+$ sudo virsh net-autostart ovs-mgmt
+</pre></div>
+</div>
+<div class="code xml highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># file: ovs-external.xml</span>
+
+<span class="o">&lt;</span><span class="n">network</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">ovs</span><span class="o">-</span><span class="n">external</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">forward</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;bridge&#39;</span><span class="o">/&gt;</span>
+  <span class="o">&lt;</span><span class="n">bridge</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ovs-external&#39;</span><span class="o">/&gt;</span>
+  <span class="o">&lt;</span><span class="n">virtualport</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;openvswitch&#39;</span><span class="o">/&gt;</span>
+<span class="o">&lt;/</span><span class="n">network</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo virsh net-define ovs-external.xml
+$ sudo virsh net-start ovs-external.xml
+$ sudo virsh net-autostart ovs-external.xml
+</pre></div>
+</div>
+<div class="code xml highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># file: ovs-pxe.xml</span>
+
+<span class="o">&lt;</span><span class="n">network</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">ovs</span><span class="o">-</span><span class="n">pxe</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">forward</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;bridge&#39;</span><span class="o">/&gt;</span>
+  <span class="o">&lt;</span><span class="n">bridge</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ovs-pxe&#39;</span><span class="o">/&gt;</span>
+  <span class="o">&lt;</span><span class="n">virtualport</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;openvswitch&#39;</span><span class="o">/&gt;</span>
+<span class="o">&lt;/</span><span class="n">network</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo virsh net-define ovs-pxe.xml
+$ sudo virsh net-start ovs-pxe
+$ sudo virsh net-autostart ovs-pxe
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>3.5. 配置种子节点虚拟机<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p>解压虚拟机镜像到 /var/lib/libvirt/images 目录。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo unxz -k -c CentOS-7-x86_64-GenericCloud-1611.qcow2.xz &gt; /var/lib/libvirt/images/undercloud.qcow2
+$ sudo unxz -k -c CentOS-7-x86_64-GenericCloud-1611.qcow2.xz &gt; /var/lib/libvirt/images/opsserver.qcow2
+</pre></div>
+</div>
+<p>调整 VM 大小</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo qemu-img resize /var/lib/libvirt/images/undercloud.qcow2 100G
+$ sudo qemu-img resize /var/lib/libvirt/images/opsserver.qcow2 1T
+</pre></div>
+</div>
+<p>注入密码</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo virt-customize -a /var/lib/libvirt/images/undercloud.qcow2 --root-password password:your_password
+$ sudo virt-customize -a /var/lib/libvirt/images/opsserver.qcow2 --root-password password:your_password
+</pre></div>
+</div>
+<p>创建 UnderCloud VM</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo virt-install --boot hd --name undercloud --memory<span class="o">=</span><span class="m">16384</span> --vcpus<span class="o">=</span><span class="m">4</span> --disk <span class="nv">path</span><span class="o">=</span>/var/lib/libvirt/images/undercloud.qcow2 --network <span class="nv">network</span><span class="o">=</span>ovs-pxe --network <span class="nv">network</span><span class="o">=</span>ovs-mgmt  --network <span class="nv">network</span><span class="o">=</span>ovs-external --graphics<span class="o">=</span>vnc,listen<span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span>  --hvm --os-variant<span class="o">=</span>centos7.0 --noautoconsole --import --noreboot
+</pre></div>
+</div>
+<p>创建 OpsServer VM</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo virt-install --boot hd --name opsserver --memory<span class="o">=</span><span class="m">16384</span> --vcpus<span class="o">=</span><span class="m">4</span> --disk <span class="nv">path</span><span class="o">=</span>/var/lib/libvirt/images/opsserver.qcow2 ---network <span class="nv">network</span><span class="o">=</span>ovs-mgmt --network <span class="nv">network</span><span class="o">=</span>ovs-pxe --graphics<span class="o">=</span>vnc,listen<span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span> --hvm --os-variant<span class="o">=</span>centos7.0 --noautoconsole --import --noreboot
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="undercloud-deploy.html" class="btn btn-neutral float-right" title="4. UnderCloud 部署">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="plan.html" class="btn btn-neutral" title="2. 环境规划与准备"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+      &#169; Copyright 2017, UnitedStack Inc. All Rights Reserved.
+  </div>
+
+  
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:'./',
+          VERSION:'',
+          COLLAPSE_INDEX:false,
+          FILE_SUFFIX:'.html',
+          HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="static/jquery.js"></script>
+      <script type="text/javascript" src="static/underscore.js"></script>
+      <script type="text/javascript" src="static/doctools.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+    jQuery(function () {
+      SphinxRtdTheme.StickyNav.enable();
+    });
+  </script>
+   
+
+</body>
+</html>

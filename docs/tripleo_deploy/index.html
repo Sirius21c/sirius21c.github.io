@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>UOS Director 使用文档 &mdash; UOS Director  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="static/favicon-v2.ico"/>
+  
+
+  
+  
+    
+  
+
+  
+  
+    <link rel="stylesheet" href="static/css/theme.css" type="text/css" />
+  
+
+  
+
+  <link rel="stylesheet" href="static/css/header.css" />
+  <link rel="stylesheet" href="static/css/normalize.css" />
+  <link rel="stylesheet" href="static/css/footer.css" />
+        <link rel="index" title="Index" href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+
+    <link rel="top" title="UOS Director  documentation" href="#"/>
+        <link rel="next" title="1. UOS Director 简介" href="intro.html"/> 
+
+  
+  <script type="text/javascript" src="static/js/modernizr.min.js"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+    <div class="nav">
+      <a href="https://www.ustack.com" title="UnitedStack" class="logo"></a>
+      <div class="nav-inner-r">
+        <ul class="nav-menu"></ul>
+      </div>
+    </div>
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+
+        
+          <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">1. UOS Director 简介</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plan.html">2. 环境规划与准备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seed.html">3. 种子节点部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="undercloud-deploy.html">4. UnderCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overcloud-deploy.html">5. OverCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="add-on.html">6. 额外组件部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="post-deploy.html">7. OverCloud 初始化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opstools/index.html">8. 运维工具部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">9. UOS 升级</a></li>
+</ul>
+
+        
+      </div>
+
+      <div class="wy-side-nav-search">
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="#">UOS Director</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>UOS Director 使用文档</li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="uos-director">
+<h1>UOS Director 使用文档<a class="headerlink" href="#uos-director" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">1. UOS Director 简介</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#undercloud">1.1. UnderCloud</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id1">1.1.1. 角色定制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id2">1.1.2. 裸机管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id3">1.1.3. 编排能力</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id4">1.1.4. 网络定制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id5">1.1.5. 命令行和界面</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#api">1.1.6. API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#overcloud">1.2. OverCloud</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id6">1.2.1. 控制节点</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id7">1.2.2. 计算节点</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id8">1.2.3. 网络节点</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id9">1.2.4. 存储节点</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id10">1.2.5. 控制网络融合节点</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id11">1.2.6. 计算存储融合节点</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#id12">1.3. OverCloud 高可用</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id13">1.3.1. 物理网络高可用</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id14">1.3.2. 控制节点高可用</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id15">1.3.3. 计算节点高可用</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id16">1.3.4. 网络节点高可用</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro.html#id17">1.3.5. 存储节点高可用</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plan.html">2. 环境规划与准备</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plan.html#id2">2.1. 物理网络规划</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plan.html#id3">2.1.1. 交换机配置要求</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plan.html#id4">2.1.2. 交换机冗余架构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plan.html#id5">2.1.3. 各节点接入</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plan.html#id6">2.1.4. 交换机网络规划</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plan.html#id7">2.1.5. 服务器网络规划</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="plan.html#ip">2.2. IP 地址规划</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plan.html#id8">2.2.1. 整体网络规划（一般场景）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plan.html#id9">2.2.2. 控制节点网络规划</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plan.html#id10">2.2.3. 网络节点网络规划</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plan.html#id11">2.2.4. 计算存储融合节点网络规划</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="plan.html#id12">2.3. 服务器配置</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plan.html#id13">2.3.1. 配置远程管理卡</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plan.html#bios">2.3.2. 配置 BIOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plan.html#raid">2.3.3. 配置 RAID</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="seed.html">3. 种子节点部署</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="seed.html#id2">3.1. 部署前准备</a></li>
+<li class="toctree-l2"><a class="reference internal" href="seed.html#id3">3.2. 安装种子节点操作系统</a></li>
+<li class="toctree-l2"><a class="reference internal" href="seed.html#id4">3.3. 配置软件源</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="seed.html#opt-repos">3.3.1. 将本地软件源拷贝至 /opt/repos 中</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seed.html#ngnix">3.3.2. 配置本地软件源，并安装 Ngnix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seed.html#etc-nginx-nginx-conf">3.3.3. 编辑 /etc/nginx/nginx.conf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seed.html#nginx">3.3.4. 启动 Nginx</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="seed.html#id5">3.4. 种子节点网络配置</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="seed.html#openvswitch">3.4.1. 安装 OpenvSwitch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seed.html#overcloud-external">3.4.2. 在种子节点上添加 OverCloud External 的网桥</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seed.html#pxe">3.4.3. 在种子节点上添加 PXE 网桥</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seed.html#ip">3.4.4. 为种子节点分配 IP 地址</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seed.html#libvirt">3.4.5. 创建 Libvirt 网络</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="seed.html#id6">3.5. 配置种子节点虚拟机</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="undercloud-deploy.html">4. UnderCloud 部署</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="undercloud-deploy.html#id1">4.1. UnderCloud 部署需求</a></li>
+<li class="toctree-l2"><a class="reference internal" href="undercloud-deploy.html#id2">4.2. UnderCloud 网络</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="undercloud-deploy.html#underrcloud">4.2.1. 配置 UnderrCloud 网络</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="undercloud-deploy.html#id3">4.3. UnderCloud 环境准备</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="undercloud-deploy.html#stack">4.3.1. 创建 stack 用户</a></li>
+<li class="toctree-l3"><a class="reference internal" href="undercloud-deploy.html#sudo">4.3.2. 设置无密码 sudo 权限</a></li>
+<li class="toctree-l3"><a class="reference internal" href="undercloud-deploy.html#id4">4.3.3. 设置主机名</a></li>
+<li class="toctree-l3"><a class="reference internal" href="undercloud-deploy.html#id5">4.3.4. 设置软件源</a></li>
+<li class="toctree-l3"><a class="reference internal" href="undercloud-deploy.html#id6">4.3.5. 安装所需的软件包</a></li>
+<li class="toctree-l3"><a class="reference internal" href="undercloud-deploy.html#id7">4.3.6. 3.3.6 拷贝 UnderCloud 网卡配置文件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="undercloud-deploy.html#id8">4.3.7. 定义 UnderCloud 配置文件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="undercloud-deploy.html#id9">4.4. 安装 UnderCloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="undercloud-deploy.html#id10">4.5. UnderCloud 卸载</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="undercloud-deploy.html#id11">4.5.1. 备份配置文件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="undercloud-deploy.html#id12">4.5.2. 删除 UnderCloud</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="overcloud-deploy.html">5. OverCloud 部署</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overcloud-deploy.html#id1">5.1. 部署镜像上传</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id2">5.1.1. 获取部署镜像</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id3">5.1.2. 上传部署镜像</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id4">5.1.3. 检查镜像上传结果</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overcloud-deploy.html#ironic-node">5.2. Ironic Node 注册</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id5">5.2.1. 编写注册模版</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id6">5.2.2. 注册</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id7">5.2.3. 检查注册结果</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overcloud-deploy.html#ironic-server">5.3. 配置ironic server</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id8">5.3.1. 收集配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id9">5.3.2. 检查角色</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id10">5.3.3. 设置裸机系统盘</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id11">5.3.4. 检查裸机系统盘</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overcloud-deploy.html#id12">5.4. OverCloud 部署</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id13">5.4.1. 准备环境文件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id14">5.4.2. 部署架构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id15">5.4.3. 部署组件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id16">5.4.4. 修改网络配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id17">5.4.5. 主机网卡配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#uos-storage">5.4.6. 部署 UOS Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overcloud-deploy.html#id19">5.4.7. 部署 OverCloud</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="add-on.html">6. 额外组件部署</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="add-on.html#link-to-service-config">6.1. 面板服务部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-on.html#id3">6.2. 对象存储服务部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-on.html#id4">6.3. 网络插件部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-on.html#id5">6.4. 计量服务部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-on.html#id6">6.5. 计费服务部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-on.html#id7">6.6. 充值账单服务部署</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="post-deploy.html">7. OverCloud 初始化</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="post-deploy.html#id1">7.1. 主机列表更新</a></li>
+<li class="toctree-l2"><a class="reference internal" href="post-deploy.html#id2">7.2. 服务初始化</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="post-deploy.html#id3">7.2.1. 公网地址池初始化</a></li>
+<li class="toctree-l3"><a class="reference internal" href="post-deploy.html#id4">7.2.2. 云硬盘类型初始化</a></li>
+<li class="toctree-l3"><a class="reference internal" href="post-deploy.html#id5">7.2.3. 云主机规格初始化</a></li>
+<li class="toctree-l3"><a class="reference internal" href="post-deploy.html#id6">7.2.4. 监控系统初始化</a></li>
+<li class="toctree-l3"><a class="reference internal" href="post-deploy.html#id7">7.2.5. 计费系统初始化</a></li>
+<li class="toctree-l3"><a class="reference internal" href="post-deploy.html#id8">7.2.6. 初始化云存储配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="post-deploy.html#id9">7.2.7. 云平台加载元数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="post-deploy.html#overcloud-bug">7.2.8. Overcloud BUG 修复</a></li>
+<li class="toctree-l3"><a class="reference internal" href="post-deploy.html#id10">7.2.9. 云平台上传镜像</a></li>
+<li class="toctree-l3"><a class="reference internal" href="post-deploy.html#ceph-crushmap">7.2.10. Ceph Crushmap 配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="post-deploy.html#e">7.2.11. e 命令介绍</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opstools/index.html">8. 运维工具部署</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opstools/index.html#id2">8.1. 简介</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opstools/index.html#id3">8.2. 部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opstools/index.html#id4">8.3. 后续配置</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opstools/index.html#id5">8.3.1. 在浏览器上登陆平台</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opstools/index.html#kibana">8.3.2. 在kibana面板手动创建索引</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opstools/index.html#grafanaes">8.3.3. 在Grafana面板启用ES数据源</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opstools/index.html#grafanazabbix">8.3.4. 在Grafana面板启用Zabbix数据源</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opstools/index.html#zabbix">8.3.5. 检查Zabbix是否正常工作</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opstools/index.html#id6">8.3.6. 配置监控信息</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">9. UOS 升级</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="upgrade.html#id1">9.1. UOS 小版本升级</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="upgrade.html#undercloud">9.1.1. undercloud 升级</a></li>
+<li class="toctree-l3"><a class="reference internal" href="upgrade.html#overcloud">9.1.2. overcloud升级</a></li>
+<li class="toctree-l3"><a class="reference internal" href="upgrade.html#uos-4-3-1">9.1.3. UOS 4.3.1 升级注意事项</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="intro.html" class="btn btn-neutral float-right" title="1. UOS Director 简介">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+      &#169; Copyright 2017, UnitedStack Inc. All Rights Reserved.
+  </div>
+
+  
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:'./',
+          VERSION:'',
+          COLLAPSE_INDEX:false,
+          FILE_SUFFIX:'.html',
+          HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="static/jquery.js"></script>
+      <script type="text/javascript" src="static/underscore.js"></script>
+      <script type="text/javascript" src="static/doctools.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+    jQuery(function () {
+      SphinxRtdTheme.StickyNav.enable();
+    });
+  </script>
+   
+
+</body>
+</html>

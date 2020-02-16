@@ -1,0 +1,278 @@
+种子节点部署
+==============
+
+UOS Seed Node 是作为承载 UnderCloud 以及 OpsServer 的一台 Hypervisor。
+
+部署前准备
+--------------
+
+实施前需要准备以下内容：
+
+* CentOS7-1611.iso
+* CentOS7-1611.qcow2
+* overcloud-full.tar
+* 完整的 UOS 软件源
+
+安装种子节点操作系统
+------------------------
+
+系统推荐使用 CentOS 7 1611 版本（已测试）。其他版本理论上也可以使用，但是我们没有测试其他版本。 安装方式可以是 USB 安装、CD 安装、IPMI 安装。安装系统时可以不配置IP。
+
+注意：分区时除了必要分区外，剩余空间都给根分区。
+
+配置软件源
+--------------
+
+将本地软件源拷贝至 /opt/repos 中
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+目录结构应该如下：
+
+::
+
+    /opt/repos/
+    └── uos-4.0-production
+        ├── ceph-jewel
+        ├── epel
+        ├── extras
+        ├── images
+        ├── kvm-common
+        ├── openstack-newton
+        ├── opstools
+        ├── os
+        ├── trunk
+        ├── uos-4.0-production.repo
+        ├── uos-opstools
+        ├── updates
+        ├── ustack
+        └── zabbix-3.0
+
+配置本地软件源，并安装 Ngnix
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   # 删除所有现有repo
+   $ sudo rm -f /etc/yum.repos.d/*.repo
+
+   # 拷贝 repo 文件到 /etc/yum.repos.d/
+   $ sudo cp /opt/repos/uos-4.0.production/uos-4.0-production.repo /etc/yum.repos.d/uos-4.0-production.repo
+
+   # 替换 repo 中的 url 为 file
+   $ sudo sed -i ‘s#http://repo.ustack.com/uos-4.0-production#file:///opt/repos#’ /etc/yum.repos.d/uos-4.0.repo
+   $ sudo yum clean metadata && yum makecache
+   $ sudo yum install -y yum-plugin-priorities
+
+   # 安装 Nginx
+   $ sudo yum install -y nginx
+
+编辑 /etc/nginx/nginx.conf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+修改 root 目录，并在 location / 中开启 autoindex
+
+.. code-block:: shell
+
+   server {
+       listen       80 default_server;
+       listen       [::]:80 default_server;
+       server_name  _;
+       root         /opt/repos;
+       # Load configuration files for the default server block.
+       include /etc/nginx/default.d/*.conf;
+       location / {
+         autoindex on;
+       }
+
+       error_page 404 /404.html;
+           location = /40x.html {
+       }
+
+       error_page 500 502 503 504 /50x.html;
+           location = /50x.html {
+       }
+
+   }
+
+启动 Nginx
+~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   $ systemctl restart nginx
+   $ systemctl enable nginx
+
+   # 将 yum repo 中的地址修改为种子节点的地址
+   $ sed -i ‘s#repo.ustack.com#x.x.x.x#’  /opt/repos/uos-4.0.production/uos-4.0-production.repo
+
+   # 安装 KVM
+   $ yum install -y libvirt-client libvirt-daemon qemu-kvm libvirt-daemon-driver-qemu libvirt-daemon-kvm virt-install bridge-utils rsync libguestfs-tools-c
+
+重启机器。
+
+种子节点网络配置
+--------------------
+
+按照规划，种子节点的网络应该这样划分：第一块千兆网卡用于 External 网络。第一、第二块万兆用于 PXE 网络。种子节点的访问入口放在 PXE 网络的网桥上。
+
+安装 OpenvSwitch
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   $ sudo yum install -y openvswitch
+   $ sudo systemctl enable openvswitch
+   $ sudo systemctl start openvswitch
+
+在种子节点上添加 OverCloud External 的网桥
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   # 创建外部网络的 ovs
+   $ sudo ovs-vsctl add-br ovs-external
+
+   # 添加 OverCloud External 网络所属网卡，比如 em1 是第一块千兆网卡
+   $ sudo ovs-vsctl add-port ovs-external em1
+
+在种子节点上添加 PXE 网桥
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   # 创建 PXE 网络 ovs
+   $ sudo ovs-vsctl add-br ovs-pxe
+
+   # 如果部署环境使用 bond pxe，就需要创建 bond port
+   $ sudo ovs-vsctl add-bond ovs-pxe bond1 em3 em4 lacp=active bond_mode=balance-slb
+
+   # 如果部署环境不使用 bond pxe，只需要创建普通 port
+   $ sudo ovs-vsctl add-port ovs-pxe em3
+
+为种子节点分配 IP 地址
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+一般我们选择部署网络的网桥作为种子节点的访问入口。
+
+创建 ifcfg-ovs-pxe
+
+.. code-block:: shell
+
+   $ sudo vim /etc/sysconfig/network-scripts/ifcfg-ovs-pxe
+
+   DEVICE=ovs-pxe
+   ONBOOT=yes
+   HOTPLUG=no
+   NM_CONTROLLED=no
+   PEERDNS=no
+   DEVICETYPE=ovs
+   TYPE=OVSBridge
+   MTU=1500
+   BOOTPROTO=static
+   IPADDR=X.X.X.X
+   PREFIX=24
+   GATEWAY=X.X.X.X
+
+禁用其他没有使用到的网卡。
+
+.. code-block:: shell
+
+   $ sudo vim /etc/sysconfig/network-scripts/ifcfg-enoX
+
+   BOOTPROTO="none"
+   ONBOOT="no"
+
+   $ sudo systemctl restart network
+
+创建 Libvirt 网络
+~~~~~~~~~~~~~~~~~~~~~~~
+
+创建以下网络配置 XML 文件
+
+.. code:: xml
+
+   # file: ovs-mgmt.xml
+
+   <network>
+     <name>ovs-mgmt</name>
+     <forward mode='bridge'/>
+     <bridge name='ovs-mgmt'/>
+     <virtualport type='openvswitch'/>
+   </network>
+
+.. code-block:: shell
+
+   $ sudo virsh net-define ovs-mgmt.xml
+   $ sudo virsh net-start ovs-mgmt
+   $ sudo virsh net-autostart ovs-mgmt
+
+.. code:: xml
+
+   # file: ovs-external.xml
+
+   <network>
+     <name>ovs-external</name>
+     <forward mode='bridge'/>
+     <bridge name='ovs-external'/>
+     <virtualport type='openvswitch'/>
+   </network>
+
+.. code-block:: shell
+
+   $ sudo virsh net-define ovs-external.xml
+   $ sudo virsh net-start ovs-external.xml
+   $ sudo virsh net-autostart ovs-external.xml
+
+.. code:: xml
+
+   # file: ovs-pxe.xml
+
+   <network>
+     <name>ovs-pxe</name>
+     <forward mode='bridge'/>
+     <bridge name='ovs-pxe'/>
+     <virtualport type='openvswitch'/>
+   </network>
+
+.. code-block:: shell
+
+   $ sudo virsh net-define ovs-pxe.xml
+   $ sudo virsh net-start ovs-pxe
+   $ sudo virsh net-autostart ovs-pxe
+
+配置种子节点虚拟机
+----------------------
+
+解压虚拟机镜像到 /var/lib/libvirt/images 目录。
+
+.. code-block:: shell
+
+   $ sudo unxz -k -c CentOS-7-x86_64-GenericCloud-1611.qcow2.xz > /var/lib/libvirt/images/undercloud.qcow2
+   $ sudo unxz -k -c CentOS-7-x86_64-GenericCloud-1611.qcow2.xz > /var/lib/libvirt/images/opsserver.qcow2
+
+调整 VM 大小
+
+.. code-block:: shell
+
+   $ sudo qemu-img resize /var/lib/libvirt/images/undercloud.qcow2 100G
+   $ sudo qemu-img resize /var/lib/libvirt/images/opsserver.qcow2 1T
+
+注入密码
+
+.. code-block:: shell
+
+   $ sudo virt-customize -a /var/lib/libvirt/images/undercloud.qcow2 --root-password password:your_password
+   $ sudo virt-customize -a /var/lib/libvirt/images/opsserver.qcow2 --root-password password:your_password
+
+创建 UnderCloud VM
+
+.. code-block:: shell
+
+   $ sudo virt-install --boot hd --name undercloud --memory=16384 --vcpus=4 --disk path=/var/lib/libvirt/images/undercloud.qcow2 --network network=ovs-pxe --network network=ovs-mgmt  --network network=ovs-external --graphics=vnc,listen='0.0.0.0'  --hvm --os-variant=centos7.0 --noautoconsole --import --noreboot
+
+创建 OpsServer VM
+
+.. code-block:: shell
+
+   $ sudo virt-install --boot hd --name opsserver --memory=16384 --vcpus=4 --disk path=/var/lib/libvirt/images/opsserver.qcow2 ---network network=ovs-mgmt --network network=ovs-pxe --graphics=vnc,listen='0.0.0.0' --hvm --os-variant=centos7.0 --noautoconsole --import --noreboot
+

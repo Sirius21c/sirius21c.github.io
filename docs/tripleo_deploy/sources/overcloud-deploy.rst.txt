@@ -1,0 +1,804 @@
+################
+OverCloud 部署
+################
+
+.. highlight:: shell
+  :linenothreshold: 0
+
+*****************
+部署镜像上传
+*****************
+
+===============
+获取部署镜像
+===============
+
+UOS 云平台部署镜像可以通过访问公司镜像仓库获取。一共需要获取以下四个文件：
+
+* ironic-python-agent.tar
+* ironic-python-agent.tar.md5
+* overcloud-full.tar
+* overcloud-full.tar.md5
+
+为了部署的方便，建议将部署镜像放在 UnderCloud 服务器的 /home/stack/deploy_images 目录下。
+
+===============
+上传部署镜像
+===============
+
+在确认下载到部署节点的镜像 MD5 校验值无误后，就可以将部署镜像上传到 UnderCloud 环境的镜像服务里。操作如下：
+
+::
+
+   tar -xf ironic-python-agent.tar    # 解压 bm-deploy 镜像
+   tar -xf overcloud-full.tar         # 解压 overcloud-full 镜像
+   source ~/stackrc
+   openstack overcloud image upload --image-path /home/stack/deploy_images
+
+===================
+检查镜像上传结果
+===================
+
+
+当上传完部署镜像后，需要检查部署镜像是否上传成功。操作如下：
+
+::
+
+   source ~/stackrc
+   openstack image list
+
+执行查询镜像列表的操作后，可以看到以下 5 个镜像，且镜像的状态都为 **active** ，结果如下所示：
+
+::
+
+   [stack@undercloud ~]$ openstack image list
+   +--------------------------------------+------------------------+--------+
+   | ID                                   | Name                   | Status |
+   +--------------------------------------+------------------------+--------+
+   | 99b98ee1-6fa3-4003-bb9c-d81a517b0cbf | bm-deploy-ramdisk      | active |
+   | e3f4ae74-5145-42fe-9036-43ddce7e98f5 | bm-deploy-kernel       | active |
+   | 9d1e917c-88ca-48cc-913e-33b7f2a48930 | overcloud-full         | active |
+   | 3fea1ba1-ee0a-4a48-948d-1468152ba797 | overcloud-full-initrd  | active |
+   | f5fbaad6-c7ff-4b7e-bdb9-7f772a14c158 | overcloud-full-vmlinuz | active |
+   +--------------------------------------+------------------------+--------+
+
+*****************
+Ironic Node 注册
+*****************
+
+=============
+编写注册模版
+=============
+
+下面是一个 overcloud-nodes.yaml 的演示：
+
+.. code-block:: yaml
+
+   nodes:
+       - name: control-4-1
+         pm_type: pxe_ipmitool
+         pm_addr: 192.168.120.31
+         pm_user: ustack
+         pm_password: password
+         capabilities: 'profile:control,boot_option:local'
+       - name: compute-4-3
+         pm_type: pxe_impitool
+         pm_addr: 192.168.120.68
+         pm_user: ustack
+         pm_password: password
+         capabilities: 'profile:compute,boot_option:local'
+
+模版中各个参数的含义如下表所示：
+
++--------------+-------------------+---------------------------------------------------+
+| 参数         | 用途              | 备注                                              |
++==============+===================+===================================================+
+| name         | 裸机的名称        | 建议按照机柜位置来命名，control-4-1表示4机柜1U位置|
++--------------+-------------------+---------------------------------------------------+
+| pm_type      | 驱动类型          | 支持的 pxe_ipmitool、pxe_drac、pxe_ilo 和 pxe_ssh |
++--------------+-------------------+---------------------------------------------------+
+| pm_addr      | IPMI 地址         | 若裸机是虚拟机时，则是虚拟机的宿主机地址          |
++--------------+-------------------+---------------------------------------------------+
+| pm_user      | IPMI 用户名       | 若裸机是虚拟机时，则是虚拟机的宿主机 SSH 登录名   |
++--------------+-------------------+---------------------------------------------------+
+| pm_password  | IPMI 密码         | 若裸机是虚拟机时，测试虚拟机的宿主机 SSH 访问私钥 |
++--------------+-------------------+---------------------------------------------------+
+| capabilities | 附加信息          | profile 指定节点的角色，boot_option 指定启动方式  |
++--------------+-------------------+---------------------------------------------------+
+| mac          | PXE 网卡 MAC 地址 | 若裸机是虚拟机时，必须填写，物理服务器可省略      |
++--------------+-------------------+---------------------------------------------------+
+
+注意：正式环境，裸机的名称都应该按照机柜位置与其真实落位来进行命名。一方面，这有助于后续的物理节点运维；另一方面，在后续配置 Ceph Crushmap 时候，需要使用到物理服务器真实的物理落位。故这个名称在这边通常不能够随意填写。
+
+===============
+注册
+===============
+
+将生成的裸机信息模版文档导入到部署节点裸机服务中，操作如下：
+
+::
+
+   source ~/stackrc
+   openstack overcloud node import overcloud-nodes.yaml
+
+.. Warning:: 不要把种子节点注册到部署节点裸机服务中。
+
+===================
+检查注册结果
+===================
+
+当注册完裸机后，需要裸机是否成功注册。操作如下：
+
+::
+
+   source ~/stackrc
+   openstack baremetal node list
+
+执行查询裸机列表的操作后，可以看到所有导入进去的裸机的 Provisioning 状态为 **manageable** ，若一直处于 **enroll** 状态，表示裸机注册失败。结果如下所示：
+
+::
+
+   [stack@undercloud ~]$ openstack baremetal node list
+   +--------------------------------------+-------------+---------------+-------------+--------------------+-------------+
+   | UUID                                 | Name        | Instance UUID | Power State | Provisioning State | Maintenance |
+   +--------------------------------------+-------------+---------------+-------------+--------------------+-------------+
+   | 6e7ad118-b605-4cb8-9924-039d6f52c66c | control-4-1 | None          | power off   | manageable         | False       |
+   | fbcf24cd-d8c2-41e7-b515-bad32a5193cd | compute-4-3 | None          | power off   | manageable         | False       |
+   +--------------------------------------+-------------+---------------+-------------+--------------------+-------------+
+
+*****************
+配置ironic server
+*****************
+
+================
+收集配置
+================
+
+我们可以利用裸机服务的 introspection 功能去自动收集裸机的一些有用信息，操作如下：
+
+::
+
+   source ~/stackrc
+   openstack overcloud node introspect --all-manageable --provide
+
+上面命令中 *--all-manageable* 表示对所有的 manageable 状态的裸机进行 introspect 操作， *--provide* 表示收集完成后自动将裸机的 Provisioning 状态调整为 available。
+
+.. Tip:: 裸机的 Maintenance 参数被设置成 True 时，部署节点裸机服务将不会对该裸机节点进行 introspect 操作。
+
+
+================
+检查角色
+================
+
+当收集完裸机成功后，需要检查裸机所分配的角色是否正确。操作如下：
+
+::
+
+   source ~/stackrc
+   openstack overcloud profiles list
+
+执行查询裸机角色的操作后，结果如下所示：
+
+::
+
+   [stack@undercloud ~]$ openstack overcloud profiles list
+   +--------------------------------------+-------------+-----------------+-----------------+-------------------+
+   | Node UUID                            | Node Name   | Provision State | Current Profile | Possible Profiles |
+   +--------------------------------------+-------------+-----------------+-----------------+-------------------+
+   | 6e7ad118-b605-4cb8-9924-039d6f52c66c | control-4-1 | available       | control         |                   |
+   | fbcf24cd-d8c2-41e7-b515-bad32a5193cd | compute-4-3 | available       | compute         |                   |
+   +--------------------------------------+-------------+-----------------+-----------------+-------------------+
+
+================
+设置裸机系统盘
+================
+
+我们需要为每台裸机标记操作系统应该安装在哪个硬盘，在生产环境中，系统盘一般是两块磁盘做的RAID 1，在为操作系统设置系统盘时，
+需要从introspection的结果中，对应的找到要作为系统盘的硬盘号，我们统一使用wwn_with_extension作为标志号，操作如下：
+
+首先将每个裸机的introspection结果保存下来：
+
+.. code-block:: shell
+
+   mkdir baremetal_info && cd baremetal_info
+
+   source ~/stackrc
+   for node in `openstack baremetal node list -c Name -f value`; do openstack baremetal introspection data save --file $node.json $node; done
+
+确认每种节点的系统盘在磁盘列表中的位置：
+
+.. code-block:: shell
+
+  cat $node.json | jq .inventory.disks
+
+举例如下：
+
+.. code-block:: shell
+
+  cat rack2-10-ssd2.json | jq .inventory.disks
+
+  [
+    {
+      "size": 480103981056,
+      "rotational": false,
+      "vendor": "ATA",
+      "name": "/dev/sdj",
+      "wwn_vendor_extension": null,
+      "wwn_with_extension": "0x55cd2e414e1188a2",
+      "model": "SSDSC2BB480G7R",
+      "wwn": "0x55cd2e414e1188a2",
+      "serial": "PHDV72610276480BGN"
+    },
+    {
+      "size": 299439751168,
+      "rotational": true,
+      "vendor": "DELL",
+      "name": "/dev/sdk",
+      "wwn_vendor_extension": "0x2174c25b05d28983",
+      "wwn_with_extension": "0x6509a4c0aa62fe002174c25b05d28983",
+      "model": "PERC H330 Mini",
+      "wwn": "0x6509a4c0aa62fe00",
+      "serial": "6509a4c0aa62fe002174c25b05d28983"
+    }
+  ]
+
+上例中共有两块盘，我们要将第二块盘作为系统盘，在列表中其索引号为1，其硬盘号 wwn_with_extension 为 0x6509a4c0aa62fe002174c25b05d28983，
+在实际生产部署时，要根据实际的规划来确定系统盘在哪个索引号上。
+
+下面以第一块硬盘作为系统盘为例，设置单个裸机的系统盘，操作如下：
+
+.. code-block:: shell
+
+   wwn=`cat $node.json | jq .inventory.disks[0].wwn_with_extension`
+   openstack baremetal node set --property root_device='{"wwn_with_extension": "$wwn"}' $node
+
+以上操作只能针对一个节点来设置系统盘，效率较低。若将所有节点的第一块硬盘设置为系统盘时，可以使用 shell 循环快速设置。操作如下：
+
+.. code-block:: shell
+
+   for node in `openstack baremetal node list -c Name -f value`; \
+   do wwn=`cat $node.json | jq .inventory.disks[0].wwn_with_extension`; \
+   openstack baremetal node set --property root_device='{"wwn_with_extension": "$wwn"}' $node; done
+
+.. Warning::
+
+   * 要根据实际情况确定系统盘在磁盘列表中的索引号，即要相应指到inventory.disks中系统盘所在的位置，索引号从0开始
+   * 可以从硬盘大小，model等字段判断是否为规划的系统盘
+
+================
+检查裸机系统盘
+================
+
+当完成裸机系统盘的设置后，我们检查设置的系统盘是否正常，操作如下：
+
+::
+
+   source ~/stackrc
+   openstack baremetal node list -c Name -f value | xargs -I{} openstack baremetal node show \
+   -c name -c properties -f json {} | jq .properties.root_device
+
+********************
+OverCloud 部署
+********************
+
+部署overcloud需要从以下几点考虑:
+
+* 采用什么架构去部署?
+   * 1 Controller + 1 Compute
+   * 1 Controller + 3 Computes  + 3 Ceph SSD
+   * 3 Controllers + N Computes  + N Ceph SSD + N Ceph HDD
+   * N Controlers + N Networks + N
+* 部署哪些组件？
+   * 默认部署组件(nova, keystone, neutron, cinder, glance, swift, heat, telemetry)
+   * ceph
+   * shadowfiled
+   * cloudkitty
+   * magnum
+   * uplugin
+* 网络架构以及地址规划?
+   * 使用哪些网段？
+   * 网段的分配
+   * 地址分配
+* 后端存储规划?
+   * 使用本地存储还是Ceph ?
+   * ceph是否使用多后端？
+   * 是否需要Cinder
+
+在准备完环境文件以后，我们继续讨论如何针对相应的架构来部署。
+
+================
+准备环境文件
+================
+
+我们需要根据具体的部署规划合理修改相应的配置文件。
+原始模版文件和配置文件位于 */usr/share/uos-heat-templates* 。
+为了便于后期的维护，我们将需要修改的配置文件拷贝至 */home/stack/templates* 目录下，然后再进行修改。
+
+先拷贝这两个目录到stack用户的家目录下:
+
+::
+
+  cp -r /usr/share/uos-heat-templates/environments/templates-example/ /home/stack/templates
+  cp -r /usr/share/uos-heat-templates/nic-configs/linux-bond-with-vlan/ /home/stack/templates/nic-configs
+  sudo chown -R stack:stack templates/
+
+拷贝完成后 */home/stack/templates* 目录示例：
+
+::
+
+   [stack@undercloud ~]$ tree /home/stack/templates
+    ├── cloudname.yaml               # 环境定制文件
+    ├── nic-configs                  # 各个节点的物理网卡配置
+    │   ├── README.md
+    │   ├── ceph-hdd.yaml
+    │   ├── ceph-ssd.yaml
+    │   ├── ceph-storage.yaml
+    │   ├── compute.yaml
+    │   ├── controller.yaml
+    │   ├── networker.yaml
+    │   └── telemetry.yaml
+    ├── uos-network-config           # 环境中的网络配置
+    │   ├── enable-jumbo-frame.yaml
+    │   ├── fixed-vip.yaml
+    │   ├── ips-from-pool-all.yaml
+    │   ├── network-environment.yaml
+    │   ├── network-isolation-networker.yaml
+    │   ├── network-isolation-telemetry.yaml
+    │   └── network-isolation.yaml
+    └── uos-storage.yaml             # 存储配置
+
+==============
+部署架构
+==============
+
+当前UOS支持以下几种Role部署架构:
+
+* Controller + Compute 架构
+* Controller + Compute + Ceph 架构
+* Controller + Compute + Ceph + Networker + Telemetry 架构
+
+Controller + Compute 表示整个架构中只有Controller 和 Compute 节点。Compute节点可以使用hyperconverge scenario
+部署OSD。
+Controller + Compute + Ceph 表示环境中有Controller 、Compute 和 Ceph 这三种role。
+Controller + Compute + Ceph + Networker + Telemetry 是将网络服务和计量服务从控制节点中剥离出来，变成单独的节点。
+
+部署3台或以上Controller时，需要使用pacemaker来管理有状态服务，在deploy中添加 :code:`/usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml` 。部署1台Controller时不要添加。
+
+::
+
+  openstack overcloud deploy --templates \
+    -r /usr/share/uos-heat-templates/roles/controller-compute.yaml \    - Controller + Compute 架构
+    -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml  - 大于等于3个Controller时需启用pacemaker \
+    -e /usr/share/uos-heat-templates/scenario/uos-hyperconverged-ceph.yaml \   - 在Compute节点上部署OSD
+    -e /home/stack/templates/environments/cloudname.yaml   - 各个类型的节点数。
+
+.. tip::
+
+  当Ceph Mon 部署在Controller节点上的时候，不要使用偶数个Controller节点。
+
+===========
+部署组件
+===========
+
+UOS同时提供了一些可选组件:
+
+* Shadowfiend （Billing）
+* Cloudkitty   (Rating)
+* NeutronUpluginAgent
+
+----------------
+开启billing
+----------------
+
+在deploy中添加 :code:`-e /usr/share/uos-heat-templates/environments/uos-billing.yaml`
+
+----------------
+开启Rating
+----------------
+
+在deploy中添加 :code:`-e /usr/share/uos-heat-templates/environments/uos-rating.yaml`
+
+----------------
+启用uplugin
+----------------
+
+在deploy中添加 :code:`-e /usr/share/uos-heat-templates/environments/uos-neutron-uplugin.yaml`
+
+===============
+修改网络配置
+===============
+
+网络配置文件位于templates/uos-network-config/
+
+**network-environment.yaml**
+
+这个yaml用来描述整个环境的网络配置:
+
+* 各个节点的网卡配置文件位置(nic-config)
+* 各个网络的vlan id、cidr、网关、以及地址分配范围。
+* bond模式: 如果nic-config里面使用的是Linux Bond,那么这里就只需要填写Linux Bond (LinuxBondOptions)的参数
+  反之也是，nic-config里面使用的是ovs-bond，这里就只需要填写ovs bond (BondInterfaceOvsOptions)的参数。
+
+.. code-block:: yaml
+
+  #This file is an example of an environment file for defining the isolated
+  #networks and related parameters.
+  resource_registry:
+    # Network Interface templates to use (these files must exist)
+    OS::TripleO::Controller::Net::SoftwareConfig:
+      ../nic-configs/controller.yaml
+    OS::TripleO::Compute::Net::SoftwareConfig:
+      ../nic-configs/compute.yaml
+  #  OS::TripleO::CephStorage::Net::SoftwareConfig:
+  #    ../nic-configs/ceph-storage.yaml
+  #  OS::TripleO::CephSSD::Net::SoftwareConfig:
+  #    ../nic-configs/ceph-ssd.yaml
+  #  OS::TripleO::CephHDD::Net::SoftwareConfig:
+  #    ../nic-configs/ceph-hdd.yaml
+  #  OS::TripleO::Telemetry::Net::SoftwareConfig:
+  #    ../nic-configs/telemetry.yaml
+  #  OS::TripleO::Networker::Net::SoftwareConfig:
+  #    ../nic-configs/networker.yaml
+
+  parameter_defaults:
+    # This section is where deployment-specific configuration is done
+    # CIDR subnet mask length for provisioning network
+    ControlPlaneSubnetCidr: '24'
+    # Gateway router for the provisioning network (or Undercloud IP)
+    ControlPlaneDefaultRoute: 172.16.10.1
+    EC2MetadataIp: 172.16.10.20  # Generally the IP of the Undercloud
+    # Management network
+    # Customize the IP ranges on each network to use for static IPs and VIPs
+    ManagementNetworkVlanID: 1101
+    ManagementNetCidr: 172.16.11.0/24
+    ManagementAllocationPools: [{'start': '172.16.11.30', 'end': '172.16.11.249'}]
+    ManagementInterfaceDefaultRoute: 172.16.11.1
+    # Internal API network
+    # Customize the IP ranges on each network to use for static IPs and VIPs
+    InternalApiNetworkVlanID: 1102
+    InternalApiNetCidr: 172.16.12.0/24
+    InternalApiAllocationPools: [{'start': '172.16.12.30', 'end': '172.16.12.249'}]
+    # Storage network
+    # Customize the IP ranges on each network to use for static IPs and VIPs
+    StorageNetworkVlanID: 1103
+    StorageNetCidr: 172.16.13.0/24
+    StorageAllocationPools: [{'start': '172.16.13.30', 'end': '172.16.13.249'}]
+    # Storage management network
+    # Customize the IP ranges on each network to use for static IPs and VIPs
+    StorageMgmtNetworkVlanID: 1104
+    StorageMgmtNetCidr: 172.16.14.0/24
+    StorageMgmtAllocationPools: [{'start': '172.16.14.30', 'end': '172.16.14.249'}]
+    # Tenant network
+    # Customize the IP ranges on each network to use for static IPs and VIPs
+    TenantNetworkVlanID: 1105
+    TenantNetCidr: 172.16.15.0/24
+    TenantAllocationPools: [{'start': '172.16.15.30', 'end': '172.16.15.249'}]
+    # External network
+    # Customize the IP ranges on each network to use for static IPs and VIPs
+    ExternalNetworkVlanID: 1106
+    ExternalNetCidr: 172.16.16.0/24
+    ExternalAllocationPools: [{'start': '172.16.16.30', 'end': '172.16.16.249'}]
+    # Gateway router for the external network
+    ExternalInterfaceDefaultRoute: 172.16.16.1
+    # Uncomment if using the Management Network (see network-management.yaml)
+    # Use either this parameter or ControlPlaneDefaultRoute in the NIC templates
+    # Define the DNS servers (maximum 2) for the overcloud nodes
+    DnsServers: ["119.29.29.29"]
+    # Set to empty string to enable multiple external networks or VLANs
+    NeutronExternalNetworkBridge: "''"
+    # The tunnel type for the tenant network (vxlan or gre). Set to '' to disable tunneling.
+    NeutronTunnelTypes: 'vxlan'
+    NeutronTenantNetwork: 'vxlan'
+    # ovs-bond bonding options e.g. "lacp=active bond_mode=balance-slb" and do
+    # not use bond_mode=balance-tcp
+    #BondInterfaceOvsOptions: "lacp=active bond_mode=balance-slb"
+    # either use ovs-bond or linux-bond. Recommend to use linux bond
+    # linux bonding options, e.g. "mode=4 lacp_rate=1 updelay=1000 miimon=100"
+    LinuxBondOptions: 'mode=802.3ad'
+    NeutronBridgeMappings: "datacentre:br-ex"
+    NeutronNetworkVLANRanges:  "datacentre:1116:1120"
+    # If you want update overcloud's nic-config after create stack
+    # uncomment follow option,and after update comment it
+    # NetworkDeploymentActions: ['CREATE', 'UPDATE']
+
+**network-isolation.yaml**
+
+这个文件定义了UOS的网络。
+
+假如我们要关掉Management这条网络，需要做以下几件事情:
+
+* 在network-isolation.yaml里面注释掉 :code:`OS::TripleO::Network::Management` 这一行
+* 在network-isolation.yaml里面注释掉所有节点的 :code:`ManagementPort`,
+  比如controller节点 :code:`#OS::TripleO::Controller::Ports::ManagementPort`
+* 在nic-configs目录中，去掉所有节点的Management网络
+
+.. code-block:: yaml
+
+  OS::TripleO::Network::External: /usr/share/openstack-tripleo-heat-templates/network/external.yaml
+  OS::TripleO::Network::InternalApi: /usr/share/openstack-tripleo-heat-templates/network/internal_api.yaml
+  OS::TripleO::Network::StorageMgmt: /usr/share/openstack-tripleo-heat-templates/network/storage_mgmt.yaml
+  OS::TripleO::Network::Storage: /usr/share/openstack-tripleo-heat-templates/network/storage.yaml
+  OS::TripleO::Network::Tenant: /usr/share/openstack-tripleo-heat-templates/network/tenant.yaml
+  #OS::TripleO::Network::Management: /usr/share/openstack-tripleo-heat-templates/network/management.yaml
+  # Port assignments for the VIPs
+  OS::TripleO::Network::Ports::ExternalVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml
+  OS::TripleO::Network::Ports::InternalApiVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/internal_api.yaml
+  OS::TripleO::Network::Ports::StorageVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage.yaml
+  OS::TripleO::Network::Ports::StorageMgmtVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage_mgmt.yaml
+  OS::TripleO::Network::Ports::RedisVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/vip.yaml
+
+  # Port assignments for service virtual IPs for the controller role
+  OS::TripleO::Controller::Ports::RedisVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/vip.yaml
+  # Port assignments for the controller role
+  OS::TripleO::Controller::Ports::ExternalPort: /usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml
+  OS::TripleO::Controller::Ports::InternalApiPort: /usr/share/openstack-tripleo-heat-templates/network/ports/internal_api.yaml
+  OS::TripleO::Controller::Ports::StoragePort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage.yaml
+  OS::TripleO::Controller::Ports::StorageMgmtPort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage_mgmt.yaml
+  OS::TripleO::Controller::Ports::TenantPort: /usr/share/openstack-tripleo-heat-templates/network/ports/tenant.yaml
+  #OS::TripleO::Controller::Ports::ManagementPort: /usr/share/openstack-tripleo-heat-templates/network/ports/management.yaml
+
+  # Port assignments for the compute role
+  OS::TripleO::Compute::Ports::ExternalPort: /usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml
+  OS::TripleO::Compute::Ports::InternalApiPort: /usr/share/openstack-tripleo-heat-templates/network/ports/internal_api.yaml
+  OS::TripleO::Compute::Ports::StoragePort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage.yaml
+  OS::TripleO::Compute::Ports::StorageMgmtPort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage_mgmt.yaml
+  OS::TripleO::Compute::Ports::TenantPort: /usr/share/openstack-tripleo-heat-templates/network/ports/tenant.yaml
+  #OS::TripleO::Compute::Ports::ManagementPort: /usr/share/openstack-tripleo-heat-templates/network/ports/management.yaml
+
+**network-isolation-networker.yaml**
+
+当有独立的networker节点时，在deploy.sh中引用此模板,此模板只定义了networker节点所拥有的网络。
+
+**network-isolation.telemetry.yaml**
+
+当有独立的telemetry节点时，在deploy.sh中引用此模板,此模板只定义了telemetry节点所拥有的网络。
+
+**ips-from-pool-all.yaml  (已弃用)**
+
+当需要为每个节点手动指定IP时，使用这个模板。
+
+.. warning::
+
+  最好不要为每个节点单独定义IP地址，这样在未来扩容的时候会有问题。
+
+**enable-jumbo-frame.yaml**
+
+当前网络环境具备巨型帧时，在部署时引用这个模板。
+
+.. code-block:: yaml
+
+   parameter_defaults:
+     # MTU value for non pxe port
+     MTU: 9216
+     ExtraConfig:
+     #neutron mtu config
+       neutron::plugins::ml2::path_mtu: 1500
+       neutron::global_physnet_mtu: 9200
+
+===============
+主机网卡配置
+===============
+
+各个主机的网卡配置nic-configs文件夹中。
+
+以controller 为例, 以下配置文件描述了:
+
+* ControlPlaneIP(PXE IP) 直接使用了第一张千兆网卡,没有使用网桥
+* 用ovs 做了br-ex网桥,两张万兆网卡做了linux bond
+* External Network ,Inetnal Network ... 等等这些网络IP全部建在br-ex里。
+
+.. code-block:: yaml
+
+  network_config:
+    -
+      type: interface
+      name: nic3
+      use_dhcp: false
+      addresses:
+        -
+          ip_netmask:
+            list_join:
+              - '/'
+              - - {get_param: ControlPlaneIp}
+                - {get_param: ControlPlaneSubnetCidr}
+      routes:
+        -
+          ip_netmask: 169.254.169.254/32
+          next_hop: {get_param: EC2MetadataIp}
+    -
+      type: ovs_bridge
+      name: {get_input: bridge_name}
+      mtu: {get_param: MTU}
+      dns_servers: {get_param: DnsServers}
+      members:
+        -
+          type: linux_bond
+          name: bond1
+          bonding_options: {get_param: LinuxBondOptions}
+          mtu: {get_param: MTU}
+          members:
+            -
+              type: interface
+              name: nic1
+              mtu: {get_param: MTU}
+              primary: true
+            -
+              type: interface
+              name: nic2
+        -
+          type: vlan
+          device: bond1
+          vlan_id: {get_param: ExternalNetworkVlanID}
+          mtu: {get_param: MTU}
+          addresses:
+            -
+              ip_netmask: {get_param: ExternalIpSubnet}
+          routes:
+            -
+              default: true
+              next_hop: {get_param: ExternalInterfaceDefaultRoute}
+        -
+          type: vlan
+          device: bond1
+          vlan_id: {get_param: InternalApiNetworkVlanID}
+          mtu: {get_param: MTU}
+          addresses:
+            -
+              ip_netmask: {get_param: InternalApiIpSubnet}
+        -
+          type: vlan
+          device: bond1
+          vlan_id: {get_param: StorageNetworkVlanID}
+          mtu: {get_param: MTU}
+          addresses:
+            -
+              ip_netmask: {get_param: StorageIpSubnet}
+        -
+          type: vlan
+          device: bond1
+          vlan_id: {get_param: StorageMgmtNetworkVlanID}
+          mtu: {get_param: MTU}
+          addresses:
+            -
+              ip_netmask: {get_param: StorageMgmtIpSubnet}
+        -
+          type: vlan
+          device: bond1
+          vlan_id: {get_param: TenantNetworkVlanID}
+          mtu: {get_param: MTU}
+          addresses:
+            -
+              ip_netmask: {get_param: TenantIpSubnet}
+
+===================
+部署 UOS Storage
+===================
+
+目前UOS Storage 支持以下几种部署方式:
+
+* 计算节点部署OSD
+* 存储节点部署OSD
+* 计算节点(SSD)+存储节点(HDD)
+
+------------------
+计算节点部署OSD
+------------------
+
+计算节点部署OSD，俗称计算存储融合节点。
+
+.. include:: overcloud-deploy/edit-uos-storage.rst
+
+在deploy.sh中添加 :code:`-e /usr/share/uos-heat-templates/environments/scenario/hyperconverged-compute.yaml`
+
+------------------
+存储节点部署OSD
+------------------
+
+存储节点部署OSD指的是计算存储分离，计算节点只负责计算，存储节点只负责存储。
+
+在 **/home/stack/templates/cloudname.yaml** 中指定存储节点的数量。
+如果是SSD存储节点就填写CephSSDCount,如果是HDD存储节点，就填写CephHDDCount。
+
+.. code-block:: yaml
+
+  parameter_defaults:
+    ## cluster node setting
+    ControllerCount: 3
+    ComputeCount: 3
+    CephSSDCount: 10
+    CephHDDCount: 0
+
+.. include:: overcloud-deploy/edit-uos-storage.rst
+
+------------------------------
+计算节点(SSD)+存储节点(HDD)
+------------------------------
+
+计算节点和存储节点同时需要部署两种不同类型的OSD。
+
+在 **/home/stack/templates/cloudname.yaml** 中指定计算节点和存储节点的数量。
+如果是SSD存储节点就填写CephSSDCount,如果是HDD存储节点，就填写CephHDDCount。
+
+.. code-block:: yaml
+
+  parameter_defaults:
+    ## cluster node setting
+    ControllerCount: 3
+    ComputeCount: 10
+    CephSSDCount: 0
+    CephHDDCount: 10
+
+我们需要通过hieradata同时指定两种不同类型的节点osd数量以及Journal盘。
+在ExtraConfig中的hieradata指定计算节点的osd，通过NodeDataLookup来指定存储节点节点的hieradata.
+
+1. 拷贝 :code:`/usr/share/uos-heat-templates/environments/uos-ceph-node-specific.yaml` 到 :code:`/home/stack/tempaltes/`,
+编辑 :code:`/home/stack/tempaltes/uos-ceph-node-specific.yaml`:
+
+2. 填写NodeDataLookup, NodeDataLookup需要物理机的node uuid,可以通过以下命令获取node uuid
+:code:`openstack baremetal introspection data save NODE-ID | jq .extra.system.product.uuid`
+
+
+.. code-block:: yaml
+
+  resource_registry:
+    OS::TripleO::CephHDDExtraConfigPre: /usr/share/openstack-tripleo-heat-templates/puppet/extraconfig/pre_deploy/per_node.yaml
+
+  parameter_defaults:
+    NodeDataLookup: |
+      {"00000000-0000-0000-0000-0CC47A50AAFC": # node uuid
+        {"ceph::profile::params::osds":
+         {"/dev/sdb": {"journal": "/dev/sdg"},
+          "/dev/sdc": {"journal": "/dev/sdg"}}},
+      "00000000-0000-0000-0000-0CC47A50B368":  # node uuid
+        {"ceph::profile::params::osds":
+         {"/dev/sdb": {"journal": "/dev/sdg"},
+          "/dev/sdc": {"journal": "/dev/sdg"}}}}
+
+写完NodeDataLookup后，用python进行验证。如果以下代码可以正常输出NodeDatalookup则表示格式正确。
+
+.. code-block:: python
+
+  import json,yaml
+  json.loads(yaml.load(open('uos-ceph-node-specific.yaml', 'r'))['parameter_defaults']['NodeDataLookup'])
+
+.. warning::
+
+  在NodeDataLookup中不要出现单引号(')
+
+===================
+部署 OverCloud
+===================
+
+编写deploy.sh
+
+拷贝 :code:`/usr/share/uos-heat-templates/deploy.sh` 到 :code:`/home/stack/`
+根据实际情况编辑deploy.sh
+
+::
+
+  openstack overcloud deploy --templates --validation-warnings-fatal \
+  -r /usr/share/uos-heat-templates/roles/controller-compute.yaml \                     - 部署角色
+  -e /usr/share/uos-heat-templates/environments/uos-resource-registry.yaml \           - 注册uos resource
+  -e /usr/share/uos-heat-templates/environments/uos-firewall-disabled.yaml \           - 禁用overcloud 防火墙
+  -e /usr/share/uos-heat-templates/environments/uos-services-config.yaml \             - UOS 默认配置
+  -e /usr/share/uos-heat-templates/environments/uos-portal.yaml \                      - 开启UOS界面
+  -e /usr/share/uos-heat-templates/environments/uos-baremetal-flavor.yaml \            - 各个节点部署时所用的flavor
+  -e /usr/share/uos-heat-templates/environments/uos-ceph-environment.yaml \            - UOS Ceph 默认配置
+  -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml \  - 启用pacemaker(controller >=3时)
+  -e /home/stack/templates/environments/uos-network-config/network-isolation.yaml \    - 网络分离策略
+  -e /home/stack/templates/environments/uos-network-config/network-environment.yaml \  - 网络配置(需要修改)
+  -e /home/stack/templates/environments/uos-network-config/fixed-vip.yaml \            - 各个网络的VIP地址(需要修改)
+  -e /home/stack/templates/environments/uos-network-config/uos-storage.yaml \          - UOS Storage (Ceph)(需要修改)
+  -e /home/stack/templates/environments/{{ cloudname }}.yaml \                         - 环境定制参数(需要修改),cloudname 替换成实际环境名称
+  #  -e /usr/share/uos-heat-templates/environments/ceph-radosgw.yaml \                   - 启用ceph rgw(根据实际情况启用)
+  #  -e /usr/share/uos-heat-templates/scenario/uos-hyperconverged-ceph.yaml \            - 启用融合节点
+  #  -e /usr/share/uos-heat-templates/environments/disable-security-group.yaml           - 禁用安全组(不推荐)
+
+
+运行deploy.sh
+
+::
+
+  tmux
+  bash deploy.sh
+

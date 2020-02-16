@@ -1,0 +1,714 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>2. 环境规划与准备 &mdash; UOS Director  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="static/favicon-v2.ico"/>
+  
+
+  
+  
+    
+  
+
+  
+  
+    <link rel="stylesheet" href="static/css/theme.css" type="text/css" />
+  
+
+  
+
+  <link rel="stylesheet" href="static/css/header.css" />
+  <link rel="stylesheet" href="static/css/normalize.css" />
+  <link rel="stylesheet" href="static/css/footer.css" />
+        <link rel="index" title="Index" href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+
+    <link rel="top" title="UOS Director  documentation" href="index.html"/>
+        <link rel="next" title="3. 种子节点部署" href="seed.html"/>
+        <link rel="prev" title="1. UOS Director 简介" href="intro.html"/> 
+
+  
+  <script type="text/javascript" src="static/js/modernizr.min.js"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+    <div class="nav">
+      <a href="https://www.ustack.com" title="UnitedStack" class="logo"></a>
+      <div class="nav-inner-r">
+        <ul class="nav-menu"></ul>
+      </div>
+    </div>
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+
+        
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">1. UOS Director 简介</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2. 环境规划与准备</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">2.1. 物理网络规划</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">2.1.1. 交换机配置要求</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">2.1.2. 交换机冗余架构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">2.1.3. 各节点接入</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">2.1.4. 交换机网络规划</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">2.1.5. 服务器网络规划</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ip">2.2. IP 地址规划</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">2.2.1. 整体网络规划（一般场景）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">2.2.2. 控制节点网络规划</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">2.2.3. 网络节点网络规划</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">2.2.4. 计算存储融合节点网络规划</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">2.3. 服务器配置</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">2.3.1. 配置远程管理卡</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bios">2.3.2. 配置 BIOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#raid">2.3.3. 配置 RAID</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="seed.html">3. 种子节点部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="undercloud-deploy.html">4. UnderCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overcloud-deploy.html">5. OverCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="add-on.html">6. 额外组件部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="post-deploy.html">7. OverCloud 初始化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opstools/index.html">8. 运维工具部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">9. UOS 升级</a></li>
+</ul>
+
+        
+      </div>
+
+      <div class="wy-side-nav-search">
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">UOS Director</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>2. 环境规划与准备</li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="id1">
+<h1>2. 环境规划与准备<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>本章介绍 UOS 云平台部署之前需要做的各种规划，比如服务器规划、网络规划、IP 地址规划等。</p>
+<div class="section" id="id2">
+<h2>2.1. 物理网络规划<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>为提供稳定的云服务，物理网络的稳定性至关重要，UOS 云平台为此设计了服务器以及交换机的全冗余架构，最大程度的避免单点故障。</p>
+<div class="section" id="id3">
+<h3>2.1.1. 交换机配置要求<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>接入交换机，每个机柜需要 1 台带 4 口 40G 全线速的 48 口全万兆 L2 交换机和 1 个带 2 口 10G 全线速的 48 口全千兆 L2 交换机（单机柜机器数量大于 10，且不考虑后续扩容，否则可用 24 口）。</p>
+<p>核心交换机，需支持虚拟化技术，如华为 CSS，思科 vPC，华三 IRF2，Force10 VLT 等，另外核心交换机需要全 40G L3 交换机。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="64%" />
+<col width="9%" />
+<col width="9%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">设备名称</th>
+<th class="head">配置说明</th>
+<th class="head">品牌</th>
+<th class="head">数量</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>核心交换机</td>
+<td>全 40G 线速的 L3 交换机支持虚拟化技术</td>
+<td>不限</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>万兆交换机</td>
+<td>48 口全万兆 L2 交换机 4 个 40G 全线速端口</td>
+<td>不限</td>
+<td>3</td>
+</tr>
+<tr class="row-even"><td>千兆交换机</td>
+<td>48 口全千兆 L2 交换机 2 个 10G 上行端口</td>
+<td>不限</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>为提供接入交换机的冗余能力，我们强烈建议服务器使用链路聚合做双上联，理论上所有支持 VPC 或支持堆叠的交换机都可以使用，如 VPC（思科）、CSS（华为）、IRF（华三）、VLT or stacking（Dell）。</p>
+</div>
+<div class="section" id="id4">
+<h3>2.1.2. 交换机冗余架构<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>交换机冗余架构通过交换机的堆叠技术，将多个交换机合并成一个逻辑交换机使用，任意一台交换机故障，不会影响正常业务，交换机冗余架构示意图如下：</p>
+<p><strong>物理连接图</strong></p>
+<img alt="images/uos_phy_net.png" class="align-center" src="images/uos_phy_net.png" />
+<p><strong>逻辑架构图</strong></p>
+<img alt="images/uos_logic_net.png" class="align-center" src="images/uos_logic_net.png" />
+</div>
+<div class="section" id="id5">
+<h3>2.1.3. 各节点接入<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>UOS 云平台中可以制定多种角色的节点，分别承担不同的工作，各节点和交换机的接入示意图如下：</p>
+<p><strong>控制节点</strong></p>
+<p>控制节点提供整个 OpenStack 的控制平面，包含各个服务 API，数据库，消息队列以及高可用组件等，其接入交换机示意图如下：</p>
+<img alt="images/uos_ctl_net.png" class="align-center" src="images/uos_ctl_net.png" />
+<p><strong>计算节点</strong></p>
+<p>计算节点为平台提供计算资源，由于需要使用网络以及存储资源，因此需要接入万兆交换机，其接入交换机示意图如下：</p>
+<img alt="images/uos_comp_net.png" class="align-center" src="images/uos_comp_net.png" />
+<p><strong>网络节点</strong></p>
+<p>网络节点为平台提供网络资源，包括二层网络，三层路由，以及 DHCP 等服务，其接入交换机示意图如下：</p>
+<img alt="images/uos_net_net.png" class="align-center" src="images/uos_net_net.png" />
+<p><strong>存储节点</strong></p>
+<p>存储节点为平台提供存储资源，其接入交换机示意图如下：</p>
+<img alt="images/uos_storage_net.png" class="align-center" src="images/uos_storage_net.png" />
+</div>
+<div class="section" id="id6">
+<h3>2.1.4. 交换机网络规划<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>UOS 为最大程度的提供服务的可靠性和稳定性，按照实际需求，共抽象出了 7 种网络类型：</p>
+<ol class="arabic simple">
+<li>部署网络（Privisioning Network），主要用于部署时提供 PXE 和 DHCP 网络</li>
+<li>存储网络（Storage Network），主要用于存储对外访问网络</li>
+<li>存储管理网（Storage Management Network），主要用于存储内部数据交互网络</li>
+<li>租户网络（Tenant Network），主要用于 SDN 网络</li>
+<li>内部网络（Internal Network），主要用于内部 API 交互、RPC、数据库连接网络</li>
+<li>外部网络（External Network），主要用于访问面板以及开放 API 的网络</li>
+<li>IPMI 网络（IPMI Network），用于远程管理物理机的网络</li>
+</ol>
+<p>推荐将这 7 种网络隔离到不同的 VLAN 中，以提高性能和可靠性，推荐的 VLAN 规划如下：</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="13%" />
+<col width="29%" />
+<col width="43%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">网络类型</th>
+<th class="head">VLAN ID</th>
+<th class="head">CIDR</th>
+<th class="head">用途</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>部署网络</td>
+<td>1101</td>
+<td>10.x.1.0/24</td>
+<td>用于部署时提供 PXE 和 DHCP 网络</td>
+</tr>
+<tr class="row-odd"><td>内部网络</td>
+<td>1102</td>
+<td>10.x.2.0/24</td>
+<td>用于内部API交互，RPC，数据库连接网络</td>
+</tr>
+<tr class="row-even"><td>存储网络</td>
+<td>1103</td>
+<td>10.x.3.0/24</td>
+<td>用于存储对外访问网络</td>
+</tr>
+<tr class="row-odd"><td>存储管理网络</td>
+<td>1104</td>
+<td>10.x.4.0/24</td>
+<td>用于存储内部数据交互网络</td>
+</tr>
+<tr class="row-even"><td>租户网络</td>
+<td>1105</td>
+<td>10.x.5.0/24</td>
+<td>用于计算节点与网络节点之间虚拟机数据通信</td>
+</tr>
+<tr class="row-odd"><td>外部网络</td>
+<td>1106</td>
+<td>10.x.6.0/24</td>
+<td>用于访问面板以及开放API的网络</td>
+</tr>
+<tr class="row-even"><td>IPMI 网络</td>
+<td>1107</td>
+<td>10.x.7.0/24</td>
+<td>用于远程管理物理机的网络</td>
+</tr>
+<tr class="row-odd"><td>FIP 网络</td>
+<td>1108 ~ 1115</td>
+<td>10.x.8.0/24 ~ 10.x.15.0/24</td>
+<td>用于虚拟机 FIP 网络</td>
+</tr>
+<tr class="row-even"><td>VLAN 网络</td>
+<td>1116 ~ yyyy</td>
+<td>10.x.16.0/24 ~ 10.x.z.0/24</td>
+<td>用于给租户直接使用的 VLAN 网络</td>
+</tr>
+</tbody>
+</table>
+<p>注意：VLAN 号，以及 CIDR 为推荐设置，并没有强制要求，可以根据客户现场的网络情况灵活进行调整，CIDR 第二位，建议每家客户不一样，方便打通专有VPN。</p>
+</div>
+<div class="section" id="id7">
+<h3>2.1.5. 服务器网络规划<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p>与交换机网络规划相对应，服务器的网络规划如下图：</p>
+<img alt="images/uos_net.png" class="align-center" src="images/uos_net.png" />
+<p>为了方便运维，将 OverCloud 节点的第一块千兆网口规划为部署网络（Provisioning Network），在 BIOS 中需要将该网卡设置为 PXE 启动，设置为 Native VLAN，对应的交换机端口需要配置成 Access VLAN；剩下的两块万兆网卡需要做 Bonding，在实际部署时，会划分为 Tagged VLAN 子接口，对应的交换机端口需要配置为 Trunk VLAN，允许从该网卡发出的带 tag 的 VLAN 通过。</p>
+<p>服务器根据以上物理网络配置，不同网卡划分到不同的 VLAN 中，规划如下：</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="26%" />
+<col width="43%" />
+<col width="17%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">服务器类型</th>
+<th class="head">千兆网口1（em1）</th>
+<th class="head">万兆网口1（em3) / 万兆网口2（em4）</th>
+<th class="head">远程管理网口</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>控制节点</td>
+<td>Native VLAN
+（Access VLAN 1101）</td>
+<td>Tagged VLAN
+（Trunk VLAN 1102-1106）</td>
+<td>VLAN 1107</td>
+</tr>
+<tr class="row-odd"><td>计算节点</td>
+<td>Native VLAN
+（Access VLAN 1101）</td>
+<td>Tagged VLAN
+（Trunk VLAN 1102-1106、1116-yyyy）</td>
+<td>VLAN 1107</td>
+</tr>
+<tr class="row-even"><td>网络节点</td>
+<td>Native VLAN
+（Access VLAN 1101）</td>
+<td>Tagged VLAN
+（Trunk VLAN 1102-1106、1108-1115）</td>
+<td>VLAN 1107</td>
+</tr>
+<tr class="row-odd"><td>存储节点</td>
+<td>Native VLAN
+（Access VLAN 1101）</td>
+<td>Tagged VLAN
+（Trunk VLAN 1102-1106）</td>
+<td>VLAN 1107</td>
+</tr>
+</tbody>
+</table>
+<p>注意：在实际部署中，网卡编号根据服务器硬件配置不同，顺序可能不同，可能 em3、em4 为千兆口，em1、em2 为万兆口，需要根据实际情况调整。</p>
+</div>
+</div>
+<div class="section" id="ip">
+<h2>2.2. IP 地址规划<a class="headerlink" href="#ip" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id8">
+<h3>2.2.1. 整体网络规划（一般场景）<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="17%" />
+<col width="37%" />
+<col width="10%" />
+<col width="6%" />
+<col width="19%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">服务器角色</th>
+<th class="head">软件角色</th>
+<th class="head">网段</th>
+<th class="head">IP尾号</th>
+<th class="head">数量</th>
+<th class="head">说明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>网络设备</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>1 ~ 18</td>
+<td>18</td>
+<td>网关 &amp; 交换机</td>
+</tr>
+<tr class="row-odd"><td rowspan="4">种子节点</td>
+<td>&#160;</td>
+<td>External</td>
+<td>19</td>
+<td>1</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>UnderCloud</td>
+<td>PXE</td>
+<td>20</td>
+<td>1</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>zabbix</td>
+<td>PXE</td>
+<td>21 ~ 23</td>
+<td>3</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>&#160;</td>
+<td>24 ~ 29</td>
+<td>6</td>
+<td>扩展预留</td>
+</tr>
+<tr class="row-odd"><td rowspan="6">VIP</td>
+<td>PXE VIP</td>
+<td>PXE</td>
+<td>30</td>
+<td>1</td>
+<td>VIP 范围：30-39</td>
+</tr>
+<tr class="row-even"><td>Storage VIP</td>
+<td>Storage</td>
+<td>30</td>
+<td>1</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>Storage MGMT VIP</td>
+<td>Storage MGMT</td>
+<td>30</td>
+<td>1</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>Service VIP</td>
+<td>Internal</td>
+<td>31</td>
+<td>1</td>
+<td>Redis</td>
+</tr>
+<tr class="row-odd"><td>Internal API VIP</td>
+<td>Internal</td>
+<td>30</td>
+<td>1</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>External API VIP</td>
+<td>External</td>
+<td>30</td>
+<td>1</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>30 ~ 40</td>
+<td>11</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>控制节点</td>
+<td>controller</td>
+<td>MGMT、Storage、Storage MGMT、
+Internal、External、Tenant</td>
+<td>41 ~ 43</td>
+<td>3</td>
+<td>控制节点为奇数</td>
+</tr>
+<tr class="row-odd"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>44 ~ 50</td>
+<td>7</td>
+<td>预留</td>
+</tr>
+<tr class="row-even"><td>网络节点</td>
+<td>Neutron</td>
+<td>MGMT、Storage、Storage MGMT、Internal</td>
+<td>51 ~ 60</td>
+<td>10</td>
+<td>默认部署 3 台</td>
+</tr>
+<tr class="row-odd"><td>计算节点</td>
+<td>nova / Ceph OSD</td>
+<td>MGMT、Storage、Storage MGMT、Internal</td>
+<td>61 ~ 199</td>
+<td>139</td>
+<td>宿主机</td>
+</tr>
+<tr class="row-even"><td>存储节点</td>
+<td>Ceph OSD</td>
+<td>MGMT、Storage、Storage MGMT、Internal</td>
+<td>249 ~ 200</td>
+<td>50</td>
+<td>从 249 向 200 部署</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id9">
+<h3>2.2.2. 控制节点网络规划<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="16%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">网络</th>
+<th class="head">地址</th>
+<th class="head">用途</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>External API</td>
+<td>x.x.6.x</td>
+<td>OverCloud External API 的地址，用于 OverCloud 节点之外的外部访问</td>
+</tr>
+<tr class="row-odd"><td>Internal API</td>
+<td>x.x.5.x</td>
+<td>OverCloud Internal API 的地址，用于 OverCloud 节点之间内部访问</td>
+</tr>
+<tr class="row-even"><td>PXE</td>
+<td>DHCP(x.x.0.x)</td>
+<td>部署操作系统</td>
+</tr>
+<tr class="row-odd"><td>Storage</td>
+<td>x.x.2.x</td>
+<td>OverCloud 节点的 Ceph monitor 与 Ceph OSD 通讯</td>
+</tr>
+<tr class="row-even"><td>Storage MGMT</td>
+<td>x.x.3.x</td>
+<td>OverCloud 节点 Ceph OSD 之间通讯的网络</td>
+</tr>
+<tr class="row-odd"><td>Tenant</td>
+<td>x.x.4.x</td>
+<td>VxLAN 情况下，Tenant 网络的地址</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id10">
+<h3>2.2.3. 网络节点网络规划<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="16%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">网络</th>
+<th class="head">地址</th>
+<th class="head">用途</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>External API</td>
+<td>x.x.6.x</td>
+<td>OverCloud External API 的地址，用于 OverCloud 节点之外的外部访问</td>
+</tr>
+<tr class="row-odd"><td>Internal API</td>
+<td>x.x.5.x</td>
+<td>OverCloud Internal API 的地址，用于 OverCloud 节点之间内部访问</td>
+</tr>
+<tr class="row-even"><td>PXE</td>
+<td>DHCP(x.x.0.x)</td>
+<td>部署操作系统</td>
+</tr>
+<tr class="row-odd"><td>Tenant</td>
+<td>x.x.4.x</td>
+<td>VxLAN 情况下，Tenant 网络的地址</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id11">
+<h3>2.2.4. 计算存储融合节点网络规划<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="16%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">网络</th>
+<th class="head">地址</th>
+<th class="head">用途</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Internal API</td>
+<td>x.x.5.x</td>
+<td>OverCloud Internal API 的地址，用于 OverCloud节 点之间内部访问</td>
+</tr>
+<tr class="row-odd"><td>PXE</td>
+<td>DHCP(x.x.0.x)</td>
+<td>部署操作系统</td>
+</tr>
+<tr class="row-even"><td>Storage</td>
+<td>x.x.2.x</td>
+<td>OverCloud 节点的 Ceph monitor 与 Ceph OSD 通讯</td>
+</tr>
+<tr class="row-odd"><td>Storage MGMT</td>
+<td>x.x.3.x</td>
+<td>OverCloud 节点 Ceph OSD 之间通讯的网络</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="id12">
+<h2>2.3. 服务器配置<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id13">
+<h3>2.3.1. 配置远程管理卡<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<p>远程管理卡可以实现远程对硬件、电源的管理和监控，在自动化部署的环节中，需要收集每台服务器的 IPMI 地址、用户名、密码等信息，因此需要设置好这些信息。</p>
+<p><strong>Dell iDRAC 配置</strong></p>
+<ol class="arabic simple">
+<li>配置用户名、密码</li>
+</ol>
+<img alt="images/dell_idrac_user.png" class="align-center" src="images/dell_idrac_user.png" />
+<ol class="arabic simple" start="2">
+<li>配置 IP、Gateway 等（IP 和管理网 IP 规划对应，默认为 10.x.8.y）</li>
+</ol>
+<img alt="images/dell_idrac_net.png" class="align-center" src="images/dell_idrac_net.png" />
+</div>
+<div class="section" id="bios">
+<h3>2.3.2. 配置 BIOS<a class="headerlink" href="#bios" title="Permalink to this headline">¶</a></h3>
+<p>BIOS 配置主要有：</p>
+<ul class="simple">
+<li>CPU 硬件虚拟机的开启</li>
+<li>启动模式设置为 BIOS 或 Legacy（不使用 UEFI）</li>
+<li>第一张千兆网卡设置为 PXE 启动</li>
+</ul>
+<p>不同品牌不同型号的服务器设置可能不相同，下列为各种常见品牌服务器的 BIOS 配置。</p>
+<p><strong>Dell 服务器 BIOS 配置</strong></p>
+<ol class="arabic simple">
+<li>打开 Intel VT</li>
+</ol>
+<img alt="images/dell_bios_intel_vt.png" class="align-center" src="images/dell_bios_intel_vt.png" />
+<ol class="arabic simple" start="2">
+<li>设置启动顺序，第一是 PXE 网卡，第二是硬盘（RAID 卡）</li>
+</ol>
+<img alt="images/dell_bios_boot_order.png" class="align-center" src="images/dell_bios_boot_order.png" />
+<ol class="arabic simple" start="3">
+<li>设置网卡，使第一块网卡作为 PXE 启动</li>
+</ol>
+<img alt="images/dell_bios_boot_nic.png" class="align-center" src="images/dell_bios_boot_nic.png" />
+<img alt="images/dell_bios_boot_nic_setting.png" class="align-center" src="images/dell_bios_boot_nic_setting.png" />
+<ol class="arabic simple" start="4">
+<li>设置启动模式：Legacy（不支持 UEFI）</li>
+</ol>
+<img alt="images/dell_bios_boot_mode.png" class="align-center" src="images/dell_bios_boot_mode.png" />
+<p><strong>曙光服务器 BIOS 配置</strong></p>
+<ol class="arabic simple">
+<li>设置启动模式</li>
+</ol>
+<img alt="images/sugon_bios_boot.jpg" class="align-center" src="images/sugon_bios_boot.jpg" />
+<img alt="images/sugon_bios_boot_mode.jpg" class="align-center" src="images/sugon_bios_boot_mode.jpg" />
+</div>
+<div class="section" id="raid">
+<h3>2.3.3. 配置 RAID<a class="headerlink" href="#raid" title="Permalink to this headline">¶</a></h3>
+<p>服务器的磁盘要做冗余阵列，把多个硬盘组合起来，成为一个硬盘阵列组，提升磁盘的性能以及冗余度，各个节点 RAID 配置如下：</p>
+<p><strong>种子节点/控制节点</strong></p>
+<ol class="arabic simple">
+<li>在UOS 云平台中，由于种子节点和控制节点对系统盘性能要求较高，需要至少 6 块 SSD 做成 RAID 10，以提升性能和可靠性，系统盘同时为数据盘。配置 RAID10 如下图：</li>
+</ol>
+<img alt="images/raid_10.png" class="align-center" src="images/raid_10.png" />
+<ol class="arabic simple" start="2">
+<li>并且设置该盘位启动设备：</li>
+</ol>
+<img alt="images/raid_10_boot.png" class="align-center" src="images/raid_10_boot.png" />
+<p><strong>计算节点/网络节点/存储节点</strong></p>
+<ol class="arabic simple">
+<li>对于计算、网络、存储节点，对系统盘性能要求不高，可以使用两块 SATA/SAS 盘做成 RAID 1，如下图：</li>
+</ol>
+<img alt="images/raid_1.png" class="align-center" src="images/raid_1.png" />
+<ol class="arabic simple" start="2">
+<li>并且设置该盘位启动设备：</li>
+</ol>
+<img alt="images/raid_1_boot.png" class="align-center" src="images/raid_1_boot.png" />
+<ol class="arabic simple" start="3">
+<li>剩余盘裸盘即可，如果计算节点，存储节点如果没有 JDBC，可以选择 Convert to Non-RAID：</li>
+</ol>
+<img alt="images/raid_non_raid.jpg" class="align-center" src="images/raid_non_raid.jpg" />
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="seed.html" class="btn btn-neutral float-right" title="3. 种子节点部署">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="intro.html" class="btn btn-neutral" title="1. UOS Director 简介"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+      &#169; Copyright 2017, UnitedStack Inc. All Rights Reserved.
+  </div>
+
+  
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:'./',
+          VERSION:'',
+          COLLAPSE_INDEX:false,
+          FILE_SUFFIX:'.html',
+          HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="static/jquery.js"></script>
+      <script type="text/javascript" src="static/underscore.js"></script>
+      <script type="text/javascript" src="static/doctools.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+    jQuery(function () {
+      SphinxRtdTheme.StickyNav.enable();
+    });
+  </script>
+   
+
+</body>
+</html>

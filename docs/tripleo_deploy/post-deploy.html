@@ -1,0 +1,528 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>7. OverCloud 初始化 &mdash; UOS Director  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="static/favicon-v2.ico"/>
+  
+
+  
+  
+    
+  
+
+  
+  
+    <link rel="stylesheet" href="static/css/theme.css" type="text/css" />
+  
+
+  
+
+  <link rel="stylesheet" href="static/css/header.css" />
+  <link rel="stylesheet" href="static/css/normalize.css" />
+  <link rel="stylesheet" href="static/css/footer.css" />
+        <link rel="index" title="Index" href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+
+    <link rel="top" title="UOS Director  documentation" href="index.html"/>
+        <link rel="next" title="8. 运维工具部署" href="opstools/index.html"/>
+        <link rel="prev" title="6. 额外组件部署" href="add-on.html"/> 
+
+  
+  <script type="text/javascript" src="static/js/modernizr.min.js"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+    <div class="nav">
+      <a href="https://www.ustack.com" title="UnitedStack" class="logo"></a>
+      <div class="nav-inner-r">
+        <ul class="nav-menu"></ul>
+      </div>
+    </div>
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+
+        
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">1. UOS Director 简介</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plan.html">2. 环境规划与准备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seed.html">3. 种子节点部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="undercloud-deploy.html">4. UnderCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overcloud-deploy.html">5. OverCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="add-on.html">6. 额外组件部署</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">7. OverCloud 初始化</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">7.1. 主机列表更新</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">7.2. 服务初始化</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">7.2.1. 公网地址池初始化</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">7.2.2. 云硬盘类型初始化</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">7.2.3. 云主机规格初始化</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">7.2.4. 监控系统初始化</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">7.2.5. 计费系统初始化</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">7.2.6. 初始化云存储配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">7.2.7. 云平台加载元数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#overcloud-bug">7.2.8. Overcloud BUG 修复</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">7.2.9. 云平台上传镜像</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ceph-crushmap">7.2.10. Ceph Crushmap 配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#e">7.2.11. e 命令介绍</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opstools/index.html">8. 运维工具部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">9. UOS 升级</a></li>
+</ul>
+
+        
+      </div>
+
+      <div class="wy-side-nav-search">
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">UOS Director</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>7. OverCloud 初始化</li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="overcloud">
+<h1>7. OverCloud 初始化<a class="headerlink" href="#overcloud" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>7.1. 主机列表更新<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>生成 UnderCloud 上本地域名记录（/etc/hosts）、Ansible Inventory 列表、clushshell 配置、e 命令等</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /usr/share/maintenance
+ansible-playbook -t basic_tools playbooks/post-deploy/post-deploy.yaml
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>7.2. 服务初始化<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h3>7.2.1. 公网地址池初始化<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p><strong>1. 修改网络配置参数</strong></p>
+<p>文件：group_vars/undercloud.yaml</p>
+<p>以下是网络配置的示例，请根据实际情况进行填写：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">external_networks</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">foo</span>                <span class="c1"># 公有网络名称</span>
+    <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">vlan</span>               <span class="c1"># 网络类型，支持 vlan 和 flat</span>
+    <span class="l l-Scalar l-Scalar-Plain">net_phy</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">datacentre</span>      <span class="c1"># 物理网络，UOS 4 默认是 datacentre</span>
+    <span class="l l-Scalar l-Scalar-Plain">vlanid</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1101</span>             <span class="c1"># 若网络类型是 vlan，这就是 VLAN ID，若是 flat，忽略此参数</span>
+    <span class="l l-Scalar l-Scalar-Plain">subnets</span><span class="p p-Indicator">:</span>                 <span class="c1"># 子网参数，支持配置多个子网</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">foo_subnet</span>     <span class="c1"># 子网名称</span>
+        <span class="l l-Scalar l-Scalar-Plain">gateway</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10.0.0.1</span>    <span class="c1"># 公有网络网关</span>
+        <span class="l l-Scalar l-Scalar-Plain">cidr</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10.0.0.0/24</span>    <span class="c1"># 共有网络地址池的 CIDR</span>
+        <span class="l l-Scalar l-Scalar-Plain">start</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10.0.0.2</span>      <span class="c1"># 共有网络地址池起始地址</span>
+        <span class="l l-Scalar l-Scalar-Plain">end</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10.0.0.250</span>      <span class="c1"># 共有网络地址池结束地址</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">bar</span>
+    <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flat</span>
+    <span class="l l-Scalar l-Scalar-Plain">net_phy</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">datacentre</span>
+    <span class="l l-Scalar l-Scalar-Plain">subnets</span><span class="p p-Indicator">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">bar1_subnet</span>
+        <span class="l l-Scalar l-Scalar-Plain">gateway</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">192.168.1.1</span>
+        <span class="l l-Scalar l-Scalar-Plain">cidr</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">192.168.1.0/24</span>
+        <span class="l l-Scalar l-Scalar-Plain">start</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">192.168.1.2</span>
+        <span class="l l-Scalar l-Scalar-Plain">end</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">192.168.1.250</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">bar2_subnet</span>
+        <span class="l l-Scalar l-Scalar-Plain">gateway</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">192.168.2.1</span>
+        <span class="l l-Scalar l-Scalar-Plain">cidr</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">192.168.2.0/24</span>
+        <span class="l l-Scalar l-Scalar-Plain">start</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">192.168.2.2</span>
+        <span class="l l-Scalar l-Scalar-Plain">end</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">192.168.2.250</span>
+</pre></div>
+</div>
+<p>修改完共有网络参数后，将参数‘enable_external_network_manage‘设置成 True，这样才会初始化公有网络。</p>
+<p><strong>2. 创建公网地址池</strong></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">更新公有网络参数，请在运营平台进行！</p>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /usr/share/maintenance
+ansible-playbook -t external_networks playbooks/post-deploy/post-deploy.yaml
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h3>7.2.2. 云硬盘类型初始化<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>云硬盘类型初始化是根据第一台控制节点的 Cinder 服务的配置文件 /etc/cinder/cinder.conf 自动创建相应的类型。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">此任务只支持初始化云硬盘类型。</p>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /usr/share/maintenance
+ansible-playbook -t volume_types playbooks/post-deploy/post-deploy.yaml
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="first admonition-title">Attention</p>
+<p class="last">云硬盘类型的名称和后端名称保持一致！后端名称查看配置文件里面 volume_backend_name，
+若建出来的磁盘类型与需求不一致，可以在运营平台里面更该相应磁盘类型名称。
+参考《同方云 UOS 4.0 产品文档》 <a class="reference external" href="https://www.ustack.com/docs/manager/book/UOS%E7%AE%A1%E7%90%86%E5%B9%B3%E5%8F%B0/%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1.html">第 4 章 - UOS 运营平台 - 4.2 存储管理服务</a></p>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>7.2.3. 云主机规格初始化<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /usr/share/maintenance
+ansible-playbook -t flavors playbooks/post-deploy/post-deploy.yaml
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h3>7.2.4. 监控系统初始化<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /usr/share/maintenance
+ansible-playbook -t meters playbooks/post-deploy/post-deploy.yaml
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h3>7.2.5. 计费系统初始化<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">对于初始化计费服务前，请清理掉非正常创建的计费项目。</p>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /usr/share/maintenance
+ansible-playbook -t ratings playbooks/post-deploy/post-deploy.yaml
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="first admonition-title">Attention</p>
+<p class="last">此任务只支持初始化计费规则，更新计费规则，请在运营平台进行！</p>
+</div>
+</div>
+<div class="section" id="id8">
+<h3>7.2.6. 初始化云存储配置<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /usr/share/maintenance
+ansible-playbook -t ceph playbooks/post-deploy/post-deploy.yaml
+</pre></div>
+</div>
+</div>
+<div class="section" id="id9">
+<h3>7.2.7. 云平台加载元数据<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /usr/share/maintenance
+ansible-playbook -t metadefs playbooks/post-deploy/post-deploy.yaml
+</pre></div>
+</div>
+</div>
+<div class="section" id="overcloud-bug">
+<h3>7.2.8. Overcloud BUG 修复<a class="headerlink" href="#overcloud-bug" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /usr/share/maintenance
+ansible-playbook -t bugfix playbooks/post-deploy/post-deploy.yaml
+</pre></div>
+</div>
+</div>
+<div class="section" id="id10">
+<h3>7.2.9. 云平台上传镜像<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /usr/share/maintenance
+ansible-playbook -t images playbooks/post-deploy/post-deploy.yaml
+</pre></div>
+</div>
+</div>
+<div class="section" id="ceph-crushmap">
+<h3>7.2.10. Ceph Crushmap 配置<a class="headerlink" href="#ceph-crushmap" title="Permalink to this headline">¶</a></h3>
+<p><strong>假如平台为多机柜部署，需要实现机柜级故障域，请进行以下配置</strong></p>
+<p>通常情况下，小集群或者 POC 集群由于规模过小，不会在物理上实现机柜级别的数据故障冗余策略。
+而对于大客户而言，机柜级别的数据故障冗余策略是非常关键的。
+所以我们在实施过程中，需要给生产上线的项目做正确的配置，我们可以通过以下方法进行配置，实现机柜级别的数据故障冗余策略：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 通过 undercloud，确认 host 与其 ID 的对应关系</span>
+<span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ <span class="nb">source</span> stackrc
+<span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ nova list
++--------------------------------------+--------------------------+--------+------------+-------------+----------------------+
+<span class="p">|</span> ID                                   <span class="p">|</span> Name                     <span class="p">|</span> Status <span class="p">|</span> Task State <span class="p">|</span> Power State <span class="p">|</span> Networks             <span class="p">|</span>
++--------------------------------------+--------------------------+--------+------------+-------------+----------------------+
+<span class="p">|</span> 0ea64447-0490-46ae-9ec0-d476b07ee148 <span class="p">|</span> overcloud-cephssd-0      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.62 <span class="p">|</span>
+<span class="p">|</span> c14da46c-f6ed-46d7-bfa7-2cfdbd9f3591 <span class="p">|</span> overcloud-cephssd-1      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.56 <span class="p">|</span>
+<span class="p">|</span> 2a2980ac-4dc7-45e7-9f25-d6f3c6be9b29 <span class="p">|</span> overcloud-cephssd-2      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.35 <span class="p">|</span>
+<span class="p">|</span> 08c204b8-93c8-40dc-b704-55b3a9b0bfcb <span class="p">|</span> overcloud-cephssd-3      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.50 <span class="p">|</span>
+<span class="p">|</span> 4219de6b-11d0-451f-8836-48d66d2d69de <span class="p">|</span> overcloud-cephssd-4      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.49 <span class="p">|</span>
+<span class="p">|</span> 2dc51445-020e-4c9f-b285-6c6e0f25eaed <span class="p">|</span> overcloud-cephssd-5      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.32 <span class="p">|</span>
+
+<span class="c1"># 通过 undercloud 服务器管理，确认 host ID 与 物理服务器的对应关系</span>
+<span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ <span class="nb">source</span> stackrc
+<span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ ironic node-list
++--------------------------------------+-----------------+--------------------------------------+-------------+--------------------+-------------+
+<span class="p">|</span> UUID                                 <span class="p">|</span> Name            <span class="p">|</span> Instance UUID                        <span class="p">|</span> Power State <span class="p">|</span> Provisioning State <span class="p">|</span> Maintenance <span class="p">|</span>
++--------------------------------------+-----------------+--------------------------------------+-------------+--------------------+-------------+
+<span class="p">|</span> <span class="m">94923394</span>-1035-4afe-8925-52395b222cc9 <span class="p">|</span> ssd-4-5         <span class="p">|</span> c14da46c-f6ed-46d7-bfa7-2cfdbd9f3591 <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> 462fc96f-f823-4b20-9c47-9e4a8b791b81 <span class="p">|</span> ssd-4-6         <span class="p">|</span> 0ea64447-0490-46ae-9ec0-d476b07ee148 <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> d8d78b97-2a91-4e9f-90a4-41dfa2c1e7fd <span class="p">|</span> ssd-3-5         <span class="p">|</span> 2a2980ac-4dc7-45e7-9f25-d6f3c6be9b29 <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> 971dc644-e118-4470-b1a9-d8100f122bb3 <span class="p">|</span> ssd-3-6         <span class="p">|</span> 08c204b8-93c8-40dc-b704-55b3a9b0bfcb <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> d1afb743-6fe3-4b66-bad1-e465d20f4d83 <span class="p">|</span> ssd-2-5         <span class="p">|</span> 2dc51445-020e-4c9f-b285-6c6e0f25eaed <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> 4a8a02e0-7c76-489b-9d4f-fd31fc13a76a <span class="p">|</span> ssd-2-6         <span class="p">|</span> 4219de6b-11d0-451f-8836-48d66d2d69de <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+</pre></div>
+</div>
+<p>由以上以上信息，获得了物理服务器机柜的物理落位和主机 hostname 的对应关系，如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ssd-4-5  c14da46c-f6ed-46d7-bfa7-2cfdbd9f3591  overcloud-cephssd-1
+ssd-4-6  0ea64447-0490-46ae-9ec0-d476b07ee148  overcloud-cephssd-0
+ssd-3-5  2a2980ac-4dc7-45e7-9f25-d6f3c6be9b29  overcloud-cephssd-2
+ssd-3-6  08c204b8-93c8-40dc-b704-55b3a9b0bfcb  overcloud-cephssd-3
+ssd-2-5  2dc51445-020e-4c9f-b285-6c6e0f25eaed  overcloud-cephssd-5
+ssd-2-6  4219de6b-11d0-451f-8836-48d66d2d69de  overcloud-cephssd-4
+</pre></div>
+</div>
+<p>这里我们约定以物理服务器的命名来对应物理服务器在机柜的物理落位信息，比如：ssd-4-5 表示物理服务器在编号为4的机柜，5U的位置上。
+根据服务器的物理落位信息，我们可以这么配置 Ceph 的 Crushmap：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 正确配置 Ceph Crushmap</span>
+ceph osd crush add-bucket SSD root
+ceph osd crush add-bucket rack-2 rack
+ceph osd crush add-bucket rack-3 rack
+ceph osd crush add-bucket rack-4 rack
+ceph osd crush move rack-2 <span class="nv">root</span><span class="o">=</span>SDD
+ceph osd crush move rack-3 <span class="nv">root</span><span class="o">=</span>SDD
+ceph osd crush move rack-4 <span class="nv">root</span><span class="o">=</span>SDD
+ceph osd crush move overcloud-cephssd-1 <span class="nv">rack</span><span class="o">=</span>rack-4
+ceph osd crush move overcloud-cephssd-0 <span class="nv">rack</span><span class="o">=</span>rack-4
+ceph osd crush move overcloud-cephssd-2 <span class="nv">rack</span><span class="o">=</span>rack-3
+ceph osd crush move overcloud-cephssd-3 <span class="nv">rack</span><span class="o">=</span>rack-3
+ceph osd crush move overcloud-cephssd-5 <span class="nv">rack</span><span class="o">=</span>rack-2
+ceph osd crush move overcloud-cephssd-4 <span class="nv">rack</span><span class="o">=</span>rack-2
+
+<span class="c1"># 正确配置 Crushrule 并关联到对应的存储池上</span>
+<span class="c1"># ceph osd crush rule create-simple &lt;name&gt; &lt;root&gt; &lt;type&gt;, 例如：</span>
+ceph osd crush rule create-simple ssd_ruleset SDD rack
+<span class="c1"># 注意：root 需要配置为你创建 Crushmap 时候对应创建的 root。type 需要配置为 host 或者 rack，这取决于你的物理服务器落位是在一个机柜内，只实现主机级别的故障域，还是在不同机柜，实现机柜级别的故障域</span>
+</pre></div>
+</div>
+<p>首先，获取 crushrule 的 ruleset，方法如下：将当前的存储池都配置为新创建的 crushrule</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>root@overcloud-controller-0 heat-admin<span class="o">]</span><span class="c1"># ceph osd crush rule dump ssd_ruleset</span>
+<span class="o">{</span>
+    <span class="s2">&quot;rule_id&quot;</span>: <span class="m">1</span>,
+    <span class="s2">&quot;rule_name&quot;</span>: <span class="s2">&quot;ssd_ruleset&quot;</span>,
+    <span class="s2">&quot;ruleset&quot;</span>: <span class="m">2</span>,
+    <span class="s2">&quot;type&quot;</span>: <span class="m">1</span>,
+    <span class="s2">&quot;min_size&quot;</span>: <span class="m">1</span>,
+    <span class="s2">&quot;max_size&quot;</span>: <span class="m">10</span>,
+    <span class="s2">&quot;steps&quot;</span>: <span class="o">[</span>
+        <span class="o">{</span>
+            <span class="s2">&quot;op&quot;</span>: <span class="s2">&quot;take&quot;</span>,
+            <span class="s2">&quot;item&quot;</span>: -15,
+            <span class="s2">&quot;item_name&quot;</span>: <span class="s2">&quot;SDD&quot;</span>
+        <span class="o">}</span>,
+        <span class="o">{</span>
+            <span class="s2">&quot;op&quot;</span>: <span class="s2">&quot;chooseleaf_firstn&quot;</span>,
+            <span class="s2">&quot;num&quot;</span>: <span class="m">0</span>,
+            <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;rack&quot;</span>
+        <span class="o">}</span>,
+        <span class="o">{</span>
+            <span class="s2">&quot;op&quot;</span>: <span class="s2">&quot;emit&quot;</span>
+        <span class="o">}</span>
+    <span class="o">]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>将当前的存储池都配置为新创建的 crushrule，我们已经知道，ssd_ruleset 的 ruleset 为 2</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> i in <span class="sb">`</span>ceph osd pool ls<span class="sb">`</span><span class="p">;</span><span class="k">do</span> ceph osd pool <span class="nb">set</span> <span class="nv">$i</span> crush_ruleset <span class="m">2</span><span class="p">;</span><span class="k">done</span>
+<span class="c1">#  删除旧的 crush_ruleset</span>
+ceph osd crush rule rm replicated_ruleset
+</pre></div>
+</div>
+<p><strong>假如平台部署了 cinder 多后端特性 —— 通过 ssd 存储池实现性能盘，通过 hdd 存储池实现容量盘，请进行一下配置</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 通过 undercloud，确认 host 与其 ID 的对应关系</span>
+<span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ <span class="nb">source</span> stackrc
+<span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ nova list
++--------------------------------------+--------------------------+--------+------------+-------------+----------------------+
+<span class="p">|</span> ID                                   <span class="p">|</span> Name                     <span class="p">|</span> Status <span class="p">|</span> Task State <span class="p">|</span> Power State <span class="p">|</span> Networks             <span class="p">|</span>
++--------------------------------------+--------------------------+--------+------------+-------------+----------------------+
+<span class="p">|</span> acdedd70-e0c8-4aee-b3ad-ac40a971221c <span class="p">|</span> overcloud-cephhdd-0      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.42 <span class="p">|</span>
+<span class="p">|</span> 464c9591-773b-424c-b79f-c13b170c3e2e <span class="p">|</span> overcloud-cephhdd-1      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.36 <span class="p">|</span>
+<span class="p">|</span> 64cb16b7-3226-4786-bcb0-e8c99afd0025 <span class="p">|</span> overcloud-cephhdd-2      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.34 <span class="p">|</span>
+<span class="p">|</span> 0ea64447-0490-46ae-9ec0-d476b07ee148 <span class="p">|</span> overcloud-cephssd-0      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.62 <span class="p">|</span>
+<span class="p">|</span> c14da46c-f6ed-46d7-bfa7-2cfdbd9f3591 <span class="p">|</span> overcloud-cephssd-1      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.56 <span class="p">|</span>
+<span class="p">|</span> 2a2980ac-4dc7-45e7-9f25-d6f3c6be9b29 <span class="p">|</span> overcloud-cephssd-2      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.35 <span class="p">|</span>
+<span class="p">|</span> 08c204b8-93c8-40dc-b704-55b3a9b0bfcb <span class="p">|</span> overcloud-cephssd-3      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.50 <span class="p">|</span>
+<span class="p">|</span> 4219de6b-11d0-451f-8836-48d66d2d69de <span class="p">|</span> overcloud-cephssd-4      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.49 <span class="p">|</span>
+<span class="p">|</span> 2dc51445-020e-4c9f-b285-6c6e0f25eaed <span class="p">|</span> overcloud-cephssd-5      <span class="p">|</span> ACTIVE <span class="p">|</span> -          <span class="p">|</span> Running     <span class="p">|</span> <span class="nv">ctlplane</span><span class="o">=</span><span class="m">10</span>.0.210.32 <span class="p">|</span>
+</pre></div>
+</div>
+<p>由上面结果可以知道一下信息，其中有六个 ssd 节点 overcloud-cephssd-[0-6], 有三个 hdd 节点 overcloud-cephhdd-[0-2]。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 通过 undercloud 服务器管理，确认 host ID 与 物理服务器的对应关系</span>
+<span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ <span class="nb">source</span> stackrc
+<span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ ironic node-list
++--------------------------------------+-----------------+--------------------------------------+-------------+--------------------+-------------+
+<span class="p">|</span> UUID                                 <span class="p">|</span> Name            <span class="p">|</span> Instance UUID                        <span class="p">|</span> Power State <span class="p">|</span> Provisioning State <span class="p">|</span> Maintenance <span class="p">|</span>
++--------------------------------------+-----------------+--------------------------------------+-------------+--------------------+-------------+
+<span class="p">|</span> <span class="m">94923394</span>-1035-4afe-8925-52395b222cc9 <span class="p">|</span> ssd-4-5         <span class="p">|</span> c14da46c-f6ed-46d7-bfa7-2cfdbd9f3591 <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> 462fc96f-f823-4b20-9c47-9e4a8b791b81 <span class="p">|</span> ssd-4-6         <span class="p">|</span> 0ea64447-0490-46ae-9ec0-d476b07ee148 <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> d8d78b97-2a91-4e9f-90a4-41dfa2c1e7fd <span class="p">|</span> ssd-3-5         <span class="p">|</span> 2a2980ac-4dc7-45e7-9f25-d6f3c6be9b29 <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> 971dc644-e118-4470-b1a9-d8100f122bb3 <span class="p">|</span> ssd-3-6         <span class="p">|</span> 08c204b8-93c8-40dc-b704-55b3a9b0bfcb <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> d1afb743-6fe3-4b66-bad1-e465d20f4d83 <span class="p">|</span> ssd-2-5         <span class="p">|</span> 2dc51445-020e-4c9f-b285-6c6e0f25eaed <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> 4a8a02e0-7c76-489b-9d4f-fd31fc13a76a <span class="p">|</span> ssd-2-6         <span class="p">|</span> 4219de6b-11d0-451f-8836-48d66d2d69de <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> 5e97bdeb-f9b4-4a55-997c-87ae10ca9817 <span class="p">|</span> hdd-4-1         <span class="p">|</span> 464c9591-773b-424c-b79f-c13b170c3e2e <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> 00336cab-6444-43e0-8ba7-41ab78511253 <span class="p">|</span> hdd-3-1         <span class="p">|</span> acdedd70-e0c8-4aee-b3ad-ac40a971221c <span class="p">|</span> None        <span class="p">|</span> active             <span class="p">|</span> True        <span class="p">|</span>
+<span class="p">|</span> dbbd7148-dec2-4eb6-aa48-b300961d4859 <span class="p">|</span> hdd-2-1         <span class="p">|</span> 64cb16b7-3226-4786-bcb0-e8c99afd0025 <span class="p">|</span> power on    <span class="p">|</span> active             <span class="p">|</span> False       <span class="p">|</span>
++--------------------------------------+-----------------+--------------------------------------+-------------+--------------------+-------------+
+</pre></div>
+</div>
+<p>通过 instance UUID 确定各个物理服务器与 HOST 的对应关系，例如：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>hdd-2-1   64cb16b7-3226-4786-bcb0-e8c99afd0025  overcloud-cephhdd-2
+hdd-3-1   acdedd70-e0c8-4aee-b3ad-ac40a971221c  overcloud-cephhdd-0
+hdd-4-1   464c9591-773b-424c-b79f-c13b170c3e2e  overcloud-cephhdd-1
+</pre></div>
+</div>
+<p>根据约定，hdd-2-1，表示 overcloud-cephhdd-2 在编号为2的机柜，1U 的位置；hdd-3-1，表示 overcloud-cephhdd-0 在编号为3的机柜，1U 的位置；hdd-4-1，表示 overcloud-cephhdd-1 在编号为4的机柜，1U的位置。
+根据服务器的物理落位信息，我们可以这么配置 Ceph 的 Crushmap：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 正确配置 Ceph Crushmap</span>
+ceph osd crush add-bucket HDD root
+ceph osd crush add-bucket rack-2 rack
+ceph osd crush add-bucket rack-3 rack
+ceph osd crush add-bucket rack-4 rack
+ceph osd crush move rack-2 <span class="nv">root</span><span class="o">=</span>HDD
+ceph osd crush move rack-3 <span class="nv">root</span><span class="o">=</span>HDD
+ceph osd crush move rack-4 <span class="nv">root</span><span class="o">=</span>HDD
+ceph osd crush move overcloud-cephhdd-2 <span class="nv">rack</span><span class="o">=</span>rack-2
+ceph osd crush move overcloud-cephhdd-0 <span class="nv">rack</span><span class="o">=</span>rack-3
+ceph osd crush move overcloud-cephhdd-1 <span class="nv">rack</span><span class="o">=</span>rack-4
+
+<span class="c1"># 正确配置 Crushrule 并关联到对应的存储池上</span>
+<span class="c1"># ceph osd crush rule create-simple &lt;name&gt; &lt;root&gt; &lt;type&gt;, 例如：</span>
+ceph osd crush rule create-simple hdd_ruleset HDD rack
+<span class="c1"># 注意：root 需要配置为你创建 Crushmap 时候对应创建的 root。type 需要配置为 host 或者 rack，这取决于你的物理服务器落位是在一个机柜内，只实现主机级别的故障域，还是在不同机柜，实现机柜级别的故障域</span>
+
+<span class="c1"># 最后，给对应的 hdd-volumes 配置正确的 crushrule</span>
+<span class="o">[</span>root@overcloud-controller-0 heat-admin<span class="o">]</span><span class="c1"># ceph osd crush rule dump hdd_ruleset</span>
+<span class="o">{</span>
+    <span class="s2">&quot;rule_id&quot;</span>: <span class="m">1</span>,
+    <span class="s2">&quot;rule_name&quot;</span>: <span class="s2">&quot;hdd_ruleset&quot;</span>,
+    <span class="s2">&quot;ruleset&quot;</span>: <span class="m">3</span>,
+    <span class="s2">&quot;type&quot;</span>: <span class="m">1</span>,
+    <span class="s2">&quot;min_size&quot;</span>: <span class="m">1</span>,
+    <span class="s2">&quot;max_size&quot;</span>: <span class="m">10</span>,
+    <span class="s2">&quot;steps&quot;</span>: <span class="o">[</span>
+        <span class="o">{</span>
+            <span class="s2">&quot;op&quot;</span>: <span class="s2">&quot;take&quot;</span>,
+            <span class="s2">&quot;item&quot;</span>: -16,
+            <span class="s2">&quot;item_name&quot;</span>: <span class="s2">&quot;HDD&quot;</span>
+        <span class="o">}</span>,
+        <span class="o">{</span>
+            <span class="s2">&quot;op&quot;</span>: <span class="s2">&quot;chooseleaf_firstn&quot;</span>,
+            <span class="s2">&quot;num&quot;</span>: <span class="m">0</span>,
+            <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;rack&quot;</span>
+        <span class="o">}</span>,
+        <span class="o">{</span>
+            <span class="s2">&quot;op&quot;</span>: <span class="s2">&quot;emit&quot;</span>
+        <span class="o">}</span>
+    <span class="o">]</span>
+<span class="o">}</span>
+
+<span class="c1"># 通过以上信息可以知道，hdd_ruleset 的 ruleset 为 3</span>
+ceph osd pool <span class="nb">set</span> hdd-volumes crush_ruleset <span class="m">3</span>
+</pre></div>
+</div>
+<p>通过以上操作，我们将 hdd-volumes 存储池的数据正确落位到了 hdd 的磁盘上面，并且实现了机柜级别的数据容灾策略</p>
+</div>
+<div class="section" id="e">
+<h3>7.2.11. e 命令介绍<a class="headerlink" href="#e" title="Permalink to this headline">¶</a></h3>
+<p><strong>使用介绍</strong></p>
+<p>有以下节点简称:</p>
+<ul class="simple">
+<li>ctl  控制节点</li>
+<li>comp 计算节点</li>
+<li>net  网络节点</li>
+<li>tm   监控节点</li>
+<li>ceph 存储节点</li>
+<li>ssd  SSD 类型存储节点</li>
+<li>hdd  HDD 类型存储节点</li>
+<li>seed 种子节点</li>
+</ul>
+<p>命令格式:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>e seed or e &lt;role_name&gt; &lt;index&gt;
+</pre></div>
+</div>
+<p>比如登陆种子节点：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>e seed
+</pre></div>
+</div>
+<p>比如登陆第一个控制节点，注意 index 是从 0 开始:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>e ctl <span class="m">0</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="opstools/index.html" class="btn btn-neutral float-right" title="8. 运维工具部署">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="add-on.html" class="btn btn-neutral" title="6. 额外组件部署"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+      &#169; Copyright 2017, UnitedStack Inc. All Rights Reserved.
+  </div>
+
+  
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:'./',
+          VERSION:'',
+          COLLAPSE_INDEX:false,
+          FILE_SUFFIX:'.html',
+          HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="static/jquery.js"></script>
+      <script type="text/javascript" src="static/underscore.js"></script>
+      <script type="text/javascript" src="static/doctools.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+    jQuery(function () {
+      SphinxRtdTheme.StickyNav.enable();
+    });
+  </script>
+   
+
+</body>
+</html>

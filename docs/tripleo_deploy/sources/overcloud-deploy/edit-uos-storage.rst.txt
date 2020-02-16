@@ -1,0 +1,43 @@
+编辑uos-storage.yaml
+
+* :code:`ceph::profile::params::osds` 下面填写用来作为osd的磁盘。
+* :code:`'/dev/sdb': {}` 表示使用sdb作为osd，自身分区作为这个osd的Journal。
+* 如果使用其他盘作为Journal可以这样写: :code:`'/dev/sdb': {journal: '/dev/sdj'}`
+* :code:`ceph::profile::params::osd_pool_default_size` 填写默认副本数
+* 如果osd不是分布在3个以上的机柜，把 :code:`mon/mon_osd_reporter_subtree_level , mon/mon_osd_down_out_subtree_limit`
+  设为host
+
+.. code-block:: yaml
+
+  parameter_defaults:
+    ExtraConfig:
+      # osd disks
+      ceph::profile::params::osds:
+              '/dev/sdb': {}
+              '/dev/sdc': {}
+              '/dev/sdd': {}
+      # osd 副本数
+      ceph::profile::params::osd_pool_default_min_size: 2
+      ceph::profile::params::osd_pool_default_size: 3
+      # 每osd分配100个pg。pgp和pg数量一致。
+      ceph::profile::params::osd_pool_default_pg_num: 128
+      ceph::profile::params::osd_pool_default_pgp_num: 128
+
+      ceph::conf::args:
+        # if not three racks, set 'host'
+        mon/mon_osd_reporter_subtree_level:
+          value: 'rack'
+        # if not three racks, set 'host'
+        mon/mon_osd_down_out_subtree_limit:
+          value: 'rack'
+        # set osd auto mark out interval
+        mon/mon_osd_down_out_interval:
+          value: 3600
+
+.. warning::
+
+  不要把系统盘作为osd盘或者Journal盘
+
+.. tip::
+
+  如果使用独立Journal盘，每个Journal盘不要带过多的osd(<=6)

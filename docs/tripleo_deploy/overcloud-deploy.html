@@ -1,0 +1,1084 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>5. OverCloud 部署 &mdash; UOS Director  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="static/favicon-v2.ico"/>
+  
+
+  
+  
+    
+  
+
+  
+  
+    <link rel="stylesheet" href="static/css/theme.css" type="text/css" />
+  
+
+  
+
+  <link rel="stylesheet" href="static/css/header.css" />
+  <link rel="stylesheet" href="static/css/normalize.css" />
+  <link rel="stylesheet" href="static/css/footer.css" />
+        <link rel="index" title="Index" href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+
+    <link rel="top" title="UOS Director  documentation" href="index.html"/>
+        <link rel="next" title="6. 额外组件部署" href="add-on.html"/>
+        <link rel="prev" title="4. UnderCloud 部署" href="undercloud-deploy.html"/> 
+
+  
+  <script type="text/javascript" src="static/js/modernizr.min.js"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+    <div class="nav">
+      <a href="https://www.ustack.com" title="UnitedStack" class="logo"></a>
+      <div class="nav-inner-r">
+        <ul class="nav-menu"></ul>
+      </div>
+    </div>
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+
+        
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">1. UOS Director 简介</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plan.html">2. 环境规划与准备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seed.html">3. 种子节点部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="undercloud-deploy.html">4. UnderCloud 部署</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. OverCloud 部署</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">5.1. 部署镜像上传</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">5.1.1. 获取部署镜像</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">5.1.2. 上传部署镜像</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">5.1.3. 检查镜像上传结果</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ironic-node">5.2. Ironic Node 注册</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">5.2.1. 编写注册模版</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">5.2.2. 注册</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">5.2.3. 检查注册结果</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ironic-server">5.3. 配置ironic server</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">5.3.1. 收集配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">5.3.2. 检查角色</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">5.3.3. 设置裸机系统盘</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">5.3.4. 检查裸机系统盘</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">5.4. OverCloud 部署</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">5.4.1. 准备环境文件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">5.4.2. 部署架构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">5.4.3. 部署组件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">5.4.4. 修改网络配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id17">5.4.5. 主机网卡配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uos-storage">5.4.6. 部署 UOS Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id19">5.4.7. 部署 OverCloud</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="add-on.html">6. 额外组件部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="post-deploy.html">7. OverCloud 初始化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opstools/index.html">8. 运维工具部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">9. UOS 升级</a></li>
+</ul>
+
+        
+      </div>
+
+      <div class="wy-side-nav-search">
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">UOS Director</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>5. OverCloud 部署</li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="overcloud">
+<h1>5. OverCloud 部署<a class="headerlink" href="#overcloud" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>5.1. 部署镜像上传<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h3>5.1.1. 获取部署镜像<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>UOS 云平台部署镜像可以通过访问公司镜像仓库获取。一共需要获取以下四个文件：</p>
+<ul class="simple">
+<li>ironic-python-agent.tar</li>
+<li>ironic-python-agent.tar.md5</li>
+<li>overcloud-full.tar</li>
+<li>overcloud-full.tar.md5</li>
+</ul>
+<p>为了部署的方便，建议将部署镜像放在 UnderCloud 服务器的 /home/stack/deploy_images 目录下。</p>
+</div>
+<div class="section" id="id3">
+<h3>5.1.2. 上传部署镜像<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>在确认下载到部署节点的镜像 MD5 校验值无误后，就可以将部署镜像上传到 UnderCloud 环境的镜像服务里。操作如下：</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span>tar -xf ironic-python-agent.tar    <span class="c1"># 解压 bm-deploy 镜像</span>
+tar -xf overcloud-full.tar         <span class="c1"># 解压 overcloud-full 镜像</span>
+<span class="nb">source</span> ~/stackrc
+openstack overcloud image upload --image-path /home/stack/deploy_images
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="id4">
+<h3>5.1.3. 检查镜像上传结果<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>当上传完部署镜像后，需要检查部署镜像是否上传成功。操作如下：</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="nb">source</span> ~/stackrc
+openstack image list
+</pre></div>
+</td></tr></table></div>
+<p>执行查询镜像列表的操作后，可以看到以下 5 个镜像，且镜像的状态都为 <strong>active</strong> ，结果如下所示：</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ openstack image list
++--------------------------------------+------------------------+--------+
+<span class="p">|</span> ID                                   <span class="p">|</span> Name                   <span class="p">|</span> Status <span class="p">|</span>
++--------------------------------------+------------------------+--------+
+<span class="p">|</span> 99b98ee1-6fa3-4003-bb9c-d81a517b0cbf <span class="p">|</span> bm-deploy-ramdisk      <span class="p">|</span> active <span class="p">|</span>
+<span class="p">|</span> e3f4ae74-5145-42fe-9036-43ddce7e98f5 <span class="p">|</span> bm-deploy-kernel       <span class="p">|</span> active <span class="p">|</span>
+<span class="p">|</span> 9d1e917c-88ca-48cc-913e-33b7f2a48930 <span class="p">|</span> overcloud-full         <span class="p">|</span> active <span class="p">|</span>
+<span class="p">|</span> 3fea1ba1-ee0a-4a48-948d-1468152ba797 <span class="p">|</span> overcloud-full-initrd  <span class="p">|</span> active <span class="p">|</span>
+<span class="p">|</span> f5fbaad6-c7ff-4b7e-bdb9-7f772a14c158 <span class="p">|</span> overcloud-full-vmlinuz <span class="p">|</span> active <span class="p">|</span>
++--------------------------------------+------------------------+--------+
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+<div class="section" id="ironic-node">
+<h2>5.2. Ironic Node 注册<a class="headerlink" href="#ironic-node" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h3>5.2.1. 编写注册模版<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>下面是一个 overcloud-nodes.yaml 的演示：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">nodes</span><span class="p p-Indicator">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">control-4-1</span>
+      <span class="l l-Scalar l-Scalar-Plain">pm_type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">pxe_ipmitool</span>
+      <span class="l l-Scalar l-Scalar-Plain">pm_addr</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">192.168.120.31</span>
+      <span class="l l-Scalar l-Scalar-Plain">pm_user</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ustack</span>
+      <span class="l l-Scalar l-Scalar-Plain">pm_password</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">password</span>
+      <span class="l l-Scalar l-Scalar-Plain">capabilities</span><span class="p p-Indicator">:</span> <span class="s">&#39;profile:control,boot_option:local&#39;</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">compute-4-3</span>
+      <span class="l l-Scalar l-Scalar-Plain">pm_type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">pxe_impitool</span>
+      <span class="l l-Scalar l-Scalar-Plain">pm_addr</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">192.168.120.68</span>
+      <span class="l l-Scalar l-Scalar-Plain">pm_user</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ustack</span>
+      <span class="l l-Scalar l-Scalar-Plain">pm_password</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">password</span>
+      <span class="l l-Scalar l-Scalar-Plain">capabilities</span><span class="p p-Indicator">:</span> <span class="s">&#39;profile:compute,boot_option:local&#39;</span>
+</pre></div>
+</div>
+<p>模版中各个参数的含义如下表所示：</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="23%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">参数</th>
+<th class="head">用途</th>
+<th class="head">备注</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>name</td>
+<td>裸机的名称</td>
+<td>建议按照机柜位置来命名，control-4-1表示4机柜1U位置</td>
+</tr>
+<tr class="row-odd"><td>pm_type</td>
+<td>驱动类型</td>
+<td>支持的 pxe_ipmitool、pxe_drac、pxe_ilo 和 pxe_ssh</td>
+</tr>
+<tr class="row-even"><td>pm_addr</td>
+<td>IPMI 地址</td>
+<td>若裸机是虚拟机时，则是虚拟机的宿主机地址</td>
+</tr>
+<tr class="row-odd"><td>pm_user</td>
+<td>IPMI 用户名</td>
+<td>若裸机是虚拟机时，则是虚拟机的宿主机 SSH 登录名</td>
+</tr>
+<tr class="row-even"><td>pm_password</td>
+<td>IPMI 密码</td>
+<td>若裸机是虚拟机时，测试虚拟机的宿主机 SSH 访问私钥</td>
+</tr>
+<tr class="row-odd"><td>capabilities</td>
+<td>附加信息</td>
+<td>profile 指定节点的角色，boot_option 指定启动方式</td>
+</tr>
+<tr class="row-even"><td>mac</td>
+<td>PXE 网卡 MAC 地址</td>
+<td>若裸机是虚拟机时，必须填写，物理服务器可省略</td>
+</tr>
+</tbody>
+</table>
+<p>注意：正式环境，裸机的名称都应该按照机柜位置与其真实落位来进行命名。一方面，这有助于后续的物理节点运维；另一方面，在后续配置 Ceph Crushmap 时候，需要使用到物理服务器真实的物理落位。故这个名称在这边通常不能够随意填写。</p>
+</div>
+<div class="section" id="id6">
+<h3>5.2.2. 注册<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>将生成的裸机信息模版文档导入到部署节点裸机服务中，操作如下：</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="nb">source</span> ~/stackrc
+openstack overcloud node import overcloud-nodes.yaml
+</pre></div>
+</td></tr></table></div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">不要把种子节点注册到部署节点裸机服务中。</p>
+</div>
+</div>
+<div class="section" id="id7">
+<h3>5.2.3. 检查注册结果<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p>当注册完裸机后，需要裸机是否成功注册。操作如下：</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="nb">source</span> ~/stackrc
+openstack baremetal node list
+</pre></div>
+</td></tr></table></div>
+<p>执行查询裸机列表的操作后，可以看到所有导入进去的裸机的 Provisioning 状态为 <strong>manageable</strong> ，若一直处于 <strong>enroll</strong> 状态，表示裸机注册失败。结果如下所示：</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ openstack baremetal node list
++--------------------------------------+-------------+---------------+-------------+--------------------+-------------+
+<span class="p">|</span> UUID                                 <span class="p">|</span> Name        <span class="p">|</span> Instance UUID <span class="p">|</span> Power State <span class="p">|</span> Provisioning State <span class="p">|</span> Maintenance <span class="p">|</span>
++--------------------------------------+-------------+---------------+-------------+--------------------+-------------+
+<span class="p">|</span> 6e7ad118-b605-4cb8-9924-039d6f52c66c <span class="p">|</span> control-4-1 <span class="p">|</span> None          <span class="p">|</span> power off   <span class="p">|</span> manageable         <span class="p">|</span> False       <span class="p">|</span>
+<span class="p">|</span> fbcf24cd-d8c2-41e7-b515-bad32a5193cd <span class="p">|</span> compute-4-3 <span class="p">|</span> None          <span class="p">|</span> power off   <span class="p">|</span> manageable         <span class="p">|</span> False       <span class="p">|</span>
++--------------------------------------+-------------+---------------+-------------+--------------------+-------------+
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+<div class="section" id="ironic-server">
+<h2>5.3. 配置ironic server<a class="headerlink" href="#ironic-server" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id8">
+<h3>5.3.1. 收集配置<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>我们可以利用裸机服务的 introspection 功能去自动收集裸机的一些有用信息，操作如下：</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="nb">source</span> ~/stackrc
+openstack overcloud node introspect --all-manageable --provide
+</pre></div>
+</td></tr></table></div>
+<p>上面命令中 <em>–all-manageable</em> 表示对所有的 manageable 状态的裸机进行 introspect 操作， <em>–provide</em> 表示收集完成后自动将裸机的 Provisioning 状态调整为 available。</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">裸机的 Maintenance 参数被设置成 True 时，部署节点裸机服务将不会对该裸机节点进行 introspect 操作。</p>
+</div>
+</div>
+<div class="section" id="id9">
+<h3>5.3.2. 检查角色<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<p>当收集完裸机成功后，需要检查裸机所分配的角色是否正确。操作如下：</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="nb">source</span> ~/stackrc
+openstack overcloud profiles list
+</pre></div>
+</td></tr></table></div>
+<p>执行查询裸机角色的操作后，结果如下所示：</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ openstack overcloud profiles list
++--------------------------------------+-------------+-----------------+-----------------+-------------------+
+<span class="p">|</span> Node UUID                            <span class="p">|</span> Node Name   <span class="p">|</span> Provision State <span class="p">|</span> Current Profile <span class="p">|</span> Possible Profiles <span class="p">|</span>
++--------------------------------------+-------------+-----------------+-----------------+-------------------+
+<span class="p">|</span> 6e7ad118-b605-4cb8-9924-039d6f52c66c <span class="p">|</span> control-4-1 <span class="p">|</span> available       <span class="p">|</span> control         <span class="p">|</span>                   <span class="p">|</span>
+<span class="p">|</span> fbcf24cd-d8c2-41e7-b515-bad32a5193cd <span class="p">|</span> compute-4-3 <span class="p">|</span> available       <span class="p">|</span> compute         <span class="p">|</span>                   <span class="p">|</span>
++--------------------------------------+-------------+-----------------+-----------------+-------------------+
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="id10">
+<h3>5.3.3. 设置裸机系统盘<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<p>我们需要为每台裸机标记操作系统应该安装在哪个硬盘，在生产环境中，系统盘一般是两块磁盘做的RAID 1，在为操作系统设置系统盘时，
+需要从introspection的结果中，对应的找到要作为系统盘的硬盘号，我们统一使用wwn_with_extension作为标志号，操作如下：</p>
+<p>首先将每个裸机的introspection结果保存下来：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir baremetal_info <span class="o">&amp;&amp;</span> <span class="nb">cd</span> baremetal_info
+
+<span class="nb">source</span> ~/stackrc
+<span class="k">for</span> node in <span class="sb">`</span>openstack baremetal node list -c Name -f value<span class="sb">`</span><span class="p">;</span> <span class="k">do</span> openstack baremetal introspection data save --file <span class="nv">$node</span>.json <span class="nv">$node</span><span class="p">;</span> <span class="k">done</span>
+</pre></div>
+</div>
+<p>确认每种节点的系统盘在磁盘列表中的位置：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cat <span class="nv">$node</span>.json <span class="p">|</span> jq .inventory.disks
+</pre></div>
+</div>
+<p>举例如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cat rack2-10-ssd2.json <span class="p">|</span> jq .inventory.disks
+
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">&quot;size&quot;</span>: <span class="m">480103981056</span>,
+    <span class="s2">&quot;rotational&quot;</span>: false,
+    <span class="s2">&quot;vendor&quot;</span>: <span class="s2">&quot;ATA&quot;</span>,
+    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;/dev/sdj&quot;</span>,
+    <span class="s2">&quot;wwn_vendor_extension&quot;</span>: null,
+    <span class="s2">&quot;wwn_with_extension&quot;</span>: <span class="s2">&quot;0x55cd2e414e1188a2&quot;</span>,
+    <span class="s2">&quot;model&quot;</span>: <span class="s2">&quot;SSDSC2BB480G7R&quot;</span>,
+    <span class="s2">&quot;wwn&quot;</span>: <span class="s2">&quot;0x55cd2e414e1188a2&quot;</span>,
+    <span class="s2">&quot;serial&quot;</span>: <span class="s2">&quot;PHDV72610276480BGN&quot;</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">&quot;size&quot;</span>: <span class="m">299439751168</span>,
+    <span class="s2">&quot;rotational&quot;</span>: true,
+    <span class="s2">&quot;vendor&quot;</span>: <span class="s2">&quot;DELL&quot;</span>,
+    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;/dev/sdk&quot;</span>,
+    <span class="s2">&quot;wwn_vendor_extension&quot;</span>: <span class="s2">&quot;0x2174c25b05d28983&quot;</span>,
+    <span class="s2">&quot;wwn_with_extension&quot;</span>: <span class="s2">&quot;0x6509a4c0aa62fe002174c25b05d28983&quot;</span>,
+    <span class="s2">&quot;model&quot;</span>: <span class="s2">&quot;PERC H330 Mini&quot;</span>,
+    <span class="s2">&quot;wwn&quot;</span>: <span class="s2">&quot;0x6509a4c0aa62fe00&quot;</span>,
+    <span class="s2">&quot;serial&quot;</span>: <span class="s2">&quot;6509a4c0aa62fe002174c25b05d28983&quot;</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+</pre></div>
+</div>
+<p>上例中共有两块盘，我们要将第二块盘作为系统盘，在列表中其索引号为1，其硬盘号 wwn_with_extension 为 0x6509a4c0aa62fe002174c25b05d28983，
+在实际生产部署时，要根据实际的规划来确定系统盘在哪个索引号上。</p>
+<p>下面以第一块硬盘作为系统盘为例，设置单个裸机的系统盘，操作如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">wwn</span><span class="o">=</span><span class="sb">`</span>cat <span class="nv">$node</span>.json <span class="p">|</span> jq .inventory.disks<span class="o">[</span><span class="m">0</span><span class="o">]</span>.wwn_with_extension<span class="sb">`</span>
+openstack baremetal node <span class="nb">set</span> --property <span class="nv">root_device</span><span class="o">=</span><span class="s1">&#39;{&quot;wwn_with_extension&quot;: &quot;$wwn&quot;}&#39;</span> <span class="nv">$node</span>
+</pre></div>
+</div>
+<p>以上操作只能针对一个节点来设置系统盘，效率较低。若将所有节点的第一块硬盘设置为系统盘时，可以使用 shell 循环快速设置。操作如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> node in <span class="sb">`</span>openstack baremetal node list -c Name -f value<span class="sb">`</span><span class="p">;</span> <span class="se">\</span>
+<span class="k">do</span> <span class="nv">wwn</span><span class="o">=</span><span class="sb">`</span>cat <span class="nv">$node</span>.json <span class="p">|</span> jq .inventory.disks<span class="o">[</span><span class="m">0</span><span class="o">]</span>.wwn_with_extension<span class="sb">`</span><span class="p">;</span> <span class="se">\</span>
+openstack baremetal node <span class="nb">set</span> --property <span class="nv">root_device</span><span class="o">=</span><span class="s1">&#39;{&quot;wwn_with_extension&quot;: &quot;$wwn&quot;}&#39;</span> <span class="nv">$node</span><span class="p">;</span> <span class="k">done</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<ul class="last simple">
+<li>要根据实际情况确定系统盘在磁盘列表中的索引号，即要相应指到inventory.disks中系统盘所在的位置，索引号从0开始</li>
+<li>可以从硬盘大小，model等字段判断是否为规划的系统盘</li>
+</ul>
+</div>
+</div>
+<div class="section" id="id11">
+<h3>5.3.4. 检查裸机系统盘<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<p>当完成裸机系统盘的设置后，我们检查设置的系统盘是否正常，操作如下：</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="nb">source</span> ~/stackrc
+openstack baremetal node list -c Name -f value <span class="p">|</span> xargs -I<span class="o">{}</span> openstack baremetal node show <span class="se">\</span>
+-c name -c properties -f json <span class="o">{}</span> <span class="p">|</span> jq .properties.root_device
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+<div class="section" id="id12">
+<h2>5.4. OverCloud 部署<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+<p>部署overcloud需要从以下几点考虑:</p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>采用什么架构去部署?</dt>
+<dd><ul class="first last">
+<li>1 Controller + 1 Compute</li>
+<li>1 Controller + 3 Computes  + 3 Ceph SSD</li>
+<li>3 Controllers + N Computes  + N Ceph SSD + N Ceph HDD</li>
+<li>N Controlers + N Networks + N</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>部署哪些组件？</dt>
+<dd><ul class="first last">
+<li>默认部署组件(nova, keystone, neutron, cinder, glance, swift, heat, telemetry)</li>
+<li>ceph</li>
+<li>shadowfiled</li>
+<li>cloudkitty</li>
+<li>magnum</li>
+<li>uplugin</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>网络架构以及地址规划?</dt>
+<dd><ul class="first last">
+<li>使用哪些网段？</li>
+<li>网段的分配</li>
+<li>地址分配</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>后端存储规划?</dt>
+<dd><ul class="first last">
+<li>使用本地存储还是Ceph ?</li>
+<li>ceph是否使用多后端？</li>
+<li>是否需要Cinder</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>在准备完环境文件以后，我们继续讨论如何针对相应的架构来部署。</p>
+<div class="section" id="id13">
+<h3>5.4.1. 准备环境文件<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<p>我们需要根据具体的部署规划合理修改相应的配置文件。
+原始模版文件和配置文件位于 <em>/usr/share/uos-heat-templates</em> 。
+为了便于后期的维护，我们将需要修改的配置文件拷贝至 <em>/home/stack/templates</em> 目录下，然后再进行修改。</p>
+<p>先拷贝这两个目录到stack用户的家目录下:</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span></span>cp -r /usr/share/uos-heat-templates/environments/templates-example/ /home/stack/templates
+cp -r /usr/share/uos-heat-templates/nic-configs/linux-bond-with-vlan/ /home/stack/templates/nic-configs
+sudo chown -R stack:stack templates/
+</pre></div>
+</td></tr></table></div>
+<p>拷贝完成后 <em>/home/stack/templates</em> 目录示例：</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ tree /home/stack/templates
+ ├── cloudname.yaml               <span class="c1"># 环境定制文件</span>
+ ├── nic-configs                  <span class="c1"># 各个节点的物理网卡配置</span>
+ │   ├── README.md
+ │   ├── ceph-hdd.yaml
+ │   ├── ceph-ssd.yaml
+ │   ├── ceph-storage.yaml
+ │   ├── compute.yaml
+ │   ├── controller.yaml
+ │   ├── networker.yaml
+ │   └── telemetry.yaml
+ ├── uos-network-config           <span class="c1"># 环境中的网络配置</span>
+ │   ├── enable-jumbo-frame.yaml
+ │   ├── fixed-vip.yaml
+ │   ├── ips-from-pool-all.yaml
+ │   ├── network-environment.yaml
+ │   ├── network-isolation-networker.yaml
+ │   ├── network-isolation-telemetry.yaml
+ │   └── network-isolation.yaml
+ └── uos-storage.yaml             <span class="c1"># 存储配置</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="id14">
+<h3>5.4.2. 部署架构<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<p>当前UOS支持以下几种Role部署架构:</p>
+<ul class="simple">
+<li>Controller + Compute 架构</li>
+<li>Controller + Compute + Ceph 架构</li>
+<li>Controller + Compute + Ceph + Networker + Telemetry 架构</li>
+</ul>
+<p>Controller + Compute 表示整个架构中只有Controller 和 Compute 节点。Compute节点可以使用hyperconverge scenario
+部署OSD。
+Controller + Compute + Ceph 表示环境中有Controller 、Compute 和 Ceph 这三种role。
+Controller + Compute + Ceph + Networker + Telemetry 是将网络服务和计量服务从控制节点中剥离出来，变成单独的节点。</p>
+<p>部署3台或以上Controller时，需要使用pacemaker来管理有状态服务，在deploy中添加 <code class="code docutils literal notranslate"><span class="pre">/usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml</span></code> 。部署1台Controller时不要添加。</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5</pre></div></td><td class="code"><div class="highlight"><pre><span></span>openstack overcloud deploy --templates <span class="se">\</span>
+  -r /usr/share/uos-heat-templates/roles/controller-compute.yaml <span class="se">\ </span>   - Controller + Compute 架构
+  -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml  - 大于等于3个Controller时需启用pacemaker <span class="se">\</span>
+  -e /usr/share/uos-heat-templates/scenario/uos-hyperconverged-ceph.yaml <span class="se">\ </span>  - 在Compute节点上部署OSD
+  -e /home/stack/templates/environments/cloudname.yaml   - 各个类型的节点数。
+</pre></div>
+</td></tr></table></div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">当Ceph Mon 部署在Controller节点上的时候，不要使用偶数个Controller节点。</p>
+</div>
+</div>
+<div class="section" id="id15">
+<h3>5.4.3. 部署组件<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<p>UOS同时提供了一些可选组件:</p>
+<ul class="simple">
+<li>Shadowfiend （Billing）</li>
+<li>Cloudkitty   (Rating)</li>
+<li>NeutronUpluginAgent</li>
+</ul>
+<div class="section" id="billing">
+<h4>5.4.3.1. 开启billing<a class="headerlink" href="#billing" title="Permalink to this headline">¶</a></h4>
+<p>在deploy中添加 <code class="code docutils literal notranslate"><span class="pre">-e</span> <span class="pre">/usr/share/uos-heat-templates/environments/uos-billing.yaml</span></code></p>
+</div>
+<div class="section" id="rating">
+<h4>5.4.3.2. 开启Rating<a class="headerlink" href="#rating" title="Permalink to this headline">¶</a></h4>
+<p>在deploy中添加 <code class="code docutils literal notranslate"><span class="pre">-e</span> <span class="pre">/usr/share/uos-heat-templates/environments/uos-rating.yaml</span></code></p>
+</div>
+<div class="section" id="uplugin">
+<h4>5.4.3.3. 启用uplugin<a class="headerlink" href="#uplugin" title="Permalink to this headline">¶</a></h4>
+<p>在deploy中添加 <code class="code docutils literal notranslate"><span class="pre">-e</span> <span class="pre">/usr/share/uos-heat-templates/environments/uos-neutron-uplugin.yaml</span></code></p>
+</div>
+</div>
+<div class="section" id="id16">
+<h3>5.4.4. 修改网络配置<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<p>网络配置文件位于templates/uos-network-config/</p>
+<p><strong>network-environment.yaml</strong></p>
+<p>这个yaml用来描述整个环境的网络配置:</p>
+<ul class="simple">
+<li>各个节点的网卡配置文件位置(nic-config)</li>
+<li>各个网络的vlan id、cidr、网关、以及地址分配范围。</li>
+<li>bond模式: 如果nic-config里面使用的是Linux Bond,那么这里就只需要填写Linux Bond (LinuxBondOptions)的参数
+反之也是，nic-config里面使用的是ovs-bond，这里就只需要填写ovs bond (BondInterfaceOvsOptions)的参数。</li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1">#This file is an example of an environment file for defining the isolated</span>
+<span class="c1">#networks and related parameters.</span>
+<span class="l l-Scalar l-Scalar-Plain">resource_registry</span><span class="p p-Indicator">:</span>
+  <span class="c1"># Network Interface templates to use (these files must exist)</span>
+  <span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Controller::Net::SoftwareConfig</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">../nic-configs/controller.yaml</span>
+  <span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Compute::Net::SoftwareConfig</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">../nic-configs/compute.yaml</span>
+<span class="c1">#  OS::TripleO::CephStorage::Net::SoftwareConfig:</span>
+<span class="c1">#    ../nic-configs/ceph-storage.yaml</span>
+<span class="c1">#  OS::TripleO::CephSSD::Net::SoftwareConfig:</span>
+<span class="c1">#    ../nic-configs/ceph-ssd.yaml</span>
+<span class="c1">#  OS::TripleO::CephHDD::Net::SoftwareConfig:</span>
+<span class="c1">#    ../nic-configs/ceph-hdd.yaml</span>
+<span class="c1">#  OS::TripleO::Telemetry::Net::SoftwareConfig:</span>
+<span class="c1">#    ../nic-configs/telemetry.yaml</span>
+<span class="c1">#  OS::TripleO::Networker::Net::SoftwareConfig:</span>
+<span class="c1">#    ../nic-configs/networker.yaml</span>
+
+<span class="l l-Scalar l-Scalar-Plain">parameter_defaults</span><span class="p p-Indicator">:</span>
+  <span class="c1"># This section is where deployment-specific configuration is done</span>
+  <span class="c1"># CIDR subnet mask length for provisioning network</span>
+  <span class="l l-Scalar l-Scalar-Plain">ControlPlaneSubnetCidr</span><span class="p p-Indicator">:</span> <span class="s">&#39;24&#39;</span>
+  <span class="c1"># Gateway router for the provisioning network (or Undercloud IP)</span>
+  <span class="l l-Scalar l-Scalar-Plain">ControlPlaneDefaultRoute</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">172.16.10.1</span>
+  <span class="l l-Scalar l-Scalar-Plain">EC2MetadataIp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">172.16.10.20</span>  <span class="c1"># Generally the IP of the Undercloud</span>
+  <span class="c1"># Management network</span>
+  <span class="c1"># Customize the IP ranges on each network to use for static IPs and VIPs</span>
+  <span class="l l-Scalar l-Scalar-Plain">ManagementNetworkVlanID</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1101</span>
+  <span class="l l-Scalar l-Scalar-Plain">ManagementNetCidr</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">172.16.11.0/24</span>
+  <span class="l l-Scalar l-Scalar-Plain">ManagementAllocationPools</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[{</span><span class="s">&#39;start&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;172.16.11.30&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;end&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;172.16.11.249&#39;</span><span class="p p-Indicator">}]</span>
+  <span class="l l-Scalar l-Scalar-Plain">ManagementInterfaceDefaultRoute</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">172.16.11.1</span>
+  <span class="c1"># Internal API network</span>
+  <span class="c1"># Customize the IP ranges on each network to use for static IPs and VIPs</span>
+  <span class="l l-Scalar l-Scalar-Plain">InternalApiNetworkVlanID</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1102</span>
+  <span class="l l-Scalar l-Scalar-Plain">InternalApiNetCidr</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">172.16.12.0/24</span>
+  <span class="l l-Scalar l-Scalar-Plain">InternalApiAllocationPools</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[{</span><span class="s">&#39;start&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;172.16.12.30&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;end&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;172.16.12.249&#39;</span><span class="p p-Indicator">}]</span>
+  <span class="c1"># Storage network</span>
+  <span class="c1"># Customize the IP ranges on each network to use for static IPs and VIPs</span>
+  <span class="l l-Scalar l-Scalar-Plain">StorageNetworkVlanID</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1103</span>
+  <span class="l l-Scalar l-Scalar-Plain">StorageNetCidr</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">172.16.13.0/24</span>
+  <span class="l l-Scalar l-Scalar-Plain">StorageAllocationPools</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[{</span><span class="s">&#39;start&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;172.16.13.30&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;end&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;172.16.13.249&#39;</span><span class="p p-Indicator">}]</span>
+  <span class="c1"># Storage management network</span>
+  <span class="c1"># Customize the IP ranges on each network to use for static IPs and VIPs</span>
+  <span class="l l-Scalar l-Scalar-Plain">StorageMgmtNetworkVlanID</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1104</span>
+  <span class="l l-Scalar l-Scalar-Plain">StorageMgmtNetCidr</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">172.16.14.0/24</span>
+  <span class="l l-Scalar l-Scalar-Plain">StorageMgmtAllocationPools</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[{</span><span class="s">&#39;start&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;172.16.14.30&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;end&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;172.16.14.249&#39;</span><span class="p p-Indicator">}]</span>
+  <span class="c1"># Tenant network</span>
+  <span class="c1"># Customize the IP ranges on each network to use for static IPs and VIPs</span>
+  <span class="l l-Scalar l-Scalar-Plain">TenantNetworkVlanID</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1105</span>
+  <span class="l l-Scalar l-Scalar-Plain">TenantNetCidr</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">172.16.15.0/24</span>
+  <span class="l l-Scalar l-Scalar-Plain">TenantAllocationPools</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[{</span><span class="s">&#39;start&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;172.16.15.30&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;end&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;172.16.15.249&#39;</span><span class="p p-Indicator">}]</span>
+  <span class="c1"># External network</span>
+  <span class="c1"># Customize the IP ranges on each network to use for static IPs and VIPs</span>
+  <span class="l l-Scalar l-Scalar-Plain">ExternalNetworkVlanID</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1106</span>
+  <span class="l l-Scalar l-Scalar-Plain">ExternalNetCidr</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">172.16.16.0/24</span>
+  <span class="l l-Scalar l-Scalar-Plain">ExternalAllocationPools</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[{</span><span class="s">&#39;start&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;172.16.16.30&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;end&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;172.16.16.249&#39;</span><span class="p p-Indicator">}]</span>
+  <span class="c1"># Gateway router for the external network</span>
+  <span class="l l-Scalar l-Scalar-Plain">ExternalInterfaceDefaultRoute</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">172.16.16.1</span>
+  <span class="c1"># Uncomment if using the Management Network (see network-management.yaml)</span>
+  <span class="c1"># Use either this parameter or ControlPlaneDefaultRoute in the NIC templates</span>
+  <span class="c1"># Define the DNS servers (maximum 2) for the overcloud nodes</span>
+  <span class="l l-Scalar l-Scalar-Plain">DnsServers</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;119.29.29.29&quot;</span><span class="p p-Indicator">]</span>
+  <span class="c1"># Set to empty string to enable multiple external networks or VLANs</span>
+  <span class="l l-Scalar l-Scalar-Plain">NeutronExternalNetworkBridge</span><span class="p p-Indicator">:</span> <span class="s">&quot;&#39;&#39;&quot;</span>
+  <span class="c1"># The tunnel type for the tenant network (vxlan or gre). Set to &#39;&#39; to disable tunneling.</span>
+  <span class="l l-Scalar l-Scalar-Plain">NeutronTunnelTypes</span><span class="p p-Indicator">:</span> <span class="s">&#39;vxlan&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">NeutronTenantNetwork</span><span class="p p-Indicator">:</span> <span class="s">&#39;vxlan&#39;</span>
+  <span class="c1"># ovs-bond bonding options e.g. &quot;lacp=active bond_mode=balance-slb&quot; and do</span>
+  <span class="c1"># not use bond_mode=balance-tcp</span>
+  <span class="c1">#BondInterfaceOvsOptions: &quot;lacp=active bond_mode=balance-slb&quot;</span>
+  <span class="c1"># either use ovs-bond or linux-bond. Recommend to use linux bond</span>
+  <span class="c1"># linux bonding options, e.g. &quot;mode=4 lacp_rate=1 updelay=1000 miimon=100&quot;</span>
+  <span class="l l-Scalar l-Scalar-Plain">LinuxBondOptions</span><span class="p p-Indicator">:</span> <span class="s">&#39;mode=802.3ad&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">NeutronBridgeMappings</span><span class="p p-Indicator">:</span> <span class="s">&quot;datacentre:br-ex&quot;</span>
+  <span class="l l-Scalar l-Scalar-Plain">NeutronNetworkVLANRanges</span><span class="p p-Indicator">:</span>  <span class="s">&quot;datacentre:1116:1120&quot;</span>
+  <span class="c1"># If you want update overcloud&#39;s nic-config after create stack</span>
+  <span class="c1"># uncomment follow option,and after update comment it</span>
+  <span class="c1"># NetworkDeploymentActions: [&#39;CREATE&#39;, &#39;UPDATE&#39;]</span>
+</pre></div>
+</div>
+<p><strong>network-isolation.yaml</strong></p>
+<p>这个文件定义了UOS的网络。</p>
+<p>假如我们要关掉Management这条网络，需要做以下几件事情:</p>
+<ul class="simple">
+<li>在network-isolation.yaml里面注释掉 <code class="code docutils literal notranslate"><span class="pre">OS::TripleO::Network::Management</span></code> 这一行</li>
+<li>在network-isolation.yaml里面注释掉所有节点的 <code class="code docutils literal notranslate"><span class="pre">ManagementPort</span></code>,
+比如controller节点 <code class="code docutils literal notranslate"><span class="pre">#OS::TripleO::Controller::Ports::ManagementPort</span></code></li>
+<li>在nic-configs目录中，去掉所有节点的Management网络</li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Network::External</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/external.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Network::InternalApi</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/internal_api.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Network::StorageMgmt</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/storage_mgmt.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Network::Storage</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/storage.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Network::Tenant</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/tenant.yaml</span>
+<span class="c1">#OS::TripleO::Network::Management: /usr/share/openstack-tripleo-heat-templates/network/management.yaml</span>
+<span class="c1"># Port assignments for the VIPs</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Network::Ports::ExternalVipPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Network::Ports::InternalApiVipPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/internal_api.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Network::Ports::StorageVipPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/storage.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Network::Ports::StorageMgmtVipPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/storage_mgmt.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Network::Ports::RedisVipPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/vip.yaml</span>
+
+<span class="c1"># Port assignments for service virtual IPs for the controller role</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Controller::Ports::RedisVipPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/vip.yaml</span>
+<span class="c1"># Port assignments for the controller role</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Controller::Ports::ExternalPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Controller::Ports::InternalApiPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/internal_api.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Controller::Ports::StoragePort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/storage.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Controller::Ports::StorageMgmtPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/storage_mgmt.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Controller::Ports::TenantPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/tenant.yaml</span>
+<span class="c1">#OS::TripleO::Controller::Ports::ManagementPort: /usr/share/openstack-tripleo-heat-templates/network/ports/management.yaml</span>
+
+<span class="c1"># Port assignments for the compute role</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Compute::Ports::ExternalPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Compute::Ports::InternalApiPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/internal_api.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Compute::Ports::StoragePort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/storage.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Compute::Ports::StorageMgmtPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/storage_mgmt.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">OS::TripleO::Compute::Ports::TenantPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/network/ports/tenant.yaml</span>
+<span class="c1">#OS::TripleO::Compute::Ports::ManagementPort: /usr/share/openstack-tripleo-heat-templates/network/ports/management.yaml</span>
+</pre></div>
+</div>
+<p><strong>network-isolation-networker.yaml</strong></p>
+<p>当有独立的networker节点时，在deploy.sh中引用此模板,此模板只定义了networker节点所拥有的网络。</p>
+<p><strong>network-isolation.telemetry.yaml</strong></p>
+<p>当有独立的telemetry节点时，在deploy.sh中引用此模板,此模板只定义了telemetry节点所拥有的网络。</p>
+<p><strong>ips-from-pool-all.yaml  (已弃用)</strong></p>
+<p>当需要为每个节点手动指定IP时，使用这个模板。</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">最好不要为每个节点单独定义IP地址，这样在未来扩容的时候会有问题。</p>
+</div>
+<p><strong>enable-jumbo-frame.yaml</strong></p>
+<p>当前网络环境具备巨型帧时，在部署时引用这个模板。</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">parameter_defaults</span><span class="p p-Indicator">:</span>
+  <span class="c1"># MTU value for non pxe port</span>
+  <span class="l l-Scalar l-Scalar-Plain">MTU</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">9216</span>
+  <span class="l l-Scalar l-Scalar-Plain">ExtraConfig</span><span class="p p-Indicator">:</span>
+  <span class="c1">#neutron mtu config</span>
+    <span class="l l-Scalar l-Scalar-Plain">neutron::plugins::ml2::path_mtu</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1500</span>
+    <span class="l l-Scalar l-Scalar-Plain">neutron::global_physnet_mtu</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">9200</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id17">
+<h3>5.4.5. 主机网卡配置<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<p>各个主机的网卡配置nic-configs文件夹中。</p>
+<p>以controller 为例, 以下配置文件描述了:</p>
+<ul class="simple">
+<li>ControlPlaneIP(PXE IP) 直接使用了第一张千兆网卡,没有使用网桥</li>
+<li>用ovs 做了br-ex网桥,两张万兆网卡做了linux bond</li>
+<li>External Network ,Inetnal Network … 等等这些网络IP全部建在br-ex里。</li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">network_config</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span>
+    <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">interface</span>
+    <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nic3</span>
+    <span class="l l-Scalar l-Scalar-Plain">use_dhcp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="l l-Scalar l-Scalar-Plain">addresses</span><span class="p p-Indicator">:</span>
+      <span class="p p-Indicator">-</span>
+        <span class="l l-Scalar l-Scalar-Plain">ip_netmask</span><span class="p p-Indicator">:</span>
+          <span class="l l-Scalar l-Scalar-Plain">list_join</span><span class="p p-Indicator">:</span>
+            <span class="p p-Indicator">-</span> <span class="s">&#39;/&#39;</span>
+            <span class="p p-Indicator">-</span> <span class="p p-Indicator">-</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">ControlPlaneIp</span><span class="p p-Indicator">}</span>
+              <span class="p p-Indicator">-</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">ControlPlaneSubnetCidr</span><span class="p p-Indicator">}</span>
+    <span class="l l-Scalar l-Scalar-Plain">routes</span><span class="p p-Indicator">:</span>
+      <span class="p p-Indicator">-</span>
+        <span class="l l-Scalar l-Scalar-Plain">ip_netmask</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">169.254.169.254/32</span>
+        <span class="l l-Scalar l-Scalar-Plain">next_hop</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">EC2MetadataIp</span><span class="p p-Indicator">}</span>
+  <span class="p p-Indicator">-</span>
+    <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ovs_bridge</span>
+    <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_input</span><span class="p p-Indicator">:</span> <span class="nv">bridge_name</span><span class="p p-Indicator">}</span>
+    <span class="l l-Scalar l-Scalar-Plain">mtu</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">MTU</span><span class="p p-Indicator">}</span>
+    <span class="l l-Scalar l-Scalar-Plain">dns_servers</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">DnsServers</span><span class="p p-Indicator">}</span>
+    <span class="l l-Scalar l-Scalar-Plain">members</span><span class="p p-Indicator">:</span>
+      <span class="p p-Indicator">-</span>
+        <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">linux_bond</span>
+        <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">bond1</span>
+        <span class="l l-Scalar l-Scalar-Plain">bonding_options</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">LinuxBondOptions</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">mtu</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">MTU</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">members</span><span class="p p-Indicator">:</span>
+          <span class="p p-Indicator">-</span>
+            <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">interface</span>
+            <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nic1</span>
+            <span class="l l-Scalar l-Scalar-Plain">mtu</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">MTU</span><span class="p p-Indicator">}</span>
+            <span class="l l-Scalar l-Scalar-Plain">primary</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+          <span class="p p-Indicator">-</span>
+            <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">interface</span>
+            <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nic2</span>
+      <span class="p p-Indicator">-</span>
+        <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">vlan</span>
+        <span class="l l-Scalar l-Scalar-Plain">device</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">bond1</span>
+        <span class="l l-Scalar l-Scalar-Plain">vlan_id</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">ExternalNetworkVlanID</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">mtu</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">MTU</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">addresses</span><span class="p p-Indicator">:</span>
+          <span class="p p-Indicator">-</span>
+            <span class="l l-Scalar l-Scalar-Plain">ip_netmask</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">ExternalIpSubnet</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">routes</span><span class="p p-Indicator">:</span>
+          <span class="p p-Indicator">-</span>
+            <span class="l l-Scalar l-Scalar-Plain">default</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+            <span class="l l-Scalar l-Scalar-Plain">next_hop</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">ExternalInterfaceDefaultRoute</span><span class="p p-Indicator">}</span>
+      <span class="p p-Indicator">-</span>
+        <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">vlan</span>
+        <span class="l l-Scalar l-Scalar-Plain">device</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">bond1</span>
+        <span class="l l-Scalar l-Scalar-Plain">vlan_id</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">InternalApiNetworkVlanID</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">mtu</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">MTU</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">addresses</span><span class="p p-Indicator">:</span>
+          <span class="p p-Indicator">-</span>
+            <span class="l l-Scalar l-Scalar-Plain">ip_netmask</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">InternalApiIpSubnet</span><span class="p p-Indicator">}</span>
+      <span class="p p-Indicator">-</span>
+        <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">vlan</span>
+        <span class="l l-Scalar l-Scalar-Plain">device</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">bond1</span>
+        <span class="l l-Scalar l-Scalar-Plain">vlan_id</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">StorageNetworkVlanID</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">mtu</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">MTU</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">addresses</span><span class="p p-Indicator">:</span>
+          <span class="p p-Indicator">-</span>
+            <span class="l l-Scalar l-Scalar-Plain">ip_netmask</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">StorageIpSubnet</span><span class="p p-Indicator">}</span>
+      <span class="p p-Indicator">-</span>
+        <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">vlan</span>
+        <span class="l l-Scalar l-Scalar-Plain">device</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">bond1</span>
+        <span class="l l-Scalar l-Scalar-Plain">vlan_id</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">StorageMgmtNetworkVlanID</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">mtu</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">MTU</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">addresses</span><span class="p p-Indicator">:</span>
+          <span class="p p-Indicator">-</span>
+            <span class="l l-Scalar l-Scalar-Plain">ip_netmask</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">StorageMgmtIpSubnet</span><span class="p p-Indicator">}</span>
+      <span class="p p-Indicator">-</span>
+        <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">vlan</span>
+        <span class="l l-Scalar l-Scalar-Plain">device</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">bond1</span>
+        <span class="l l-Scalar l-Scalar-Plain">vlan_id</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">TenantNetworkVlanID</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">mtu</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">MTU</span><span class="p p-Indicator">}</span>
+        <span class="l l-Scalar l-Scalar-Plain">addresses</span><span class="p p-Indicator">:</span>
+          <span class="p p-Indicator">-</span>
+            <span class="l l-Scalar l-Scalar-Plain">ip_netmask</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span><span class="nv">get_param</span><span class="p p-Indicator">:</span> <span class="nv">TenantIpSubnet</span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="uos-storage">
+<h3>5.4.6. 部署 UOS Storage<a class="headerlink" href="#uos-storage" title="Permalink to this headline">¶</a></h3>
+<p>目前UOS Storage 支持以下几种部署方式:</p>
+<ul class="simple">
+<li>计算节点部署OSD</li>
+<li>存储节点部署OSD</li>
+<li>计算节点(SSD)+存储节点(HDD)</li>
+</ul>
+<div class="section" id="osd">
+<h4>5.4.6.1. 计算节点部署OSD<a class="headerlink" href="#osd" title="Permalink to this headline">¶</a></h4>
+<p>计算节点部署OSD，俗称计算存储融合节点。</p>
+<p>编辑uos-storage.yaml</p>
+<ul class="simple">
+<li><code class="code docutils literal notranslate"><span class="pre">ceph::profile::params::osds</span></code> 下面填写用来作为osd的磁盘。</li>
+<li><code class="code docutils literal notranslate"><span class="pre">'/dev/sdb':</span> <span class="pre">{}</span></code> 表示使用sdb作为osd，自身分区作为这个osd的Journal。</li>
+<li>如果使用其他盘作为Journal可以这样写: <code class="code docutils literal notranslate"><span class="pre">'/dev/sdb':</span> <span class="pre">{journal:</span> <span class="pre">'/dev/sdj'}</span></code></li>
+<li><code class="code docutils literal notranslate"><span class="pre">ceph::profile::params::osd_pool_default_size</span></code> 填写默认副本数</li>
+<li>如果osd不是分布在3个以上的机柜，把 <code class="code docutils literal notranslate"><span class="pre">mon/mon_osd_reporter_subtree_level</span> <span class="pre">,</span> <span class="pre">mon/mon_osd_down_out_subtree_limit</span></code>
+设为host</li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">parameter_defaults</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">ExtraConfig</span><span class="p p-Indicator">:</span>
+    <span class="c1"># osd disks</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osds</span><span class="p p-Indicator">:</span>
+            <span class="s">&#39;/dev/sdb&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+            <span class="s">&#39;/dev/sdc&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+            <span class="s">&#39;/dev/sdd&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+    <span class="c1"># osd 副本数</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osd_pool_default_min_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osd_pool_default_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+    <span class="c1"># 每osd分配100个pg。pgp和pg数量一致。</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osd_pool_default_pg_num</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">128</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osd_pool_default_pgp_num</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">128</span>
+
+    <span class="l l-Scalar l-Scalar-Plain">ceph::conf::args</span><span class="p p-Indicator">:</span>
+      <span class="c1"># if not three racks, set &#39;host&#39;</span>
+      <span class="l l-Scalar l-Scalar-Plain">mon/mon_osd_reporter_subtree_level</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="s">&#39;rack&#39;</span>
+      <span class="c1"># if not three racks, set &#39;host&#39;</span>
+      <span class="l l-Scalar l-Scalar-Plain">mon/mon_osd_down_out_subtree_limit</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="s">&#39;rack&#39;</span>
+      <span class="c1"># set osd auto mark out interval</span>
+      <span class="l l-Scalar l-Scalar-Plain">mon/mon_osd_down_out_interval</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">3600</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">不要把系统盘作为osd盘或者Journal盘</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">如果使用独立Journal盘，每个Journal盘不要带过多的osd(&lt;=6)</p>
+</div>
+<p>在deploy.sh中添加 <code class="code docutils literal notranslate"><span class="pre">-e</span> <span class="pre">/usr/share/uos-heat-templates/environments/scenario/hyperconverged-compute.yaml</span></code></p>
+</div>
+<div class="section" id="id18">
+<h4>5.4.6.2. 存储节点部署OSD<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
+<p>存储节点部署OSD指的是计算存储分离，计算节点只负责计算，存储节点只负责存储。</p>
+<p>在 <strong>/home/stack/templates/cloudname.yaml</strong> 中指定存储节点的数量。
+如果是SSD存储节点就填写CephSSDCount,如果是HDD存储节点，就填写CephHDDCount。</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">parameter_defaults</span><span class="p p-Indicator">:</span>
+  <span class="c1">## cluster node setting</span>
+  <span class="l l-Scalar l-Scalar-Plain">ControllerCount</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+  <span class="l l-Scalar l-Scalar-Plain">ComputeCount</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+  <span class="l l-Scalar l-Scalar-Plain">CephSSDCount</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+  <span class="l l-Scalar l-Scalar-Plain">CephHDDCount</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+</pre></div>
+</div>
+<p>编辑uos-storage.yaml</p>
+<ul class="simple">
+<li><code class="code docutils literal notranslate"><span class="pre">ceph::profile::params::osds</span></code> 下面填写用来作为osd的磁盘。</li>
+<li><code class="code docutils literal notranslate"><span class="pre">'/dev/sdb':</span> <span class="pre">{}</span></code> 表示使用sdb作为osd，自身分区作为这个osd的Journal。</li>
+<li>如果使用其他盘作为Journal可以这样写: <code class="code docutils literal notranslate"><span class="pre">'/dev/sdb':</span> <span class="pre">{journal:</span> <span class="pre">'/dev/sdj'}</span></code></li>
+<li><code class="code docutils literal notranslate"><span class="pre">ceph::profile::params::osd_pool_default_size</span></code> 填写默认副本数</li>
+<li>如果osd不是分布在3个以上的机柜，把 <code class="code docutils literal notranslate"><span class="pre">mon/mon_osd_reporter_subtree_level</span> <span class="pre">,</span> <span class="pre">mon/mon_osd_down_out_subtree_limit</span></code>
+设为host</li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">parameter_defaults</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">ExtraConfig</span><span class="p p-Indicator">:</span>
+    <span class="c1"># osd disks</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osds</span><span class="p p-Indicator">:</span>
+            <span class="s">&#39;/dev/sdb&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+            <span class="s">&#39;/dev/sdc&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+            <span class="s">&#39;/dev/sdd&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+    <span class="c1"># osd 副本数</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osd_pool_default_min_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osd_pool_default_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+    <span class="c1"># 每osd分配100个pg。pgp和pg数量一致。</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osd_pool_default_pg_num</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">128</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osd_pool_default_pgp_num</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">128</span>
+
+    <span class="l l-Scalar l-Scalar-Plain">ceph::conf::args</span><span class="p p-Indicator">:</span>
+      <span class="c1"># if not three racks, set &#39;host&#39;</span>
+      <span class="l l-Scalar l-Scalar-Plain">mon/mon_osd_reporter_subtree_level</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="s">&#39;rack&#39;</span>
+      <span class="c1"># if not three racks, set &#39;host&#39;</span>
+      <span class="l l-Scalar l-Scalar-Plain">mon/mon_osd_down_out_subtree_limit</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="s">&#39;rack&#39;</span>
+      <span class="c1"># set osd auto mark out interval</span>
+      <span class="l l-Scalar l-Scalar-Plain">mon/mon_osd_down_out_interval</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">3600</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">不要把系统盘作为osd盘或者Journal盘</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">如果使用独立Journal盘，每个Journal盘不要带过多的osd(&lt;=6)</p>
+</div>
+</div>
+<div class="section" id="ssd-hdd">
+<h4>5.4.6.3. 计算节点(SSD)+存储节点(HDD)<a class="headerlink" href="#ssd-hdd" title="Permalink to this headline">¶</a></h4>
+<p>计算节点和存储节点同时需要部署两种不同类型的OSD。</p>
+<p>在 <strong>/home/stack/templates/cloudname.yaml</strong> 中指定计算节点和存储节点的数量。
+如果是SSD存储节点就填写CephSSDCount,如果是HDD存储节点，就填写CephHDDCount。</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">parameter_defaults</span><span class="p p-Indicator">:</span>
+  <span class="c1">## cluster node setting</span>
+  <span class="l l-Scalar l-Scalar-Plain">ControllerCount</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+  <span class="l l-Scalar l-Scalar-Plain">ComputeCount</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+  <span class="l l-Scalar l-Scalar-Plain">CephSSDCount</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+  <span class="l l-Scalar l-Scalar-Plain">CephHDDCount</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+</pre></div>
+</div>
+<p>我们需要通过hieradata同时指定两种不同类型的节点osd数量以及Journal盘。
+在ExtraConfig中的hieradata指定计算节点的osd，通过NodeDataLookup来指定存储节点节点的hieradata.</p>
+<p>1. 拷贝 <code class="code docutils literal notranslate"><span class="pre">/usr/share/uos-heat-templates/environments/uos-ceph-node-specific.yaml</span></code> 到 <code class="code docutils literal notranslate"><span class="pre">/home/stack/tempaltes/</span></code>,
+编辑 <code class="code docutils literal notranslate"><span class="pre">/home/stack/tempaltes/uos-ceph-node-specific.yaml</span></code>:</p>
+<p>2. 填写NodeDataLookup, NodeDataLookup需要物理机的node uuid,可以通过以下命令获取node uuid
+<code class="code docutils literal notranslate"><span class="pre">openstack</span> <span class="pre">baremetal</span> <span class="pre">introspection</span> <span class="pre">data</span> <span class="pre">save</span> <span class="pre">NODE-ID</span> <span class="pre">|</span> <span class="pre">jq</span> <span class="pre">.extra.system.product.uuid</span></code></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">resource_registry</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">OS::TripleO::CephHDDExtraConfigPre</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/openstack-tripleo-heat-templates/puppet/extraconfig/pre_deploy/per_node.yaml</span>
+
+<span class="l l-Scalar l-Scalar-Plain">parameter_defaults</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">NodeDataLookup</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">|</span>
+    <span class="no">{&quot;00000000-0000-0000-0000-0CC47A50AAFC&quot;: # node uuid</span>
+      <span class="no">{&quot;ceph::profile::params::osds&quot;:</span>
+       <span class="no">{&quot;/dev/sdb&quot;: {&quot;journal&quot;: &quot;/dev/sdg&quot;},</span>
+        <span class="no">&quot;/dev/sdc&quot;: {&quot;journal&quot;: &quot;/dev/sdg&quot;}}},</span>
+    <span class="no">&quot;00000000-0000-0000-0000-0CC47A50B368&quot;:  # node uuid</span>
+      <span class="no">{&quot;ceph::profile::params::osds&quot;:</span>
+       <span class="no">{&quot;/dev/sdb&quot;: {&quot;journal&quot;: &quot;/dev/sdg&quot;},</span>
+        <span class="no">&quot;/dev/sdc&quot;: {&quot;journal&quot;: &quot;/dev/sdg&quot;}}}}</span>
+</pre></div>
+</div>
+<p>写完NodeDataLookup后，用python进行验证。如果以下代码可以正常输出NodeDatalookup则表示格式正确。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span><span class="o">,</span><span class="nn">yaml</span>
+<span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;uos-ceph-node-specific.yaml&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">))[</span><span class="s1">&#39;parameter_defaults&#39;</span><span class="p">][</span><span class="s1">&#39;NodeDataLookup&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">在NodeDataLookup中不要出现单引号(‘)</p>
+</div>
+</div>
+</div>
+<div class="section" id="id19">
+<h3>5.4.7. 部署 OverCloud<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<p>编写deploy.sh</p>
+<p>拷贝 <code class="code docutils literal notranslate"><span class="pre">/usr/share/uos-heat-templates/deploy.sh</span></code> 到 <code class="code docutils literal notranslate"><span class="pre">/home/stack/</span></code>
+根据实际情况编辑deploy.sh</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17</pre></div></td><td class="code"><div class="highlight"><pre><span></span>openstack overcloud deploy --templates --validation-warnings-fatal <span class="se">\</span>
+-r /usr/share/uos-heat-templates/roles/controller-compute.yaml <span class="se">\ </span>                    - 部署角色
+-e /usr/share/uos-heat-templates/environments/uos-resource-registry.yaml <span class="se">\ </span>          - 注册uos resource
+-e /usr/share/uos-heat-templates/environments/uos-firewall-disabled.yaml <span class="se">\ </span>          - 禁用overcloud 防火墙
+-e /usr/share/uos-heat-templates/environments/uos-services-config.yaml <span class="se">\ </span>            - UOS 默认配置
+-e /usr/share/uos-heat-templates/environments/uos-portal.yaml <span class="se">\ </span>                     - 开启UOS界面
+-e /usr/share/uos-heat-templates/environments/uos-baremetal-flavor.yaml <span class="se">\ </span>           - 各个节点部署时所用的flavor
+-e /usr/share/uos-heat-templates/environments/uos-ceph-environment.yaml <span class="se">\ </span>           - UOS Ceph 默认配置
+-e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml <span class="se">\ </span> - 启用pacemaker<span class="o">(</span>controller &gt;<span class="o">=</span><span class="m">3</span>时<span class="o">)</span>
+-e /home/stack/templates/environments/uos-network-config/network-isolation.yaml <span class="se">\ </span>   - 网络分离策略
+-e /home/stack/templates/environments/uos-network-config/network-environment.yaml <span class="se">\ </span> - 网络配置<span class="o">(</span>需要修改<span class="o">)</span>
+-e /home/stack/templates/environments/uos-network-config/fixed-vip.yaml <span class="se">\ </span>           - 各个网络的VIP地址<span class="o">(</span>需要修改<span class="o">)</span>
+-e /home/stack/templates/environments/uos-network-config/uos-storage.yaml <span class="se">\ </span>         - UOS Storage <span class="o">(</span>Ceph<span class="o">)(</span>需要修改<span class="o">)</span>
+-e /home/stack/templates/environments/<span class="o">{{</span> cloudname <span class="o">}}</span>.yaml <span class="se">\ </span>                        - 环境定制参数<span class="o">(</span>需要修改<span class="o">)</span>,cloudname 替换成实际环境名称
+<span class="c1">#  -e /usr/share/uos-heat-templates/environments/ceph-radosgw.yaml \                   - 启用ceph rgw(根据实际情况启用)</span>
+<span class="c1">#  -e /usr/share/uos-heat-templates/scenario/uos-hyperconverged-ceph.yaml \            - 启用融合节点</span>
+<span class="c1">#  -e /usr/share/uos-heat-templates/environments/disable-security-group.yaml           - 禁用安全组(不推荐)</span>
+</pre></div>
+</td></tr></table></div>
+<p>运行deploy.sh</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span>tmux
+bash deploy.sh
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="add-on.html" class="btn btn-neutral float-right" title="6. 额外组件部署">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="undercloud-deploy.html" class="btn btn-neutral" title="4. UnderCloud 部署"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+      &#169; Copyright 2017, UnitedStack Inc. All Rights Reserved.
+  </div>
+
+  
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:'./',
+          VERSION:'',
+          COLLAPSE_INDEX:false,
+          FILE_SUFFIX:'.html',
+          HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="static/jquery.js"></script>
+      <script type="text/javascript" src="static/underscore.js"></script>
+      <script type="text/javascript" src="static/doctools.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+    jQuery(function () {
+      SphinxRtdTheme.StickyNav.enable();
+    });
+  </script>
+   
+
+</body>
+</html>

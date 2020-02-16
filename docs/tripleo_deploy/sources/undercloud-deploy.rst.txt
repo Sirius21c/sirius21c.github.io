@@ -1,0 +1,214 @@
+UnderCloud 部署
+=================
+
+UnderCloud 是位于种子节点上的一台虚拟机。
+
+UnderCloud 部署需求
+-----------------------
+
+UnderCloud 负责提供 PXE 服务并且管理着所有的 Overcloud 节点。
+
+* 8 核 64 位 x86 CPU 处理器并且支持 Intel 64 或者 AMD64 CPU 扩展
+* 最小 16G 内存
+* 最小 40G 磁盘，并且有 10G 剩余空间
+* 最少需要两块网卡（1Gbps）,当部署大规模（>24台）OverCloud 集群时，推荐使用 10Gbps 作为 PXE 网卡
+* CentOS 7.3/7.4 系统
+* UnderCloud 系统必须启用 SELinux
+
+UnderCloud 网络
+-------------------
+
+* 部署网络 (PXE)
+  - 连接同一网络内的 OverCloud 节点
+  - 实现 DHCP 和 PXE BOOT
+  - 物理机会通过这个网络来 PXE 启动
+  - 提供 UnderCloud 的外部访问
+  - 访问 OverCloud 节点的 SSH 网络
+  - 访问 OverCloud 物理机的电源管理网络（IPMI）
+* 外部网络（External）
+  - 访问 OverCloud 的 External 网络
+
+配置 UnderrCloud 网络
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+配置 UnderCloud PXE 网络
+
+配置 UnderCloud External 网络
+
+UnderCloud 环境准备
+-----------------------
+
+创建 stack 用户
+~~~~~~~~~~~~~~~~~~~~~
+
+安装 UnderCloud 时需要非 root 用户来执行。我们统一使用 stack 用户。
+
+.. code-block:: shell
+
+   # useradd stack
+   # passwd stack
+
+设置无密码 sudo 权限
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   # echo "stack ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/stack
+   # chmod 0440 /etc/sudoers.d/stack
+
+切换到 stack 用户后，再 su 切换到 root，观察是否需要输入密码
+
+.. code-block:: shell
+
+   [root@undercloud ~]# su - stack
+   [stack@undercloud ~]$ sudo su - root
+
+后面所有的操作均在 stack 用户下进行。
+
+设置主机名
+~~~~~~~~~~~~~~~~
+
+UnderCloud 在安装时需要检测 FQDN，通过以下方式来设置主机名：
+
+.. code-block:: shell
+
+   $ sudo hostnamectl set-hostname undercloud.example.com
+   $ sudo hostnamectl set-hostname --transient undercloud.example.com
+
+UnderCloud 也需要主机名存在 hosts 文件中，在 hosts 文件中添加刚才设置的主机名。 注意设置 UnderCloud 主机名时也要添加短名。
+
+.. code-block:: shell
+
+   $ sudo vim /etc/hosts
+   127.0.0.1 undercloud.example.com undercloud
+
+设置软件源
+~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   # 删除所有现有 repo
+   $ sudo rm -f /etc/yum.repos.d/*.repo
+
+   # 拷贝 repo 文件到 /etc/yum.repos.d/
+   $ sudo curl http://<seed_node_ip>/uos-4.0-production.repo -o /etc/yum.repos.d/uos-4.0-production.repo
+
+   $ sudo yum clean metadata
+   $ sudo yum makecache
+   $ sudo yum install -y yum-plugin-priorities vim tmux
+
+安装所需的软件包
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   $ sudo yum install -y python-tripleoclient  uos-heat-templates
+
+3.3.6 拷贝 UnderCloud 网卡配置文件
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   $ sudo cp /usr/share/uos-heat-templates/nic-configs/undercloud/net-config.json.template ~/
+
+定义 UnderCloud 配置文件
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+拷贝 undercloud.conf 模板到当前用户目录
+
+.. code-block:: shell
+
+   $ sudo cp /usr/share/instack-undercloud/undercloud.conf.sample ~/undercloud.conf
+
+根据环境定义以下配置：
+
+.. code-block:: shell
+
+   [DEFAULT]
+   # UnderCloud PXE 网卡的 IP 地址
+   local_ip = 10.0.160.20/24
+
+   # UnderCloud 以及 OverCloud br-ctlplan 网络的网关
+   network_gateway = 10.0.160.1
+
+   # PXE 网络使用的网卡
+   local_interface = eth0
+
+   # PXE 网络的 CIDR
+   network_cidr = 10.0.160.0/24
+
+   # 与 PXE 网络一致
+   masquerade_network = 10.0.160.0/24
+
+   # OverCloud node 通过 Neutron 分配获取到的地址
+   dhcp_start = 10.0.160.5
+   dhcp_end = 10.0.160.24
+
+   # 为了能够使用 UOS Director UI 我们需要把网关起在 PXE 网络上,
+   # 使用包含网关的网络配置模板来安装 Undercloud
+   net_config_override = net-config.json.template
+
+   # inspection 网卡，默认使用 br-ctlplane 即可
+   inspection_interface = br-ctlplane
+
+   # 对 OverCloud node 进行 introspection 时分配的 IP，注意不要和 dhcp_start, dhcp_end 重叠
+   # 这个range 可以使用未分配给 OverCloud 的 PXE 地址段
+   inspection_iprange = 10.0.160.100,10.0.160.120
+
+关闭docker-registry:
+
+在UOS4.0中暂未支持docker部署，所以需要关闭docker-registry。
+vim /home/stack/hiera_override.yaml,在其中添加:
+
+::
+
+   enable_docker_registry: false
+
+然后在~/undercloud.conf 中修改 hieradata_override
+
+::
+
+   hieradata_override = hiera_override.yaml
+
+安装 UnderCloud
+-------------------
+
+.. code-block:: shell
+
+   $ openstack undercloud install
+
+UnderCloud 卸载
+-------------------
+
+在实施过程中会遇到需要卸载 UnderCloud 的情况：
+
+* 删除 Heat stack 失败
+* 删除 Ironic node 失败
+* 重新部署 UnderCloud
+* 删除 UnderCloud
+
+备份配置文件
+~~~~~~~~~~~~~~~~~~
+
+1. 备份 undercloud.conf
+2. 备份 templates
+3. 删除 OverCloud
+
+   .. code-block:: shell
+
+      $ source ~/stackrc
+      $ openstack stack delete overcloud --wait
+
+删除 UnderCloud
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   $ source ~/stackrc
+   $ rm /home/stack/undercloud-passwords.conf
+   $ sudo systemctl list-unit-files | grep openstack | awk '{print $1}' | xargs -I {} sudo systemctl stop {}
+   $ sudo systemctl list-unit-files | grep neutron | awk '{print $1}' | xargs -I {} sudo systemctl stop {}
+   $ sudo systemctl stop keepalived
+   $ sudo rm -rf /var/lib/mysql /var/lib/rabbitmq /etc/keystone /opt/stack/.undercloud-setup /root/stackrc /home/stack/stackrc  /var/opt/undercloud-stack /var/lib/ironic-discoverd/discoverd.sqlite /var/lib/ironic-inspector/inspector.sqlite  /home/stack/.instack /root/tripleo-undercloud-passwords
+   $ dirs="ceilometer heat glance horizon ironic ironic-discoverd keystone neutron nova swift haproxy"; for dir in $dirs; do sudo rm -rf /etc/$dir ; sudo rm -rf /var/log/$dir ;  sudo rm -rf /var/lib/$dir; done
+   $ sudo yum remove -y rabbitmq-server mariadb haproxy keepalived $(rpm -qa | grep openstack)

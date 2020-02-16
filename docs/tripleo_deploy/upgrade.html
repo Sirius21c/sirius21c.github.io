@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>9. UOS 升级 &mdash; UOS Director  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="static/favicon-v2.ico"/>
+  
+
+  
+  
+    
+  
+
+  
+  
+    <link rel="stylesheet" href="static/css/theme.css" type="text/css" />
+  
+
+  
+
+  <link rel="stylesheet" href="static/css/header.css" />
+  <link rel="stylesheet" href="static/css/normalize.css" />
+  <link rel="stylesheet" href="static/css/footer.css" />
+        <link rel="index" title="Index" href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+
+    <link rel="top" title="UOS Director  documentation" href="index.html"/>
+        <link rel="prev" title="8. 运维工具部署" href="opstools/index.html"/> 
+
+  
+  <script type="text/javascript" src="static/js/modernizr.min.js"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+    <div class="nav">
+      <a href="https://www.ustack.com" title="UnitedStack" class="logo"></a>
+      <div class="nav-inner-r">
+        <ul class="nav-menu"></ul>
+      </div>
+    </div>
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+
+        
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">1. UOS Director 简介</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plan.html">2. 环境规划与准备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seed.html">3. 种子节点部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="undercloud-deploy.html">4. UnderCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overcloud-deploy.html">5. OverCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="add-on.html">6. 额外组件部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="post-deploy.html">7. OverCloud 初始化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opstools/index.html">8. 运维工具部署</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">9. UOS 升级</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">9.1. UOS 小版本升级</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#undercloud">9.1.1. undercloud 升级</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#overcloud">9.1.2. overcloud升级</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uos-4-3-1">9.1.3. UOS 4.3.1 升级注意事项</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+
+      <div class="wy-side-nav-search">
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">UOS Director</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>9. UOS 升级</li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="uos">
+<h1>9. UOS 升级<a class="headerlink" href="#uos" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>9.1. UOS 小版本升级<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>从UOS4.0 升级到4.3称为UOS 小版本升级。
+升级分为两部分，undercloud升级和overcloud 升级。</p>
+<div class="section" id="undercloud">
+<h3>9.1.1. undercloud 升级<a class="headerlink" href="#undercloud" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h4>9.1.1.1. 给undercloud打快照<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>登录undercloud，关机。</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>poweroff
+</pre></div>
+</td></tr></table></div>
+<p>到种子节点执行</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># 打快照</span>
+qemu-img snapshot -c <span class="m">2018</span>-1-9 /var/lib/libvirt/images/undercloud.qcow2
+<span class="c1"># 查看快照</span>
+qemu-img snapshot -l /var/lib/libvirt/images/undercloud.qcow2
+</pre></div>
+</td></tr></table></div>
+<p>启动 undercloud</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>virsh start undercloud
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="undercloud-package">
+<h4>9.1.1.2. 升级undercloud package<a class="headerlink" href="#undercloud-package" title="Permalink to this headline">¶</a></h4>
+<ol class="arabic simple">
+<li>登录到undercloud</li>
+<li>停止openstack服务</li>
+</ol>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ sudo systemctl stop <span class="s1">&#39;openstack-*&#39;</span> <span class="s1">&#39;neutron-*&#39;</span> httpd
+</pre></div>
+</td></tr></table></div>
+<ol class="arabic simple" start="3">
+<li>升级python-tripleoclient,maintenance</li>
+</ol>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ sudo yum update python-tripleoclient maintenance
+</pre></div>
+</td></tr></table></div>
+<ol class="arabic simple" start="4">
+<li>升级undercloud</li>
+</ol>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ openstack undercloud upgrade
+</pre></div>
+</td></tr></table></div>
+<p>当undercloud升级了kernel或者Open vSwitch 时需要重启。</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>reboot
+</pre></div>
+</td></tr></table></div>
+<p>重启完毕后检查所有服务的状态</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ sudo systemctl list-units <span class="s2">&quot;openstack*&quot;</span> <span class="s2">&quot;neutron*&quot;</span> <span class="s2">&quot;openvswitch*&quot;</span>
+</pre></div>
+</td></tr></table></div>
+<p>验证undercloud</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ <span class="nb">source</span> ~/stackrc
+$ openstack server list
+$ openstack baremetal node list
+$ openstack stack list
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+<div class="section" id="overcloud">
+<h3>9.1.2. overcloud升级<a class="headerlink" href="#overcloud" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h4>9.1.2.1. 升级overcloud 镜像<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p>将新overcloud镜像上传到undercloud的images目录</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ openstack overcloud image upload --update-existing --image-path /home/stack/images/
+$ openstack baremetal configure boot
+</pre></div>
+</td></tr></table></div>
+<p>验证新镜像</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ openstack image list
+$ ls -l /httpboot
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="id4">
+<h4>9.1.2.2. 升级overcloud<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<p>配置好新版本的yum源后，继续升级overcloud。</p>
+<ol class="arabic simple">
+<li>更新overcloud plan。</li>
+</ol>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ openstack overcloud deploy --update-plan-only <span class="se">\</span>
+--templates  <span class="se">\</span>
+<span class="o">[</span>-e &lt;environment_file&gt;<span class="p">|</span>...<span class="o">]</span>
+</pre></div>
+</td></tr></table></div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">根据升级版本的release note 来配置 -e 参数。</p>
+</div>
+<ol class="arabic simple" start="2">
+<li>更新overcloud</li>
+</ol>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ openstack overcloud update stack -i overcloud
+</pre></div>
+</td></tr></table></div>
+<p>执行后会进入交互模式。进入断点的时候分别将所有controller执行一遍。
+然后输入overcloud.* 对其余所有节点执行update package。</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">在controller 必须分开执行，否则可能会导致服务不可用。</p>
+</div>
+</div>
+</div>
+<div class="section" id="uos-4-3-1">
+<h3>9.1.3. UOS 4.3.1 升级注意事项<a class="headerlink" href="#uos-4-3-1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="deploy-sh">
+<h4>9.1.3.1. deploy.sh 脚本变化<a class="headerlink" href="#deploy-sh" title="Permalink to this headline">¶</a></h4>
+<p>除了少量 environment 需要指向 /home/stack/templates 目录，其余 environemnt 全部指向 /usr/share/uos-heat-templates 目录。需要指向 /home/stack/templates 下的 environment 有：</p>
+<blockquote>
+<div><div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6</pre></div></td><td class="code"><div class="highlight"><pre><span></span>/home/stack/templates/environments/uos-network-config/network-isolation.yaml
+/home/stack/templates/environments/uos-network-config/network-environment.yaml
+/home/stack/templates/environments/uos-network-config/enable-jumbo-frame.yaml
+/home/stack/templates/environments/uos-network-config/fixed-vip.yaml
+/home/stack/templates/environments/uos-network-config/uos-storage.yaml
+/home/stack/templates/environments/cloudname.yaml
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>对 UOS 4.2.0, UOS 4.3.0 的 deploy.sh 脚本进行变更:</p>
+<ul class="simple">
+<li>删除 standard environment：/usr/share/uos-heat-templates/environments/uos-standard-environment.yaml 或 /home/stack/environments/uos-standard-environment.yaml，将相关内容配置写入  /home/stack/templates/environments/{cloudname}.yaml 中</li>
+<li>对象存储 environment 需要变更：原来指向 /usr/share/openstack-tripleo-heat-templates/environments/ceph-radosgw.yaml 改为 /usr/share/uos-heat-templates/environments/ceph-radosgw.yaml</li>
+<li>已经开启 uplugin 的环境（在 UOS 4.3.0 开始默认情况下开启），需要添加 environment: /usr/share/uos-heat-templates/environments/uos-neutron-uplugin.yaml</li>
+<li>已经开启 rating 的环境（从 UOS 4.3.0 开始默认情况下开启），需要添加 environment: /usr/share/uos-heat-templates/environments/uos-rating.yaml</li>
+<li>原先 /home/stack/templates/environments/cloudname.yaml 或者 /usr/share/uos-heat-templates/environments/uos-ceph-environment.yaml 中存储相关配置，写入  /home/stack/templates/environments/uos-storage.yaml，具体样例参照: /usr/share/uos-heat-templates/environments/templates-example/uos-storage.yaml</li>
+<li>检查是否存在 /usr/share/uos-heat-templates/environments/uos-portal.yaml，如果不存在该 environment ，则需要配置上，否则不会安装 kunkka 服务</li>
+<li>原些开启了两个 rbd pool 作为 cinder 的存储后端，则需要在  /home/stack/templates/environments/cloudname.yaml 加上配置:   CinderRbdExtraPools: ‘poolname’ ， 其中 poolname 为原来 rbd pool 的名称 —— 千万不要填错，否则将导致严重后果。并且需要注意，如果在 UOS 4.3.0 版本中开启了 CinderSecondaryBackend 功能的，需要保留原来的 backend 配置，比如原来 backend_name = sata，则需要在 cloudname.yaml 中配置 “cinder_user_enabled_backends:  sata”，以保留原来的配置，否则将导致卷无法正常删除。</li>
+</ul>
+</div>
+<div class="section" id="id5">
+<h4>9.1.3.2. 升级方式部署充值账单服务<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Shadowfiend 服务添加于 UOS 4.3.1 版本</p>
+</div>
+<p>本升级指南用于从 4.2.x、4.3.0 等升级到 4.3.1 方式部署 shadowfiend 服务。</p>
+<div class="section" id="id6">
+<h5>9.1.3.2.1. 安装相应软件包<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h5>
+<p>OverCloud 控制节点需要安装以下软件包：</p>
+<ul class="simple">
+<li>shadowfiend-common</li>
+<li>shadowfiend-api</li>
+<li>shadowfiend-conductor</li>
+<li>shadowfiend-processor</li>
+<li>python-shadowfiend</li>
+<li>puppet-shadowfiend</li>
+</ul>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 更新软件源数据</span>
+ansible controller -b -m shell -a <span class="s2">&quot;yum clean metadata&quot;</span>
+<span class="c1"># 安装 shadowfiend 相关软件包</span>
+ansible controller -b -m shell -a <span class="s2">&quot;yum install -y shadowfiend-api shadowfiend-conductor \</span>
+<span class="s2">shadowfiend-processor python-shadowfiend puppet-shadowfiend&quot;</span>
+</pre></div>
+</div>
+<p>在 OverCloud 控制节点或所有节点更新以下软件包：</p>
+<ul class="simple">
+<li>puppet-artemis &gt;= 4.3.1</li>
+</ul>
+<div class="admonition attention">
+<p class="first admonition-title">Attention</p>
+<p class="last">请确认更新 puppet-artemis 到 4.3.1 版本对当前云平台的影响。</p>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># state 参数可以写成 latest 或 4.3.1</span>
+ansible controller -b -m yum -a <span class="s2">&quot;name=puppet-artemis state=latest&quot;</span>
+</pre></div>
+</div>
+<p>在 UnderCloud 节点更新以下软件包：</p>
+<ul class="simple">
+<li>uos-heat-templates ≥= 4.3.1</li>
+</ul>
+<div class="admonition attention">
+<p class="first admonition-title">Attention</p>
+<p class="last">请确认更新 uos-heat-templates 到4.3.1 版本对当前云平台的影响。</p>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># state 参数可以写成 latest 或 4.3.1</span>
+ansible undercloud -b -m yum -a <span class="s2">&quot;name=uos-heat-templates state=latest&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h5>9.1.3.2.2. 更新相应配置<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h5>
+<p>更新部署脚本 deploy.sh 添加以下内容：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>openstack overcloud deploy --templates --validation-warnings-fatal <span class="se">\</span>
+...
+  -e /usr/share/uos-heat-templates/environments/uos-billing.yaml <span class="se">\</span>
+...
+</pre></div>
+</div>
+<p>配置支付宝，具体请参见面板服务部署中的服务参数修改一节：
+<a class="reference internal" href="add-on.html#link-to-service-config"><span class="std std-ref">面板服务部署</span></a></p>
+</div>
+<div class="section" id="id8">
+<h5>9.1.3.2.3. 更新 OverCloud 平台<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h5>
+<p>更新 OverCloud 节点：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash deploy.sh
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="opstools/index.html" class="btn btn-neutral" title="8. 运维工具部署"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+      &#169; Copyright 2017, UnitedStack Inc. All Rights Reserved.
+  </div>
+
+  
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:'./',
+          VERSION:'',
+          COLLAPSE_INDEX:false,
+          FILE_SUFFIX:'.html',
+          HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="static/jquery.js"></script>
+      <script type="text/javascript" src="static/underscore.js"></script>
+      <script type="text/javascript" src="static/doctools.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+    jQuery(function () {
+      SphinxRtdTheme.StickyNav.enable();
+    });
+  </script>
+   
+
+</body>
+</html>

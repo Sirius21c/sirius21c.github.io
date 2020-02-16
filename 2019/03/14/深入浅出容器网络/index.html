@@ -1,0 +1,87 @@
+<!DOCTYPE html><html lang="en"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>深入浅出容器网络 | Sirius21c's Docs</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.4.0/jquery.min.js"></script><link rel="icon" mask sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">深入浅出容器网络</h1><a id="logo" href="/.">Sirius21c's Docs</a><p class="description">一位不爱写文档的码农的自我救赎之路</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Home</i></a><a href="/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/about/"><i class="fa fa-user"> About</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">深入浅出容器网络</h1><div class="post-meta">Mar 14, 2019<span> | </span><span class="category"><a href="/categories/technology/">technology</a></span></div><div class="clear"><div class="toc-article" id="toc"><div class="toc-title">Contents</div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#容器间的通信"><span class="toc-number">1.</span> <span class="toc-text">容器间的通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#容器网络"><span class="toc-number">2.</span> <span class="toc-text">容器网络</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#overlay"><span class="toc-number">2.1.</span> <span class="toc-text">overlay</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#macvlan"><span class="toc-number">2.2.</span> <span class="toc-text">macvlan</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#flannel"><span class="toc-number">2.3.</span> <span class="toc-text">flannel</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#weave"><span class="toc-number">2.4.</span> <span class="toc-text">weave</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#calico"><span class="toc-number">2.5.</span> <span class="toc-text">calico</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#杂谈"><span class="toc-number">3.</span> <span class="toc-text">杂谈</span></a></li></ol></div></div><div class="post-content"><p>曾经看过一本名叫《深入浅出neutron》的书，简直是，烂的不能再烂。犹记得里面有提到解决 ipsec  的 nat 穿越，然后一脸认真进去，一脸懵逼出来。这本书让我对「深入浅出」这个词有了新的认识——我只管一顿“高大上”的乱抄，抛出各种概念装X，你浅尝辄止就好。</p>
+<p>那我这里为什么要用“深入浅出”一词呢，就是想说明不要对我这篇博文抱太大期望，能把容器网络深入剖析后再逻辑分明的简简单单讲出来。尴尬，为了弥补这部分内容，强烈建议阅读 CloudMan 的《每天5分钟玩转 Docker 容器技术》中关于容器网络的部分，<a href="https://mp.weixin.qq.com/s?__biz=MzIwMTM5MjUwMg==&amp;mid=2653587882&amp;idx=1&amp;sn=2eb4e0a24bdeca2c9ac0f2c5d3d8469d&amp;chksm=8d3081b3ba4708a54eac6f3ddb5d75b617167898831f089e955ab9df20da0392f9b0f2347eaa&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">一文搞懂各种 Docker 网络</a>是其该部分的总结篇，里面有各种容器网络解决方案讲解的超链接，简单明了。So，有了这样的深度好文，我下面的谈论当然是多多“借鉴“了。</p>
+<p>顺便一提，如果想学习 neutron，可以阅读李宗标的《深入理解 OpenStack Neutron》，真可谓是「抽丝剥茧」，难得的好书。</p>
+<h3 id="容器间的通信"><a href="#容器间的通信" class="headerlink" title="容器间的通信"></a>容器间的通信</h3><p>我们知道容器本质上就是使用 cgroup 进行资源控制，再使用 namespace 进行访问控制，那么使用这些虚拟化技术之后，该怎么使容器进行通信呢？最基本的就是 docker 中的 none 和 host 模式了，然后是应用更广的 bridge 网络。</p>
+<ul>
+<li><p>none</p>
+<p>故名思议，none 网络就是什么都没有的网络。挂在这个网络下的容器除了 lo，没有其他任何网卡。</p>
+</li>
+<li><p>host</p>
+<p>连接到 host 网络的容器共享 Docker host 的网络栈，容器的网络配置与 host 完全一样。</p>
+</li>
+<li><p>bridge</p>
+<p>说白了，就是使用虚拟化实现虚拟网桥（Linux Bridge 或 OVS 实现方式都行），然后将容器“插”到虚拟网桥上，形成了一个广播域，然后就能通信了。</p>
+</li>
+</ul>
+<p>以上就是 docker 自动创建的网络，除此之外用户也可以根据业务需要创建 user-defined 网络。大部分的 user-defined 网络都是解决跨主机通信的，我们下一小节再讨论，这里就只先说明自定义的 bridge 网络，因为它就是让用户自行创建虚拟网桥，自己规划 IP，然后将容器“插”上去，跟 docker 自动创建的 bridge 原理上没什么区别（自动创建的 bridge默认桥接了主机的网卡）。</p>
+<p>那不同的 bridge 间可以通信么？这里因为跨了广播域，需要进行三层路由，而 docker 没有提供这样的功能，所以不能进行通信——当然不包括已经进行了跟外层网络 nat 的情况，既然谈到这里，就顺便把容器同外部网络进行通信的原理也简单谈一下。</p>
+<p>首先 none 和 host，没什么好说的了，none 肯定不能，host 宿主机能就能。然后默认的 bridge 网络默认桥接了宿主机的网卡，并将其作为 nat 网关，主动访问外面的时候使用端口复用，外面主动访问里面就需要配置端口映射了。自行定义的 bridge 网络原理一样，但要先自行将其桥接到宿主机能访问外网的网卡上并配置 nat。</p>
+<p>另外一提，CloudMan 在其文中提到了通信的三种方式（非定义的网络模式）。一种是直接使用 IP；第二种是使用 docker dns server，即通过容器名进行通信，但貌似没起 dns 服务，就是将 hostname 和对应 IP 推进了 容器的 host文件；最后一种是叫 joined，这个与其说是通信方式，不如也说是一种网络模式，因为它同 host 原理一致，只不过是容器间共享一个网络栈，即通过同一个 IP 的不同端口进行服务访问。</p>
+<h3 id="容器网络"><a href="#容器网络" class="headerlink" title="容器网络"></a>容器网络</h3><p>细心的朋友应该已经发现了，docker 所定义的网络都是处于各自的二层网络中，同外部通信也是通过 nat ，那么如果进行跨主机部署，怎么保证广播域呢？下面将介绍几种解决方案。</p>
+<p>主要分为 docker 原生的 overlay、macvlan，和第三方方案，常用的包括 flannel、weave 和 calico。（docker 网络是一个非常活跃的技术领域，不断有新的方案开发出来，那么要问个非常重要的问题了：如此众多的方案是如何与 docker 集成在一起的？答案是：libnetwork 以及 CNM，这里就不在展开介绍了。)</p>
+<h4 id="overlay"><a href="#overlay" class="headerlink" title="overlay"></a>overlay</h4><p>为支持容器跨主机通信，Docker 提供了 overlay driver，使用户可以创建基于 VxLAN 的 overlay 网络。VxLAN 可将二层数据封装到 UDP 进行传输，VxLAN 提供与 VLAN 相同的以太网二层服务，但是拥有更强的扩展性和灵活性。有关 VxLan 的详细内容就不做过多介绍了。</p>
+<p>Docerk overlay 网络需要一个 key-value 数据库用于保存网络状态信息，包括 Network、Endpoint、IP 等。Consul、Etcd 和 ZooKeeper 都是 Docker 支持的 key-vlaue 软件。</p>
+<p>下面主要来看看overlay 网络跨主机通信的原理。docker  会为每个 overlay 网络创建一个独立的 network namespace，其中会有一个 linux bridge  br0，endpoint 还是由 veth pair 实现，一端连接到容器中，另一端连接到 namespace 的 br0 上。br0 除了连接所有的 endpoint，还会连接一个 vxlan 设备（即宿主机作为VETP 的网卡），用于与其他 host 建立 vxlan tunnel。容器之间的数据就是通过这个 tunnel 通信的。</p>
+<p>需要说明的是，很多文章在谈到隔离性时拿那个独立的 namespace 大谈特谈，然而隔离性明明靠的是广播域的隔绝，也就是说不用那个 namespace 也完全 ok，它完全是为了提高网络架构的可读性，点个赞。</p>
+<p>还需要说明的是，这里 docker 不像 OpenStack 提够了 router 的概念，那怎么和外网进行通信呢？其实创建容器使用 overlay 时会为容器创建两个网络接口。一个用来连接 overlay 网络，另一个连接到了一个叫 “docker_gwbridge” 的网桥上，其为所有连接到 overlay 网络的容器提供访问外网的能力（默认路由指向这边）。我要吐槽的是，这是一个“假的”网关，docker将这个网络的属性标的是“local”，即每台宿主机上都有这样一个 local 网桥，且具有同样的网关 IP，nat 之后，宿主机再次进行 nat。</p>
+<h4 id="macvlan"><a href="#macvlan" class="headerlink" title="macvlan"></a>macvlan</h4><p>由于要管理宿主机，或者宿主机根本不在一个广播域，从而隔绝了容器的广播域，那就再给每个宿主机插一块网卡，用这块网卡将所有宿主机连到一个广播域，docker 的不同网络再进行 802.1q 的封装(即 vlan)——这就是 macvlan 的核心思想了，细节还是建议阅读 CloudMan 的教程。</p>
+<h4 id="flannel"><a href="#flannel" class="headerlink" title="flannel"></a>flannel</h4><p>flannel 是 CoreOS 开发的容器网络解决方案。flannel 为每个 host 分配一个 subnet，容器从此 subnet 中分配 IP，这些 IP 可以在  host 间路由，容器间无需 NAT 和 port mapping 就可以跨主机通信。</p>
+<p>每个  subnet 都是从一个更大的 IP 池中划分的，flannel 会在每个主机上运行一个叫 flanneld 的  agent，其职责就是从池子中分配 subnet。为了在各个主机间共享信息，flannel 用 etcd（与 consul 类似的  key-value 分布式数据库）存放网络配置、已分配的 subnet、host 的 IP 等信息。</p>
+<p>数据包如何在主机间转发是由 backend 实现的。flannel 提供了多种 backend，最常用的有 vxlan 和 host-gw，我们将在本章讨论这两种 backend。其他 backend 请参考 <a href="https://github.com/coreos/flannel。" target="_blank" rel="noopener">https://github.com/coreos/flannel。</a></p>
+<ul>
+<li><p>vxlan</p>
+<p>与 Docker overlay 类似，属于 overlay 网络。flannel 没有创建新的 docker 网络，而是直接使用默认的 bridge 网络，即同一主机的容器通过 docker0 连接，但跨主机流量是通过一个叫 flannel.1 的网卡转发（由 flannel 添加的静态路由进行控制），这是flannel 在宿主机上创建的虚拟网卡，其将数据包封装成 VxLAN，通过预先配置好的宿主机的网卡发送给其它主机。</p>
+<p>详情另参。</p>
+</li>
+<li><p>host-gw</p>
+<p>host-gw 不会封装数据包，而是在主机的路由表中创建到其他主机 subnet 的路由条目，从而实现容器跨主机通信。</p>
+</li>
+</ul>
+<p>是不是看完稍微有点晕，两种 backend 都添加了路由，一个封装 vxlan 能行，另外一个不封装也行，WTF？！其实在我看来，host-gw 就是个废柴，因为他从原理上要求宿主机不能跨路由，如果跨了路由，中间的路由设备不就方了，它拿不到 docker 网络中的信息啊（支持 SDN 另说啊，不是一个次元），那自然没啥用了，这种情况还不如直接使用 vlan，避免三层拆包，提高转发性能。而 vxlan backend 进行了 vxlan 的封装，所以无碍。</p>
+<h4 id="weave"><a href="#weave" class="headerlink" title="weave"></a>weave</h4><p>weave 是 Weaveworks 开发的容器网络解决方案，其属于 overlay 网络，原理上跟其它 vxlan 网络没什么区别（但同时使用了 Linux bridge 和 OVS，前者连接容器，后者封装 vxlan），但有其它几点比较脑洞打开的设计。</p>
+<p>一是其不依赖分布式数据库（例如 etcd 和 consul）交换网络信息，每个主机上只需运行 weave 组件就能建立起跨主机容器网络，原因是把 VETP 的信息维护在了本地。</p>
+<p>二是对容器来说，weave 就像一个巨大的以太网交换机，所有容器都被接入这个交换机，容器可以直接通信，即只维护了一个 vxlan 网络。那么不同的网络隔离又是怎么实现的呢？答案是给要隔离的网络分配不同的网络前缀，这个不同的网络前缀是指要使目标隔绝的网络的地址与本地掩码与运算后判定为不同网段的意思，即使用 vlsm 或者直接划分一个新的前缀都可以，然后查路由表的时候自然没有匹配的明细路由（生成的直连路由不是一个网段了），就走默认丢给 eth0 了，包自然丢了。但是，这产生了一个非常严重的问题，新隔离出来的网络怎么进行跨主机通信？weave 表示无能为力，所以只能说它只实现了一半，你既然要隔离那就隔离彻底点吧，任性！</p>
+<p>三是与外网通信是没有 nat 的。它要求外部若想要与它通信，那就自己写明细路由，自行收敛网络，任性！</p>
+<h4 id="calico"><a href="#calico" class="headerlink" title="calico"></a>calico</h4><p>在了解到 calico 之前，我一直觉得 k8s 和 openstack 在云计算领域不是一个量级的，尤其是在网络方面。openstack 的强大毋庸置疑，但容器用着没办法，就一个字，爽！是的，容器就目前需求来说，完胜openstack，而且比如在计算方面，少了一层 hypersior 的容器要更胜一筹，更符合像机器学习、图像识别等应用场景的需求，就连一直诟病的安全方面，像 kata 等项目也一直在完善，但除过裸机管理等 IaaS 方面的需求，容器唯一的弱点就是网络，也就单是这一项就让我不认为 k8s 能彻底击败 openstack。然而，调研了 calico 之后，我才发现 k8s 的野心有多大。（虽然 openstack 也能对接 calico，但其与 calico 的网络模型概念差距过大。）</p>
+<p>我曾在之前的博文里有详细的介绍过 calico，传送门：<a href="http://21cc.me/2018/11/23/Calico-Research/">Calico Research</a></p>
+<h3 id="杂谈"><a href="#杂谈" class="headerlink" title="杂谈"></a>杂谈</h3><p>这部分呢，主要谈谈相关网络的发展，加入了很多我个人的观点，有些甚至与行业的主流意见相左，还请以辩证的态度看待。</p>
+<p>首先吐槽俩。一，openflow已死，不接受反驳；二，DVR 这个东西从纯软件设计考虑是很不错，但我觉得其背离了网络思想，非常的不可取。</p>
+<p>接着，强烈推荐两篇深度好文：</p>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/O1MBwAZiuMMDt2Q2bdzvzA" target="_blank" rel="noopener">SDWAN槽边往事（一）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/OPxYHyfWklzf1CuVjn3yWA" target="_blank" rel="noopener">老网工：浅谈数据中心云网技术的历经风雨和演进                                                                                  </a></li>
+</ul>
+<p>最后，简单谈谈目前比较关注的几个发展点。</p>
+<ul>
+<li><p>容器网络与 openstack 租户网络对接——Kuryr</p>
+<p>文章推荐：</p>
+<ul>
+<li><a href="https://docs.openstack.org/kuryr/latest/" target="_blank" rel="noopener">官网</a></li>
+<li><a href="https://www.jianshu.com/p/701753ea4632" target="_blank" rel="noopener">OpenStack容器网络项目Kuryr（libnetwork）</a></li>
+<li><a href="https://lingxiankong.github.io/2018-02-07-kuryr-introduction-baremetal-usecase.html" target="_blank" rel="noopener">Kuryr 介绍 - 使用篇 - baremetal use case</a></li>
+</ul>
+</li>
+<li><p>calico 对接 SDN 控制器</p>
+<p>期待 calico 引入 segment routing，走入 SD-WAN 市场。</p>
+</li>
+<li><p>混合云</p>
+<p>网络上的目标为达成云网融合。</p>
+</li>
+<li><p>边缘计算</p>
+<ul>
+<li>StarlingX</li>
+<li>CORD</li>
+</ul>
+</li>
+</ul>
+</div><div class="tags"><a href="/tags/k8s/">k8s</a><a href="/tags/network/">network</a><a href="/tags/docker/">docker</a></div><div class="post-nav"><a class="pre" href="/2019/03/15/OpenFlow：Neutron走上歧路的原罪/">OpenFlow：Neutron走上歧路的原罪</a><a class="next" href="/2019/01/04/成都本科落户流程指北/">成都本科落户流程指北</a></div><div id="container"></div><link rel="stylesheet" type="text/css" href="//unpkg.com/gitalk/dist/gitalk.css?v=0.0.0"><script type="text/javascript" src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js?v=0.0.0"></script><script type="text/javascript" src="//unpkg.com/gitalk/dist/gitalk.min.js?v=0.0.0"></script><script>var gitalk = new Gitalk({
+  clientID: '',
+  clientSecret: '',
+  repo: 'https://github.com/Sirius21c/BlogComments.git',
+  owner: 'sirius21c',
+  admin: ['sirius21c'],
+  id: md5(location.pathname),
+  distractionFreeMode: false
+})
+gitalk.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"><input type="hidden" name="sitesearch" value="http://21cc.me"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/emotion/">emotion</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/technology/">technology</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/Happy-Birthday/" style="font-size: 15px;">Happy Birthday</a> <a href="/tags/随笔/" style="font-size: 15px;">随笔</a> <a href="/tags/calico/" style="font-size: 15px;">calico</a> <a href="/tags/k8s/" style="font-size: 15px;">k8s</a> <a href="/tags/openstack/" style="font-size: 15px;">openstack</a> <a href="/tags/network/" style="font-size: 15px;">network</a> <a href="/tags/travel/" style="font-size: 15px;">travel</a> <a href="/tags/neutron/" style="font-size: 15px;">neutron</a> <a href="/tags/octavia/" style="font-size: 15px;">octavia</a> <a href="/tags/openflow/" style="font-size: 15px;">openflow</a> <a href="/tags/sfc/" style="font-size: 15px;">sfc</a> <a href="/tags/ovs/" style="font-size: 15px;">ovs</a> <a href="/tags/tripleo/" style="font-size: 15px;">tripleo</a> <a href="/tags/linux-bridge/" style="font-size: 15px;">linux bridge</a> <a href="/tags/devstack/" style="font-size: 15px;">devstack</a> <a href="/tags/firewall对接/" style="font-size: 15px;">firewall对接</a> <a href="/tags/security/" style="font-size: 15px;">security</a> <a href="/tags/note/" style="font-size: 15px;">note</a> <a href="/tags/poetry/" style="font-size: 15px;">poetry</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/kvm/" style="font-size: 15px;">kvm</a> <a href="/tags/SR-IOV/" style="font-size: 15px;">SR-IOV</a> <a href="/tags/边缘计算/" style="font-size: 15px;">边缘计算</a> <a href="/tags/5G/" style="font-size: 15px;">5G</a> <a href="/tags/VPNaaS/" style="font-size: 15px;">VPNaaS</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/CentaraGrand/">CentaraGrand</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/19/虚拟网络优化与测试/">虚拟网络优化与测试</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/03/Distributed-Virtual-Routing/">Distributed Virtual Routing</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/15/边缘计算：5G的命喉/">边缘计算：5G的命喉</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/15/OpenFlow：Neutron走上歧路的原罪/">OpenFlow：Neutron走上歧路的原罪</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/14/深入浅出容器网络/">深入浅出容器网络</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/01/04/成都本科落户流程指北/">成都本科落户流程指北</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/12/11/未选择的路/">未选择的路</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/23/Calico-Research/">Calico Research</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/08/16/neutron-pbr-spec/">Neutron Policy-based Routing Spec</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">Sirius21c's Docs.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

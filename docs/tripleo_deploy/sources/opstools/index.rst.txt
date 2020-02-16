@@ -1,0 +1,215 @@
+运维工具部署
+============
+
+简介
+------
+
+UOS运维工具，目前主要由监控平台，日志平台，告警平台组成，提供统一的可视化面板，并且提供了自动化工具进行部署，变更，配置等，
+其整体架构图如下：
+
+.. image:: images/uos-operator.png
+
+**监控平台**
+
+监控平台为整个云平台提供全面系统性的监控，监控项从多个维度进行组织，覆盖范围从系统层面(CPU，内存，网络，磁盘等)到服务层面(OpenStack, Ceph)，从底层硬件到上层应用，通过模板化可以灵活组合监控项，目前已经有上千个不重复性监控项，精准有效的监控，是整个运维平台的基础。
+
+**日志平台**
+
+日志平台能够收集系统中各个组件的日志，进行集中存储，并且可以进行归档，压缩，备份，分析，具有强大的分析功能和报表功能，方便日常运维分析问题。
+
+**告警平台**
+
+运维人员能够及时有效的获取到集群的异常信息，这非常关键，告警平台提供了非常灵活的告警策略，可以设置告警分组，以及不同的告警级别，让正确的人收到正确的报警，减少无用报警。
+
+**可视化面板**
+
+可视化面板将监控平台，日志平台，告警平台的核心信息整合到同一个平台的面板中，减少了在不同面板间切换的频率，并且提供了从上到下层级结构的面板关联，能够让运维人员更加快速的定位核心信息。
+
+
+UOS运维工具使用Opstools工具来部署，Opstools基于Ansible开发，具有快速部署、简单配置、无需Agent、链接安全等特性。
+Opstools能够部署出可靠的监控平台、日志平台和告警平台。可以部署在虚拟机或物理机上。Opsserver节点配置要求如下
+
+* 环境要求：Centos 7.x 64bit
+* 虚机配置： 4Core 16G （有条件的起虚机可以起8C+32G内存，根磁盘300G以上）
+* 物理机配置： 40Core 96G，一块1T以上的SSD，挂载到/var/lib/ （将原有目录文件移动过来,挂载好,写好fstab，没条件的至少挂500G的数据库硬盘）
+* 网络配置：100M带宽可满足1000台以下节点的监控和日志流量需求
+* 软件包版本：https://confluence.ustack.com/pages/viewpage.action?pageId=17082006 （必须确认你的mirror源有和你UOS版本一致的最新软件包，否则肯定有问题）
+
+部署
+------
+#. 参考3.5小节起opsserver虚拟机，需要配置两个网络，使ops节点能与undercloud通讯和overcloud通讯，添加密钥使undercloud节点可以免秘钥登陆opsserver
+
+   ::
+
+    $ sudo unxz -k -c CentOS-7-x86_64-GenericCloud-1611.qcow2.xz > /var/lib/libvirt/images/opsserver.qcow2
+    $ sudo qemu-img resize /var/lib/libvirt/images/opsserver.qcow2 1T
+    $ sudo virt-customize -a /var/lib/libvirt/images/opsserver.qcow2 --root-password password:your_password
+    $ sudo virt-install --boot hd --name opsserver --memory=16384 --vcpus=4 --disk path=/var/lib/libvirt/images/opsserver.qcow2 ---network network=ovs-mgmt --network network=ovs-pxe --graphics=vnc,listen='0.0.0.0' --hvm --os-variant=centos7.0 --noautoconsole --import --noreboot
+
+#. 修改ops节点的hostname
+
+   ::
+
+     hostnamectl set-hostname zabbix-server
+
+#. 在跳板机undercloud上（可以直接ssh到所有机器的节点）使用stack用户克隆代码到本地
+
+   ::
+
+     git clone http://gitlab.ustack.com/devops/opstools.git
+
+#. 配置节点信息
+
+   ::
+
+     [root@puppet ~]# vim inventory/structure
+
+将"[zabbix-server-mysql-standalone] [grafana] [elasticsearch] [kibana] [zabbix-agent] [fluentd-agent]"修改为各组件节点实际IP地址（注意只修改IP，而且[fluentd-agent]中不需要加上opsserver的ip，按照给出模版修改即可）
+
+注意[zabbix-agent]字段也要加上undercloud的ip，以便对于undercloud做监控，需要undercloud可以免密登录自己。
+
+[mysql]字段中只需要填写opsserver节点ip和overcloud随机一台有数据库服务的控制节点的ip即可（此字段用于在这两台机器上添加数据库监控）
+
+5. 配置server端信息
+
+   ::
+
+     vim group_vars/all.yml
+
+这里我们修改“zabbix_server_ip”和“elasticsearch_host”。
+
+然后还要修改“storage_management_ip”、“mon_ip”和“storage_ip”，这里是ping监控的地址：
+
+   ::
+
+     storage_management_ip   存储管理网IP，（就是cluster_network）填写OSD节点的storage management network ip即可
+     mon_ip   ceph-mon的IP，可以参考控制节点/etc/ceph/ceph.conf中mon_host的地址填写，一般为3个，例如210.29.33,61,65,69
+     storage_ip   存储网IP，(就是public_network)填写OSD节点的storage network ip即可
+
+多地址按逗号隔开，前3位为网段，然后加一个逗号，后面是IP尾数，以逗号隔开，例如“10.0.16,68,70,72”（如果存储节点管理IP和存储IP相同，则不需要填写storageip，需要实施人员确保COMP_MANAGEMENT_IP和STORAGE_IP的IP尾数的主机一致）。
+
+Elasticsearch_mem”建议设置为ops节点内存的一半，但不超过32G。其他配置项，有额外需求再修改
+
+6. 只想单独部署某一组件，注释掉playbook中的组件即可。这里执行全量部署（包括Opsserver节点zabbix-server、es、kibana、grafana、集群所有节点zabbix-agent、fluentd）
+
+   ::
+
+     [root@puppet ~]# ansible-playbook playbook-opsserver.yml -s （注意这里加s，使用heat-admin用户的sudo权限）
+
+等待playbook执行完成即可(执行完成确认没有failed,及中途没有error才行)
+
+7. 额外功能：elasticsearch多节点部署
+     * 如果客户要求日志平台多节点点部署请看这里
+     * 修改inventory/structure，填写#es ha字段下的备节点IP即可
+     * 修改group_vars/all.yml，填写#es high availability字段下的ip，将elasticsearch_ha置为true即可
+     * 修改完成后，执行playbook即可。
+
+8. playbook跑完之后，需要登录zabbix面板，检查主机模版是否完整，登录面板-》点击“配置”-》“模版”，查看群组中是否存在图片上的7个模版，没有的话，登录opsserver节点，手动执行脚本，执行完之后再确认下模版是否出现（最好不管存在否都跑一次脚本）：
+
+   .. image:: images/template_service.png
+
+   ::
+
+     python /usr/lib/zabbix/uos-zabbix-templates/import_template.py
+
+
+
+
+后续配置
+---------
+
+在浏览器上登陆平台
+^^^^^^^^^^^^^^^^^^
+
+* Kibana面板：IP/kibana
+
+   ::
+
+     user/passwd:operator/changeme
+* Zabbix面板：IP/zabbix
+
+   ::
+
+     user/passwd:Admin/zabbix
+
+* Grafana面板：IP/grafana
+
+   ::
+
+     user/passwd:admin/admin
+
+在kibana面板手动创建索引
+^^^^^^^^^^^^^^^^^^^^^^^^
+   .. image:: images/kibana.png
+
+#. 第一次登陆kibana面板，会让你创建第一个索引，创建默认的 `logstash-*` ，点击“Create”按钮
+#. 创建完默认的logstash索引，还要再创建两个索引，点击右上角Setting-》Indices-》点击“add index”按钮，在index name 那个框输入一个 `openstack-*`，点击create
+
+   .. image:: images/kibana-2.png
+
+#. 再创建一个 `system-*` 索引，同上再操作一遍。一共创建3个索引
+
+   ::
+
+     logstash-* openstack-* system-*
+
+#. 最后效果能够出现3个索引选项：
+
+   .. image:: images/kibana-3.png
+
+#. 修改kibana-http用户的认证账号密码 (可选项，可以让用户自行修改)
+#. 修改文件/etc/httpd/conf/htpasswd-kibana，添加用户
+
+   ::
+
+     htpasswd -b htpasswd-kibana kibana 123456
+
+#. 利用htpasswd命令修改用户密码 要达到这个目的，需要先利用htpasswd命令删除指定用户，然后再利用htpasswd创建用户即可实现修改密码的功能。
+
+   ::
+
+     htpasswd -D htpasswd-kibana kibana
+
+在Grafana面板启用ES数据源
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. 点击左上角的菜单按钮-》点击“Data Sources”菜单-》点击“elasticsearch”数据源-》只需编辑Pattern为“Daily”-》点击左下角的“Save & Test”，出现"Success"提示即可。
+
+   .. image:: images/grafana.png
+
+   .. image:: images/grafana-1.png
+
+   .. image:: images/grafana-2.png
+
+在Grafana面板启用Zabbix数据源
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. 点击左上角的菜单按钮-》点击“Data Sources”菜单-》点击“Zabbix”数据源-》只需填写“Username”和“Password”-》点击左下角的“Save & Test”，出现"Success"提示即可。
+
+   .. image:: images/zabbix-4.png
+
+   .. image:: images/zabbix-5.png
+
+   .. image:: images/zabbix-6.png
+
+如果“Save”失败，将“HTTP Auth”下的“Skip TLS Verification (Insecure)”勾选上，再次保存即可。
+
+检查Zabbix是否正常工作
+^^^^^^^^^^^^^^^^^^^^^^
+
+#. 登陆面板之后-》点击一级菜单“配置”-》再点击二级菜单“主机”-》查看是否所有主机都已注册上。确认后勾选左上角“名称”框旁的全选方框，再左下角点击启用即可。
+
+   .. image:: images/zabbix-7.png
+
+#. 稍等10分钟后，在首页面板查看，有无告警，并排查告警是否误告。在首页Zabbix状态那也可以看到已启用的主机数量。
+
+   .. image:: images/zabbix-8.png
+
+配置监控信息
+^^^^^^^^^^^^^
+
+#. 登陆面板之后-》点击一级菜单“管理”-》再点击二级菜单“一般”-》选择三级选项“宏”，确认环境信息。
+
+   .. image:: images/zabbix-macro.png
+
+需要确认IP地址是否按照all.yaml填写正确。格式为：多地址按逗号隔开，前3位为网段，然后加一个逗号，后面是IP尾数，以逗号隔开，例如“10.0.16,68,70,72”（如果存储节点管理IP和存储IP相同，则不需要填写storageip，需要实施人员确保COMP_MANAGEMENT_IP和STORAGE_IP的IP尾数的主机一致）。

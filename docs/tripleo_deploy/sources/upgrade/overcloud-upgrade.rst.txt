@@ -1,0 +1,55 @@
+===============
+overcloud升级
+===============
+
+.. highlight:: shell
+  :linenothreshold: 0
+
+--------------------
+升级overcloud 镜像
+--------------------
+
+将新overcloud镜像上传到undercloud的images目录
+
+::
+
+   $ openstack overcloud image upload --update-existing --image-path /home/stack/images/
+   $ openstack baremetal configure boot
+
+验证新镜像
+
+::
+
+   $ openstack image list
+   $ ls -l /httpboot
+
+---------------
+升级overcloud
+---------------
+
+配置好新版本的yum源后，继续升级overcloud。
+
+1. 更新overcloud plan。
+
+::
+
+  $ openstack overcloud deploy --update-plan-only \
+  --templates  \
+  [-e <environment_file>|...]
+
+.. tip::
+
+   根据升级版本的release note 来配置 -e 参数。
+
+2. 更新overcloud
+
+::
+
+   $ openstack overcloud update stack -i overcloud
+
+执行后会进入交互模式。进入断点的时候分别将所有controller执行一遍。
+然后输入overcloud.* 对其余所有节点执行update package。
+
+.. warning::
+
+   在controller 必须分开执行，否则可能会导致服务不可用。

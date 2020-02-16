@@ -1,0 +1,192 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>&lt;no title&gt; &mdash; UOS Director  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../static/favicon-v2.ico"/>
+  
+
+  
+  
+    
+  
+
+  
+  
+    <link rel="stylesheet" href="../static/css/theme.css" type="text/css" />
+  
+
+  
+
+  <link rel="stylesheet" href="../static/css/header.css" />
+  <link rel="stylesheet" href="../static/css/normalize.css" />
+  <link rel="stylesheet" href="../static/css/footer.css" />
+        <link rel="index" title="Index" href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+
+    <link rel="top" title="UOS Director  documentation" href="../index.html"/> 
+
+  
+  <script type="text/javascript" src="../static/js/modernizr.min.js"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+    <div class="nav">
+      <a href="https://www.ustack.com" title="UnitedStack" class="logo"></a>
+      <div class="nav-inner-r">
+        <ul class="nav-menu"></ul>
+      </div>
+    </div>
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+
+        
+          <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">1. UOS Director 简介</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../plan.html">2. 环境规划与准备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seed.html">3. 种子节点部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../undercloud-deploy.html">4. UnderCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overcloud-deploy.html">5. OverCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../add-on.html">6. 额外组件部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../post-deploy.html">7. OverCloud 初始化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opstools/index.html">8. 运维工具部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrade.html">9. UOS 升级</a></li>
+</ul>
+
+        
+      </div>
+
+      <div class="wy-side-nav-search">
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">UOS Director</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>&lt;no title&gt;</li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <p>编辑uos-storage.yaml</p>
+<ul class="simple">
+<li><code class="code docutils literal notranslate"><span class="pre">ceph::profile::params::osds</span></code> 下面填写用来作为osd的磁盘。</li>
+<li><code class="code docutils literal notranslate"><span class="pre">'/dev/sdb':</span> <span class="pre">{}</span></code> 表示使用sdb作为osd，自身分区作为这个osd的Journal。</li>
+<li>如果使用其他盘作为Journal可以这样写: <code class="code docutils literal notranslate"><span class="pre">'/dev/sdb':</span> <span class="pre">{journal:</span> <span class="pre">'/dev/sdj'}</span></code></li>
+<li><code class="code docutils literal notranslate"><span class="pre">ceph::profile::params::osd_pool_default_size</span></code> 填写默认副本数</li>
+<li>如果osd不是分布在3个以上的机柜，把 <code class="code docutils literal notranslate"><span class="pre">mon/mon_osd_reporter_subtree_level</span> <span class="pre">,</span> <span class="pre">mon/mon_osd_down_out_subtree_limit</span></code>
+设为host</li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">parameter_defaults</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">ExtraConfig</span><span class="p p-Indicator">:</span>
+    <span class="c1"># osd disks</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osds</span><span class="p p-Indicator">:</span>
+            <span class="s">&#39;/dev/sdb&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+            <span class="s">&#39;/dev/sdc&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+            <span class="s">&#39;/dev/sdd&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+    <span class="c1"># osd 副本数</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osd_pool_default_min_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osd_pool_default_size</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+    <span class="c1"># 每osd分配100个pg。pgp和pg数量一致。</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osd_pool_default_pg_num</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">128</span>
+    <span class="l l-Scalar l-Scalar-Plain">ceph::profile::params::osd_pool_default_pgp_num</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">128</span>
+
+    <span class="l l-Scalar l-Scalar-Plain">ceph::conf::args</span><span class="p p-Indicator">:</span>
+      <span class="c1"># if not three racks, set &#39;host&#39;</span>
+      <span class="l l-Scalar l-Scalar-Plain">mon/mon_osd_reporter_subtree_level</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="s">&#39;rack&#39;</span>
+      <span class="c1"># if not three racks, set &#39;host&#39;</span>
+      <span class="l l-Scalar l-Scalar-Plain">mon/mon_osd_down_out_subtree_limit</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="s">&#39;rack&#39;</span>
+      <span class="c1"># set osd auto mark out interval</span>
+      <span class="l l-Scalar l-Scalar-Plain">mon/mon_osd_down_out_interval</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">3600</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">不要把系统盘作为osd盘或者Journal盘</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">如果使用独立Journal盘，每个Journal盘不要带过多的osd(&lt;=6)</p>
+</div>
+
+
+          </div>
+          <footer>
+  
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+      &#169; Copyright 2017, UnitedStack Inc. All Rights Reserved.
+  </div>
+
+  
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:'../',
+          VERSION:'',
+          COLLAPSE_INDEX:false,
+          FILE_SUFFIX:'.html',
+          HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="../static/jquery.js"></script>
+      <script type="text/javascript" src="../static/underscore.js"></script>
+      <script type="text/javascript" src="../static/doctools.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+    jQuery(function () {
+      SphinxRtdTheme.StickyNav.enable();
+    });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+================
+undercloud 升级
+================
+
+.. highlight:: shell
+  :linenothreshold: 0
+
+-------------------
+给undercloud打快照
+-------------------
+
+登录undercloud，关机。
+
+::
+
+   poweroff
+
+到种子节点执行
+
+::
+
+   # 打快照
+   qemu-img snapshot -c 2018-1-9 /var/lib/libvirt/images/undercloud.qcow2
+   # 查看快照
+   qemu-img snapshot -l /var/lib/libvirt/images/undercloud.qcow2
+
+启动 undercloud
+
+::
+
+   virsh start undercloud
+
+-----------------------
+升级undercloud package
+-----------------------
+
+1. 登录到undercloud
+
+2. 停止openstack服务
+
+::
+
+   $ sudo systemctl stop 'openstack-*' 'neutron-*' httpd
+
+3. 升级python-tripleoclient,maintenance
+
+::
+
+   $ sudo yum update python-tripleoclient maintenance
+
+4. 升级undercloud
+
+::
+
+   $ openstack undercloud upgrade
+
+当undercloud升级了kernel或者Open vSwitch 时需要重启。
+
+::
+
+   reboot
+
+重启完毕后检查所有服务的状态
+
+::
+
+   $ sudo systemctl list-units "openstack*" "neutron*" "openvswitch*"
+
+验证undercloud
+
+::
+
+   $ source ~/stackrc
+   $ openstack server list
+   $ openstack baremetal node list
+   $ openstack stack list

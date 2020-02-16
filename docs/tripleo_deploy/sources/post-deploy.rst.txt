@@ -1,0 +1,394 @@
+OverCloud 初始化
+================
+
+.. highlight:: shell
+  :linenothreshold: 0
+
+主机列表更新
+------------
+
+生成 UnderCloud 上本地域名记录（/etc/hosts）、Ansible Inventory 列表、clushshell 配置、e 命令等
+
+.. code-block:: shell
+
+   cd /usr/share/maintenance
+   ansible-playbook -t basic_tools playbooks/post-deploy/post-deploy.yaml
+
+
+服务初始化
+----------
+
+公网地址池初始化
+~~~~~~~~~~~~~~~~
+
+**1. 修改网络配置参数**
+
+文件：group_vars/undercloud.yaml
+
+以下是网络配置的示例，请根据实际情况进行填写：
+
+.. code-block:: yaml
+
+   external_networks:
+     - name: foo                # 公有网络名称
+       type: vlan               # 网络类型，支持 vlan 和 flat
+       net_phy: datacentre      # 物理网络，UOS 4 默认是 datacentre
+       vlanid: 1101             # 若网络类型是 vlan，这就是 VLAN ID，若是 flat，忽略此参数
+       subnets:                 # 子网参数，支持配置多个子网
+         - name: foo_subnet     # 子网名称
+           gateway: 10.0.0.1    # 公有网络网关
+           cidr: 10.0.0.0/24    # 共有网络地址池的 CIDR
+           start: 10.0.0.2      # 共有网络地址池起始地址
+           end: 10.0.0.250      # 共有网络地址池结束地址
+     - name: bar
+       type: flat
+       net_phy: datacentre
+       subnets:
+         - name: bar1_subnet
+           gateway: 192.168.1.1
+           cidr: 192.168.1.0/24
+           start: 192.168.1.2
+           end: 192.168.1.250
+         - name: bar2_subnet
+           gateway: 192.168.2.1
+           cidr: 192.168.2.0/24
+           start: 192.168.2.2
+           end: 192.168.2.250
+
+修改完共有网络参数后，将参数‘enable_external_network_manage‘设置成 True，这样才会初始化公有网络。
+
+**2. 创建公网地址池**
+
+.. Note:: 更新公有网络参数，请在运营平台进行！
+
+.. code-block:: shell
+
+   cd /usr/share/maintenance
+   ansible-playbook -t external_networks playbooks/post-deploy/post-deploy.yaml
+
+云硬盘类型初始化
+~~~~~~~~~~~~~~~~
+
+云硬盘类型初始化是根据第一台控制节点的 Cinder 服务的配置文件 /etc/cinder/cinder.conf 自动创建相应的类型。
+
+.. Note:: 此任务只支持初始化云硬盘类型。
+
+.. code-block:: shell
+
+   cd /usr/share/maintenance
+   ansible-playbook -t volume_types playbooks/post-deploy/post-deploy.yaml
+
+.. Attention:: 云硬盘类型的名称和后端名称保持一致！后端名称查看配置文件里面 volume_backend_name，
+               若建出来的磁盘类型与需求不一致，可以在运营平台里面更该相应磁盘类型名称。
+               参考《同方云 UOS 4.0 产品文档》 `第 4 章 - UOS 运营平台 - 4.2 存储管理服务 <https://www.ustack.com/docs/manager/book/UOS%E7%AE%A1%E7%90%86%E5%B9%B3%E5%8F%B0/%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1.html>`_
+
+
+云主机规格初始化
+~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   cd /usr/share/maintenance
+   ansible-playbook -t flavors playbooks/post-deploy/post-deploy.yaml
+
+监控系统初始化
+~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   cd /usr/share/maintenance
+   ansible-playbook -t meters playbooks/post-deploy/post-deploy.yaml
+
+计费系统初始化
+~~~~~~~~~~~~~~
+
+.. Note:: 对于初始化计费服务前，请清理掉非正常创建的计费项目。
+
+.. code-block:: shell
+
+   cd /usr/share/maintenance
+   ansible-playbook -t ratings playbooks/post-deploy/post-deploy.yaml
+
+.. TODO(william): 提供运营平台更新计费规则的文档链接
+.. Attention:: 此任务只支持初始化计费规则，更新计费规则，请在运营平台进行！
+
+初始化云存储配置
+~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   cd /usr/share/maintenance
+   ansible-playbook -t ceph playbooks/post-deploy/post-deploy.yaml
+
+云平台加载元数据
+~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   cd /usr/share/maintenance
+   ansible-playbook -t metadefs playbooks/post-deploy/post-deploy.yaml
+
+Overcloud BUG 修复
+~~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   cd /usr/share/maintenance
+   ansible-playbook -t bugfix playbooks/post-deploy/post-deploy.yaml
+
+云平台上传镜像
+~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+   cd /usr/share/maintenance
+   ansible-playbook -t images playbooks/post-deploy/post-deploy.yaml
+
+Ceph Crushmap 配置
+~~~~~~~~~~~~~~~~~~
+
+**假如平台为多机柜部署，需要实现机柜级故障域，请进行以下配置**
+
+通常情况下，小集群或者 POC 集群由于规模过小，不会在物理上实现机柜级别的数据故障冗余策略。
+而对于大客户而言，机柜级别的数据故障冗余策略是非常关键的。
+所以我们在实施过程中，需要给生产上线的项目做正确的配置，我们可以通过以下方法进行配置，实现机柜级别的数据故障冗余策略：
+
+.. code-block:: shell
+
+  # 通过 undercloud，确认 host 与其 ID 的对应关系
+  [stack@undercloud ~]$ source stackrc
+  [stack@undercloud ~]$ nova list
+  +--------------------------------------+--------------------------+--------+------------+-------------+----------------------+
+  | ID                                   | Name                     | Status | Task State | Power State | Networks             |
+  +--------------------------------------+--------------------------+--------+------------+-------------+----------------------+
+  | 0ea64447-0490-46ae-9ec0-d476b07ee148 | overcloud-cephssd-0      | ACTIVE | -          | Running     | ctlplane=10.0.210.62 |
+  | c14da46c-f6ed-46d7-bfa7-2cfdbd9f3591 | overcloud-cephssd-1      | ACTIVE | -          | Running     | ctlplane=10.0.210.56 |
+  | 2a2980ac-4dc7-45e7-9f25-d6f3c6be9b29 | overcloud-cephssd-2      | ACTIVE | -          | Running     | ctlplane=10.0.210.35 |
+  | 08c204b8-93c8-40dc-b704-55b3a9b0bfcb | overcloud-cephssd-3      | ACTIVE | -          | Running     | ctlplane=10.0.210.50 |
+  | 4219de6b-11d0-451f-8836-48d66d2d69de | overcloud-cephssd-4      | ACTIVE | -          | Running     | ctlplane=10.0.210.49 |
+  | 2dc51445-020e-4c9f-b285-6c6e0f25eaed | overcloud-cephssd-5      | ACTIVE | -          | Running     | ctlplane=10.0.210.32 |
+
+  # 通过 undercloud 服务器管理，确认 host ID 与 物理服务器的对应关系
+  [stack@undercloud ~]$ source stackrc
+  [stack@undercloud ~]$ ironic node-list
+  +--------------------------------------+-----------------+--------------------------------------+-------------+--------------------+-------------+
+  | UUID                                 | Name            | Instance UUID                        | Power State | Provisioning State | Maintenance |
+  +--------------------------------------+-----------------+--------------------------------------+-------------+--------------------+-------------+
+  | 94923394-1035-4afe-8925-52395b222cc9 | ssd-4-5         | c14da46c-f6ed-46d7-bfa7-2cfdbd9f3591 | None        | active             | True        |
+  | 462fc96f-f823-4b20-9c47-9e4a8b791b81 | ssd-4-6         | 0ea64447-0490-46ae-9ec0-d476b07ee148 | None        | active             | True        |
+  | d8d78b97-2a91-4e9f-90a4-41dfa2c1e7fd | ssd-3-5         | 2a2980ac-4dc7-45e7-9f25-d6f3c6be9b29 | None        | active             | True        |
+  | 971dc644-e118-4470-b1a9-d8100f122bb3 | ssd-3-6         | 08c204b8-93c8-40dc-b704-55b3a9b0bfcb | None        | active             | True        |
+  | d1afb743-6fe3-4b66-bad1-e465d20f4d83 | ssd-2-5         | 2dc51445-020e-4c9f-b285-6c6e0f25eaed | None        | active             | True        |
+  | 4a8a02e0-7c76-489b-9d4f-fd31fc13a76a | ssd-2-6         | 4219de6b-11d0-451f-8836-48d66d2d69de | None        | active             | True        |
+
+由以上以上信息，获得了物理服务器机柜的物理落位和主机 hostname 的对应关系，如下：
+
+.. code-block:: shell
+
+  ssd-4-5  c14da46c-f6ed-46d7-bfa7-2cfdbd9f3591  overcloud-cephssd-1
+  ssd-4-6  0ea64447-0490-46ae-9ec0-d476b07ee148  overcloud-cephssd-0
+  ssd-3-5  2a2980ac-4dc7-45e7-9f25-d6f3c6be9b29  overcloud-cephssd-2
+  ssd-3-6  08c204b8-93c8-40dc-b704-55b3a9b0bfcb  overcloud-cephssd-3
+  ssd-2-5  2dc51445-020e-4c9f-b285-6c6e0f25eaed  overcloud-cephssd-5
+  ssd-2-6  4219de6b-11d0-451f-8836-48d66d2d69de  overcloud-cephssd-4
+
+这里我们约定以物理服务器的命名来对应物理服务器在机柜的物理落位信息，比如：ssd-4-5 表示物理服务器在编号为4的机柜，5U的位置上。
+根据服务器的物理落位信息，我们可以这么配置 Ceph 的 Crushmap：
+
+.. code-block:: shell
+
+  # 正确配置 Ceph Crushmap
+  ceph osd crush add-bucket SSD root
+  ceph osd crush add-bucket rack-2 rack
+  ceph osd crush add-bucket rack-3 rack
+  ceph osd crush add-bucket rack-4 rack
+  ceph osd crush move rack-2 root=SDD
+  ceph osd crush move rack-3 root=SDD
+  ceph osd crush move rack-4 root=SDD
+  ceph osd crush move overcloud-cephssd-1 rack=rack-4
+  ceph osd crush move overcloud-cephssd-0 rack=rack-4
+  ceph osd crush move overcloud-cephssd-2 rack=rack-3
+  ceph osd crush move overcloud-cephssd-3 rack=rack-3
+  ceph osd crush move overcloud-cephssd-5 rack=rack-2
+  ceph osd crush move overcloud-cephssd-4 rack=rack-2
+
+  # 正确配置 Crushrule 并关联到对应的存储池上
+  # ceph osd crush rule create-simple <name> <root> <type>, 例如：
+  ceph osd crush rule create-simple ssd_ruleset SDD rack
+  # 注意：root 需要配置为你创建 Crushmap 时候对应创建的 root。type 需要配置为 host 或者 rack，这取决于你的物理服务器落位是在一个机柜内，只实现主机级别的故障域，还是在不同机柜，实现机柜级别的故障域
+
+首先，获取 crushrule 的 ruleset，方法如下：将当前的存储池都配置为新创建的 crushrule
+
+.. code-block:: shell
+
+  [root@overcloud-controller-0 heat-admin]# ceph osd crush rule dump ssd_ruleset
+  {
+      "rule_id": 1,
+      "rule_name": "ssd_ruleset",
+      "ruleset": 2,
+      "type": 1,
+      "min_size": 1,
+      "max_size": 10,
+      "steps": [
+          {
+              "op": "take",
+              "item": -15,
+              "item_name": "SDD"
+          },
+          {
+              "op": "chooseleaf_firstn",
+              "num": 0,
+              "type": "rack"
+          },
+          {
+              "op": "emit"
+          }
+      ]
+  }
+
+将当前的存储池都配置为新创建的 crushrule，我们已经知道，ssd_ruleset 的 ruleset 为 2
+
+.. code-block:: shell
+
+  for i in `ceph osd pool ls`;do ceph osd pool set $i crush_ruleset 2;done
+  #  删除旧的 crush_ruleset
+  ceph osd crush rule rm replicated_ruleset
+
+
+**假如平台部署了 cinder 多后端特性 —— 通过 ssd 存储池实现性能盘，通过 hdd 存储池实现容量盘，请进行一下配置**
+
+.. code-block:: shell
+
+  # 通过 undercloud，确认 host 与其 ID 的对应关系
+  [stack@undercloud ~]$ source stackrc
+  [stack@undercloud ~]$ nova list
+  +--------------------------------------+--------------------------+--------+------------+-------------+----------------------+
+  | ID                                   | Name                     | Status | Task State | Power State | Networks             |
+  +--------------------------------------+--------------------------+--------+------------+-------------+----------------------+
+  | acdedd70-e0c8-4aee-b3ad-ac40a971221c | overcloud-cephhdd-0      | ACTIVE | -          | Running     | ctlplane=10.0.210.42 |
+  | 464c9591-773b-424c-b79f-c13b170c3e2e | overcloud-cephhdd-1      | ACTIVE | -          | Running     | ctlplane=10.0.210.36 |
+  | 64cb16b7-3226-4786-bcb0-e8c99afd0025 | overcloud-cephhdd-2      | ACTIVE | -          | Running     | ctlplane=10.0.210.34 |
+  | 0ea64447-0490-46ae-9ec0-d476b07ee148 | overcloud-cephssd-0      | ACTIVE | -          | Running     | ctlplane=10.0.210.62 |
+  | c14da46c-f6ed-46d7-bfa7-2cfdbd9f3591 | overcloud-cephssd-1      | ACTIVE | -          | Running     | ctlplane=10.0.210.56 |
+  | 2a2980ac-4dc7-45e7-9f25-d6f3c6be9b29 | overcloud-cephssd-2      | ACTIVE | -          | Running     | ctlplane=10.0.210.35 |
+  | 08c204b8-93c8-40dc-b704-55b3a9b0bfcb | overcloud-cephssd-3      | ACTIVE | -          | Running     | ctlplane=10.0.210.50 |
+  | 4219de6b-11d0-451f-8836-48d66d2d69de | overcloud-cephssd-4      | ACTIVE | -          | Running     | ctlplane=10.0.210.49 |
+  | 2dc51445-020e-4c9f-b285-6c6e0f25eaed | overcloud-cephssd-5      | ACTIVE | -          | Running     | ctlplane=10.0.210.32 |
+
+由上面结果可以知道一下信息，其中有六个 ssd 节点 overcloud-cephssd-[0-6], 有三个 hdd 节点 overcloud-cephhdd-[0-2]。
+
+.. code-block:: shell
+
+  # 通过 undercloud 服务器管理，确认 host ID 与 物理服务器的对应关系
+  [stack@undercloud ~]$ source stackrc
+  [stack@undercloud ~]$ ironic node-list
+  +--------------------------------------+-----------------+--------------------------------------+-------------+--------------------+-------------+
+  | UUID                                 | Name            | Instance UUID                        | Power State | Provisioning State | Maintenance |
+  +--------------------------------------+-----------------+--------------------------------------+-------------+--------------------+-------------+
+  | 94923394-1035-4afe-8925-52395b222cc9 | ssd-4-5         | c14da46c-f6ed-46d7-bfa7-2cfdbd9f3591 | None        | active             | True        |
+  | 462fc96f-f823-4b20-9c47-9e4a8b791b81 | ssd-4-6         | 0ea64447-0490-46ae-9ec0-d476b07ee148 | None        | active             | True        |
+  | d8d78b97-2a91-4e9f-90a4-41dfa2c1e7fd | ssd-3-5         | 2a2980ac-4dc7-45e7-9f25-d6f3c6be9b29 | None        | active             | True        |
+  | 971dc644-e118-4470-b1a9-d8100f122bb3 | ssd-3-6         | 08c204b8-93c8-40dc-b704-55b3a9b0bfcb | None        | active             | True        |
+  | d1afb743-6fe3-4b66-bad1-e465d20f4d83 | ssd-2-5         | 2dc51445-020e-4c9f-b285-6c6e0f25eaed | None        | active             | True        |
+  | 4a8a02e0-7c76-489b-9d4f-fd31fc13a76a | ssd-2-6         | 4219de6b-11d0-451f-8836-48d66d2d69de | None        | active             | True        |
+  | 5e97bdeb-f9b4-4a55-997c-87ae10ca9817 | hdd-4-1         | 464c9591-773b-424c-b79f-c13b170c3e2e | None        | active             | True        |
+  | 00336cab-6444-43e0-8ba7-41ab78511253 | hdd-3-1         | acdedd70-e0c8-4aee-b3ad-ac40a971221c | None        | active             | True        |
+  | dbbd7148-dec2-4eb6-aa48-b300961d4859 | hdd-2-1         | 64cb16b7-3226-4786-bcb0-e8c99afd0025 | power on    | active             | False       |
+  +--------------------------------------+-----------------+--------------------------------------+-------------+--------------------+-------------+
+
+通过 instance UUID 确定各个物理服务器与 HOST 的对应关系，例如：
+
+.. code-block:: shell
+
+  hdd-2-1   64cb16b7-3226-4786-bcb0-e8c99afd0025  overcloud-cephhdd-2
+  hdd-3-1   acdedd70-e0c8-4aee-b3ad-ac40a971221c  overcloud-cephhdd-0
+  hdd-4-1   464c9591-773b-424c-b79f-c13b170c3e2e  overcloud-cephhdd-1
+
+根据约定，hdd-2-1，表示 overcloud-cephhdd-2 在编号为2的机柜，1U 的位置；hdd-3-1，表示 overcloud-cephhdd-0 在编号为3的机柜，1U 的位置；hdd-4-1，表示 overcloud-cephhdd-1 在编号为4的机柜，1U的位置。
+根据服务器的物理落位信息，我们可以这么配置 Ceph 的 Crushmap：
+
+.. code-block:: shell
+
+  # 正确配置 Ceph Crushmap
+  ceph osd crush add-bucket HDD root
+  ceph osd crush add-bucket rack-2 rack
+  ceph osd crush add-bucket rack-3 rack
+  ceph osd crush add-bucket rack-4 rack
+  ceph osd crush move rack-2 root=HDD
+  ceph osd crush move rack-3 root=HDD
+  ceph osd crush move rack-4 root=HDD
+  ceph osd crush move overcloud-cephhdd-2 rack=rack-2
+  ceph osd crush move overcloud-cephhdd-0 rack=rack-3
+  ceph osd crush move overcloud-cephhdd-1 rack=rack-4
+
+  # 正确配置 Crushrule 并关联到对应的存储池上
+  # ceph osd crush rule create-simple <name> <root> <type>, 例如：
+  ceph osd crush rule create-simple hdd_ruleset HDD rack
+  # 注意：root 需要配置为你创建 Crushmap 时候对应创建的 root。type 需要配置为 host 或者 rack，这取决于你的物理服务器落位是在一个机柜内，只实现主机级别的故障域，还是在不同机柜，实现机柜级别的故障域
+
+  # 最后，给对应的 hdd-volumes 配置正确的 crushrule
+  [root@overcloud-controller-0 heat-admin]# ceph osd crush rule dump hdd_ruleset
+  {
+      "rule_id": 1,
+      "rule_name": "hdd_ruleset",
+      "ruleset": 3,
+      "type": 1,
+      "min_size": 1,
+      "max_size": 10,
+      "steps": [
+          {
+              "op": "take",
+              "item": -16,
+              "item_name": "HDD"
+          },
+          {
+              "op": "chooseleaf_firstn",
+              "num": 0,
+              "type": "rack"
+          },
+          {
+              "op": "emit"
+          }
+      ]
+  }
+
+  # 通过以上信息可以知道，hdd_ruleset 的 ruleset 为 3
+  ceph osd pool set hdd-volumes crush_ruleset 3
+
+通过以上操作，我们将 hdd-volumes 存储池的数据正确落位到了 hdd 的磁盘上面，并且实现了机柜级别的数据容灾策略
+
+
+e 命令介绍
+~~~~~~~~~~
+
+**使用介绍**
+
+有以下节点简称:
+
+* ctl  控制节点
+* comp 计算节点
+* net  网络节点
+* tm   监控节点
+* ceph 存储节点
+* ssd  SSD 类型存储节点
+* hdd  HDD 类型存储节点
+* seed 种子节点
+
+命令格式:
+
+.. code-block:: shell
+
+    e seed or e <role_name> <index>
+
+比如登陆种子节点：
+
+.. code-block:: shell
+
+   e seed
+
+比如登陆第一个控制节点，注意 index 是从 0 开始:
+
+.. code-block:: shell
+
+   e ctl 0
+

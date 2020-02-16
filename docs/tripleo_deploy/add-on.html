@@ -1,0 +1,319 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>6. 额外组件部署 &mdash; UOS Director  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="static/favicon-v2.ico"/>
+  
+
+  
+  
+    
+  
+
+  
+  
+    <link rel="stylesheet" href="static/css/theme.css" type="text/css" />
+  
+
+  
+
+  <link rel="stylesheet" href="static/css/header.css" />
+  <link rel="stylesheet" href="static/css/normalize.css" />
+  <link rel="stylesheet" href="static/css/footer.css" />
+        <link rel="index" title="Index" href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+
+    <link rel="top" title="UOS Director  documentation" href="index.html"/>
+        <link rel="next" title="7. OverCloud 初始化" href="post-deploy.html"/>
+        <link rel="prev" title="5. OverCloud 部署" href="overcloud-deploy.html"/> 
+
+  
+  <script type="text/javascript" src="static/js/modernizr.min.js"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+    <div class="nav">
+      <a href="https://www.ustack.com" title="UnitedStack" class="logo"></a>
+      <div class="nav-inner-r">
+        <ul class="nav-menu"></ul>
+      </div>
+    </div>
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+
+        
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">1. UOS Director 简介</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plan.html">2. 环境规划与准备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seed.html">3. 种子节点部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="undercloud-deploy.html">4. UnderCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overcloud-deploy.html">5. OverCloud 部署</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">6. 额外组件部署</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#link-to-service-config">6.1. 面板服务部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">6.2. 对象存储服务部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">6.3. 网络插件部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">6.4. 计量服务部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">6.5. 计费服务部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">6.6. 充值账单服务部署</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="post-deploy.html">7. OverCloud 初始化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opstools/index.html">8. 运维工具部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">9. UOS 升级</a></li>
+</ul>
+
+        
+      </div>
+
+      <div class="wy-side-nav-search">
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">UOS Director</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>6. 额外组件部署</li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="id1">
+<h1>6. 额外组件部署<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">所有新增加的服务的环境文件应该放在 uos-resource-register.yaml 之后，cloudname.yaml 之前。</p>
+</div>
+<div class="section" id="link-to-service-config">
+<span id="id2"></span><h2>6.1. 面板服务部署<a class="headerlink" href="#link-to-service-config" title="Permalink to this headline">¶</a></h2>
+<p><strong>1. 服务参数修改</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># file: uos-portal.yaml</span>
+<span class="c1"># uos-portal.yaml 环境文件里面参数一般不需要修改。</span>
+
+<span class="c1"># 是否使用 puppet-artemis 来管理 Horizon 服务在 HAProxy 的注册，</span>
+<span class="c1"># 与下面 horizon_enabled 参数互斥。保持默认即可。</span>
+<span class="l l-Scalar l-Scalar-Plain">HorizonUOSEnabled</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="l l-Scalar l-Scalar-Plain">ControllerExtraConfig</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">horizon_enabled</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="c1"># Kunkka 服务在 HAProxy 上暴露的端口号是 80/443，后端还是 5678</span>
+  <span class="l l-Scalar l-Scalar-Plain">artemis::haproxy::service_ports</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{</span>
+    <span class="nv">kunkka_port</span><span class="p p-Indicator">:</span> <span class="nv">80</span><span class="p p-Indicator">,</span>
+    <span class="nv">kunkka_ssl_port</span><span class="p p-Indicator">:</span> <span class="nv">443</span><span class="p p-Indicator">,</span>
+  <span class="p p-Indicator">}</span>
+  <span class="c1"># Horizon 服务在 HAProxy 上暴露的端口号是 9999，后端还是 80/443</span>
+  <span class="c1"># 若想更改 Horizon 服务访问端口号，只需要在 artemis::haproxy::service_ports 里</span>
+  <span class="c1"># 添加上 horizon_uos_port: xxxx, horizon_uos_ssl_port: yyyy</span>
+
+
+<span class="c1"># file: cloudname.yaml</span>
+
+<span class="c1"># 面板上配置短信服务参数</span>
+<span class="l l-Scalar l-Scalar-Plain">KunkkaHl95Host</span><span class="p p-Indicator">:</span>
+<span class="l l-Scalar l-Scalar-Plain">KunkkaHl95Username</span><span class="p p-Indicator">:</span>
+<span class="l l-Scalar l-Scalar-Plain">KunkkaHl95Password</span><span class="p p-Indicator">:</span>
+<span class="l l-Scalar l-Scalar-Plain">KunkkaHl95Epid</span><span class="p p-Indicator">:</span>
+
+<span class="c1"># 面板上配置邮件服务参数</span>
+<span class="l l-Scalar l-Scalar-Plain">KunkkaSmtpSecure</span><span class="p p-Indicator">:</span>
+<span class="l l-Scalar l-Scalar-Plain">KunkkaSmtpHost</span><span class="p p-Indicator">:</span>
+<span class="l l-Scalar l-Scalar-Plain">KunkkaSmtpPort</span><span class="p p-Indicator">:</span>
+<span class="l l-Scalar l-Scalar-Plain">KunkkaSmtpUsername</span><span class="p p-Indicator">:</span>
+<span class="l l-Scalar l-Scalar-Plain">KunkkaSmtpPassword</span><span class="p p-Indicator">:</span>
+<span class="l l-Scalar l-Scalar-Plain">KunkkaAdminEmail</span><span class="p p-Indicator">:</span>
+
+<span class="c1"># 面板上配置支付宝充值相关参数</span>
+
+<span class="c1"># AlipayPartnet 合作身份者 ID，以 2088 开头的 16 位纯数字</span>
+<span class="l l-Scalar l-Scalar-Plain">AlipayPartner</span><span class="p p-Indicator">:</span>
+<span class="c1"># AlipayPartnerKey 安全检验码，以数字和字母组合成的 32 位字符</span>
+<span class="l l-Scalar l-Scalar-Plain">AlipayPartnerKey</span><span class="p p-Indicator">:</span>
+
+<span class="c1"># AlipaySellerID、AlipaySellerAccountName、AlipaySellerEmail 三个参数至少必须传递一个</span>
+<span class="c1"># (国内账户,国外无要求)。当签约账号就是收款账号时，请务必使用参数 AlipaySellerID，</span>
+<span class="c1"># 即 AlipaySellerID 的值与 AlipayPartner 的值相同。</span>
+<span class="c1"># 三个参数的优先级别是：AlipaySellerID &gt; AlipaySellerAccountName &gt; AlipaySellerEmail</span>
+<span class="l l-Scalar l-Scalar-Plain">AlipaySellerID</span><span class="p p-Indicator">:</span>
+<span class="l l-Scalar l-Scalar-Plain">AlipaySellerAccountName</span><span class="p p-Indicator">:</span>
+<span class="l l-Scalar l-Scalar-Plain">AlipaySellerEmail</span><span class="p p-Indicator">:</span>
+
+<span class="c1"># 主题：一般写成“账户充值/Recharge:”</span>
+<span class="l l-Scalar l-Scalar-Plain">AlipaySubject</span><span class="p p-Indicator">:</span>
+<span class="c1"># 正文：一般写成“金额/Amount:”</span>
+<span class="l l-Scalar l-Scalar-Plain">AlipayBody</span><span class="p p-Indicator">:</span>
+</pre></div>
+</div>
+<p><strong>2. 部署脚本修改</strong></p>
+<p>更新部署脚本 deploy.sh 添加以下内容：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>openstack overcloud deploy --templates --validation-warnings-fatal <span class="se">\</span>
+...
+  -e /usr/share/uos-heat-templates/environments/uos-portal.yaml <span class="se">\</span>
+...
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>6.2. 对象存储服务部署<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>更新部署脚本 deploy.sh 添加以下内容：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>openstack overcloud deploy --templates --validation-warnings-fatal <span class="se">\</span>
+...
+  -e /usr/share/uos-heat-templates/environments/ceph-radosgw.yaml <span class="se">\</span>
+...
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>6.3. 网络插件部署<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p><strong>1. 服务参数修改</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># file: uos-services-config.yaml</span>
+
+<span class="c1"># 需要在原来基础上加上 uplugin 参数</span>
+<span class="l l-Scalar l-Scalar-Plain">NeutronServicePlugins</span><span class="p p-Indicator">:</span> <span class="s">&quot;...,uplugin&quot;</span>
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="first admonition-title">Attention</p>
+<p class="last">参数 NeutronServicePlugins 配置错很容易导致 neutron server 服务无法正常启动。</p>
+</div>
+<p><strong>2. 部署脚本修改</strong></p>
+<p>更新部署脚本 deploy.sh 添加以下内容：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>openstack overcloud deploy --templates --validation-warnings-fatal <span class="se">\</span>
+...
+  -e /usr/share/uos-heat-templates/environments/uos-neutron-uplugin.yaml <span class="se">\</span>
+...
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>6.4. 计量服务部署<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>默认情况下 Telemetry 服务会自动部署在控制节点上。</p>
+<p>如果不想部署计量、计费、充值账单服务，只需要在部署脚本 deploy.sh 适当位置上加上 <cite>-e /usr/share/uos-heat-templates/environments/disable-telemetry.yaml</cite> 即可。</p>
+</div>
+<div class="section" id="id6">
+<h2>6.5. 计费服务部署<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p><strong>1. 服务参数修改</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># file: uos-rating.yaml</span>
+
+<span class="c1"># 表示 Cloudkitty 需要对那些服务进行计费，保持默认值即可。</span>
+<span class="l l-Scalar l-Scalar-Plain">CloudkittyCollectServices</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">compute</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">image</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">volume.volume</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ratelimit.fip</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ratelimit.gw</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">labbs.loadbalancer</span>
+</pre></div>
+</div>
+<p><strong>2. 部署脚本修改</strong></p>
+<p>更新部署脚本 deploy.sh 添加以下内容：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>openstack overcloud deploy --templates --validation-warnings-fatal <span class="se">\</span>
+...
+  -e /usr/share/uos-heat-templates/environments/uos-rating.yaml <span class="se">\</span>
+...
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h2>6.6. 充值账单服务部署<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p>更新部署脚本 deploy.sh 添加以下内容：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>openstack overcloud deploy --templates --validation-warnings-fatal <span class="se">\</span>
+...
+  -e /usr/share/uos-heat-templates/environments/uos-billing.yaml <span class="se">\</span>
+...
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">deploy.sh 中 uos-billing.yaml 文件放在 uos-resource-register.yaml 文件之后任何位置都可以。
+uos-billing.yaml 要放在 uos-raing.yaml 后面或着去掉 uos-rating.yaml。</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="post-deploy.html" class="btn btn-neutral float-right" title="7. OverCloud 初始化">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="overcloud-deploy.html" class="btn btn-neutral" title="5. OverCloud 部署"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+      &#169; Copyright 2017, UnitedStack Inc. All Rights Reserved.
+  </div>
+
+  
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:'./',
+          VERSION:'',
+          COLLAPSE_INDEX:false,
+          FILE_SUFFIX:'.html',
+          HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="static/jquery.js"></script>
+      <script type="text/javascript" src="static/underscore.js"></script>
+      <script type="text/javascript" src="static/doctools.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+    jQuery(function () {
+      SphinxRtdTheme.StickyNav.enable();
+    });
+  </script>
+   
+
+</body>
+</html>

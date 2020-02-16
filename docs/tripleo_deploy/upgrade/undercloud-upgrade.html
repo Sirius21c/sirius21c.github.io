@@ -1,0 +1,213 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>undercloud 升级 &mdash; UOS Director  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../static/favicon-v2.ico"/>
+  
+
+  
+  
+    
+  
+
+  
+  
+    <link rel="stylesheet" href="../static/css/theme.css" type="text/css" />
+  
+
+  
+
+  <link rel="stylesheet" href="../static/css/header.css" />
+  <link rel="stylesheet" href="../static/css/normalize.css" />
+  <link rel="stylesheet" href="../static/css/footer.css" />
+        <link rel="index" title="Index" href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+
+    <link rel="top" title="UOS Director  documentation" href="../index.html"/> 
+
+  
+  <script type="text/javascript" src="../static/js/modernizr.min.js"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+    <div class="nav">
+      <a href="https://www.ustack.com" title="UnitedStack" class="logo"></a>
+      <div class="nav-inner-r">
+        <ul class="nav-menu"></ul>
+      </div>
+    </div>
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+
+        
+          <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">1. UOS Director 简介</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../plan.html">2. 环境规划与准备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seed.html">3. 种子节点部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../undercloud-deploy.html">4. UnderCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overcloud-deploy.html">5. OverCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../add-on.html">6. 额外组件部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../post-deploy.html">7. OverCloud 初始化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opstools/index.html">8. 运维工具部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrade.html">9. UOS 升级</a></li>
+</ul>
+
+        
+      </div>
+
+      <div class="wy-side-nav-search">
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">UOS Director</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>undercloud 升级</li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="undercloud">
+<h1>undercloud 升级<a class="headerlink" href="#undercloud" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>给undercloud打快照<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>登录undercloud，关机。</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>poweroff
+</pre></div>
+</td></tr></table></div>
+<p>到种子节点执行</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># 打快照</span>
+qemu-img snapshot -c <span class="m">2018</span>-1-9 /var/lib/libvirt/images/undercloud.qcow2
+<span class="c1"># 查看快照</span>
+qemu-img snapshot -l /var/lib/libvirt/images/undercloud.qcow2
+</pre></div>
+</td></tr></table></div>
+<p>启动 undercloud</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>virsh start undercloud
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="undercloud-package">
+<h2>升级undercloud package<a class="headerlink" href="#undercloud-package" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>登录到undercloud</li>
+<li>停止openstack服务</li>
+</ol>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ sudo systemctl stop <span class="s1">&#39;openstack-*&#39;</span> <span class="s1">&#39;neutron-*&#39;</span> httpd
+</pre></div>
+</td></tr></table></div>
+<ol class="arabic simple" start="3">
+<li>升级python-tripleoclient,maintenance</li>
+</ol>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ sudo yum update python-tripleoclient maintenance
+</pre></div>
+</td></tr></table></div>
+<ol class="arabic simple" start="4">
+<li>升级undercloud</li>
+</ol>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ openstack undercloud upgrade
+</pre></div>
+</td></tr></table></div>
+<p>当undercloud升级了kernel或者Open vSwitch 时需要重启。</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>reboot
+</pre></div>
+</td></tr></table></div>
+<p>重启完毕后检查所有服务的状态</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ sudo systemctl list-units <span class="s2">&quot;openstack*&quot;</span> <span class="s2">&quot;neutron*&quot;</span> <span class="s2">&quot;openvswitch*&quot;</span>
+</pre></div>
+</td></tr></table></div>
+<p>验证undercloud</p>
+<div class="highlight-shell notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span>$ <span class="nb">source</span> ~/stackrc
+$ openstack server list
+$ openstack baremetal node list
+$ openstack stack list
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+      &#169; Copyright 2017, UnitedStack Inc. All Rights Reserved.
+  </div>
+
+  
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:'../',
+          VERSION:'',
+          COLLAPSE_INDEX:false,
+          FILE_SUFFIX:'.html',
+          HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="../static/jquery.js"></script>
+      <script type="text/javascript" src="../static/underscore.js"></script>
+      <script type="text/javascript" src="../static/doctools.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+    jQuery(function () {
+      SphinxRtdTheme.StickyNav.enable();
+    });
+  </script>
+   
+
+</body>
+</html>

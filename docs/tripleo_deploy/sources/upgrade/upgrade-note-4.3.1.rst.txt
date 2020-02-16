@@ -1,0 +1,106 @@
+======================
+UOS 4.3.1 升级注意事项
+======================
+
+.. highlight:: shell
+  :linenothreshold: 0
+
+--------------------
+deploy.sh 脚本变化
+--------------------
+
+除了少量 environment 需要指向 /home/stack/templates 目录，其余 environemnt 全部指向 /usr/share/uos-heat-templates 目录。需要指向 /home/stack/templates 下的 environment 有：
+
+  ::
+
+     /home/stack/templates/environments/uos-network-config/network-isolation.yaml
+     /home/stack/templates/environments/uos-network-config/network-environment.yaml
+     /home/stack/templates/environments/uos-network-config/enable-jumbo-frame.yaml
+     /home/stack/templates/environments/uos-network-config/fixed-vip.yaml
+     /home/stack/templates/environments/uos-network-config/uos-storage.yaml
+     /home/stack/templates/environments/cloudname.yaml
+
+对 UOS 4.2.0, UOS 4.3.0 的 deploy.sh 脚本进行变更:
+
+* 删除 standard environment：/usr/share/uos-heat-templates/environments/uos-standard-environment.yaml 或 /home/stack/environments/uos-standard-environment.yaml，将相关内容配置写入  /home/stack/templates/environments/{cloudname}.yaml 中
+* 对象存储 environment 需要变更：原来指向 /usr/share/openstack-tripleo-heat-templates/environments/ceph-radosgw.yaml 改为 /usr/share/uos-heat-templates/environments/ceph-radosgw.yaml
+* 已经开启 uplugin 的环境（在 UOS 4.3.0 开始默认情况下开启），需要添加 environment: /usr/share/uos-heat-templates/environments/uos-neutron-uplugin.yaml
+* 已经开启 rating 的环境（从 UOS 4.3.0 开始默认情况下开启），需要添加 environment: /usr/share/uos-heat-templates/environments/uos-rating.yaml
+* 原先 /home/stack/templates/environments/cloudname.yaml 或者 /usr/share/uos-heat-templates/environments/uos-ceph-environment.yaml 中存储相关配置，写入  /home/stack/templates/environments/uos-storage.yaml，具体样例参照: /usr/share/uos-heat-templates/environments/templates-example/uos-storage.yaml
+* 检查是否存在 /usr/share/uos-heat-templates/environments/uos-portal.yaml，如果不存在该 environment ，则需要配置上，否则不会安装 kunkka 服务
+* 原些开启了两个 rbd pool 作为 cinder 的存储后端，则需要在  /home/stack/templates/environments/cloudname.yaml 加上配置:   CinderRbdExtraPools: 'poolname' ， 其中 poolname 为原来 rbd pool 的名称 —— 千万不要填错，否则将导致严重后果。并且需要注意，如果在 UOS 4.3.0 版本中开启了 CinderSecondaryBackend 功能的，需要保留原来的 backend 配置，比如原来 backend_name = sata，则需要在 cloudname.yaml 中配置 “cinder_user_enabled_backends:  sata”，以保留原来的配置，否则将导致卷无法正常删除。
+
+------------------------
+升级方式部署充值账单服务
+------------------------
+
+.. Note:: Shadowfiend 服务添加于 UOS 4.3.1 版本
+
+本升级指南用于从 4.2.x、4.3.0 等升级到 4.3.1 方式部署 shadowfiend 服务。
+
+安装相应软件包
+~~~~~~~~~~~~~~~~~
+
+OverCloud 控制节点需要安装以下软件包：
+
+* shadowfiend-common
+* shadowfiend-api
+* shadowfiend-conductor
+* shadowfiend-processor
+* python-shadowfiend
+* puppet-shadowfiend
+
+.. code-block:: shell
+
+   # 更新软件源数据
+   ansible controller -b -m shell -a "yum clean metadata"
+   # 安装 shadowfiend 相关软件包
+   ansible controller -b -m shell -a "yum install -y shadowfiend-api shadowfiend-conductor \
+   shadowfiend-processor python-shadowfiend puppet-shadowfiend"
+
+在 OverCloud 控制节点或所有节点更新以下软件包：
+
+* puppet-artemis >= 4.3.1
+
+.. Attention:: 请确认更新 puppet-artemis 到 4.3.1 版本对当前云平台的影响。
+
+.. code-block:: shell
+
+   # state 参数可以写成 latest 或 4.3.1
+   ansible controller -b -m yum -a "name=puppet-artemis state=latest"
+
+在 UnderCloud 节点更新以下软件包：
+
+* uos-heat-templates ≥= 4.3.1
+
+.. Attention:: 请确认更新 uos-heat-templates 到4.3.1 版本对当前云平台的影响。
+
+.. code-block:: shell
+
+   # state 参数可以写成 latest 或 4.3.1
+   ansible undercloud -b -m yum -a "name=uos-heat-templates state=latest"
+
+更新相应配置
+~~~~~~~~~~~~~~~~
+
+更新部署脚本 deploy.sh 添加以下内容：
+
+.. code-block:: shell
+
+   openstack overcloud deploy --templates --validation-warnings-fatal \
+   ...
+     -e /usr/share/uos-heat-templates/environments/uos-billing.yaml \
+   ...
+
+配置支付宝，具体请参见面板服务部署中的服务参数修改一节：
+:ref:`面板服务部署 <link_to_service_config>`
+
+
+更新 OverCloud 平台
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+更新 OverCloud 节点：
+
+.. code-block:: shell
+
+   bash deploy.sh

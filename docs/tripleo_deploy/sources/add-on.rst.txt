@@ -1,0 +1,172 @@
+额外组件部署
+============
+
+.. Note::
+
+   所有新增加的服务的环境文件应该放在 uos-resource-register.yaml 之后，cloudname.yaml 之前。
+
+.. _link_to_service_config:
+
+面板服务部署
+------------
+
+**1. 服务参数修改**
+
+.. code-block:: yaml
+
+   # file: uos-portal.yaml
+   # uos-portal.yaml 环境文件里面参数一般不需要修改。
+
+   # 是否使用 puppet-artemis 来管理 Horizon 服务在 HAProxy 的注册，
+   # 与下面 horizon_enabled 参数互斥。保持默认即可。
+   HorizonUOSEnabled: true
+
+   ControllerExtraConfig:
+     horizon_enabled: false
+     # Kunkka 服务在 HAProxy 上暴露的端口号是 80/443，后端还是 5678
+     artemis::haproxy::service_ports: {
+       kunkka_port: 80,
+       kunkka_ssl_port: 443,
+     }
+     # Horizon 服务在 HAProxy 上暴露的端口号是 9999，后端还是 80/443
+     # 若想更改 Horizon 服务访问端口号，只需要在 artemis::haproxy::service_ports 里
+     # 添加上 horizon_uos_port: xxxx, horizon_uos_ssl_port: yyyy
+
+
+   # file: cloudname.yaml
+
+   # 面板上配置短信服务参数
+   KunkkaHl95Host:
+   KunkkaHl95Username:
+   KunkkaHl95Password:
+   KunkkaHl95Epid:
+
+   # 面板上配置邮件服务参数
+   KunkkaSmtpSecure:
+   KunkkaSmtpHost:
+   KunkkaSmtpPort:
+   KunkkaSmtpUsername:
+   KunkkaSmtpPassword:
+   KunkkaAdminEmail:
+
+   # 面板上配置支付宝充值相关参数
+
+   # AlipayPartnet 合作身份者 ID，以 2088 开头的 16 位纯数字
+   AlipayPartner:
+   # AlipayPartnerKey 安全检验码，以数字和字母组合成的 32 位字符
+   AlipayPartnerKey:
+
+   # AlipaySellerID、AlipaySellerAccountName、AlipaySellerEmail 三个参数至少必须传递一个
+   # (国内账户,国外无要求)。当签约账号就是收款账号时，请务必使用参数 AlipaySellerID，
+   # 即 AlipaySellerID 的值与 AlipayPartner 的值相同。
+   # 三个参数的优先级别是：AlipaySellerID > AlipaySellerAccountName > AlipaySellerEmail
+   AlipaySellerID:
+   AlipaySellerAccountName:
+   AlipaySellerEmail:
+
+   # 主题：一般写成“账户充值/Recharge:”
+   AlipaySubject:
+   # 正文：一般写成“金额/Amount:”
+   AlipayBody:
+
+**2. 部署脚本修改**
+
+更新部署脚本 deploy.sh 添加以下内容：
+
+.. code-block:: shell
+
+   openstack overcloud deploy --templates --validation-warnings-fatal \
+   ...
+     -e /usr/share/uos-heat-templates/environments/uos-portal.yaml \
+   ...
+
+对象存储服务部署
+----------------
+
+更新部署脚本 deploy.sh 添加以下内容：
+
+.. code-block:: shell
+
+   openstack overcloud deploy --templates --validation-warnings-fatal \
+   ...
+     -e /usr/share/uos-heat-templates/environments/ceph-radosgw.yaml \
+   ...
+
+网络插件部署
+------------
+
+**1. 服务参数修改**
+
+.. code-block:: yaml
+
+   # file: uos-services-config.yaml
+
+   # 需要在原来基础上加上 uplugin 参数
+   NeutronServicePlugins: "...,uplugin"
+
+.. Attention:: 参数 NeutronServicePlugins 配置错很容易导致 neutron server 服务无法正常启动。
+
+**2. 部署脚本修改**
+
+更新部署脚本 deploy.sh 添加以下内容：
+
+.. code-block:: shell
+
+   openstack overcloud deploy --templates --validation-warnings-fatal \
+   ...
+     -e /usr/share/uos-heat-templates/environments/uos-neutron-uplugin.yaml \
+   ...
+
+计量服务部署
+------------
+
+默认情况下 Telemetry 服务会自动部署在控制节点上。
+
+如果不想部署计量、计费、充值账单服务，只需要在部署脚本 deploy.sh 适当位置上加上 `-e /usr/share/uos-heat-templates/environments/disable-telemetry.yaml` 即可。
+
+计费服务部署
+------------
+
+**1. 服务参数修改**
+
+.. code-block:: yaml
+
+   # file: uos-rating.yaml
+
+   # 表示 Cloudkitty 需要对那些服务进行计费，保持默认值即可。
+   CloudkittyCollectServices:
+     - compute
+     - image
+     - volume.volume
+     - ratelimit.fip
+     - ratelimit.gw
+     - labbs.loadbalancer
+
+**2. 部署脚本修改**
+
+更新部署脚本 deploy.sh 添加以下内容：
+
+.. code-block:: shell
+
+   openstack overcloud deploy --templates --validation-warnings-fatal \
+   ...
+     -e /usr/share/uos-heat-templates/environments/uos-rating.yaml \
+   ...
+
+充值账单服务部署
+----------------
+
+更新部署脚本 deploy.sh 添加以下内容：
+
+.. code-block:: shell
+
+   openstack overcloud deploy --templates --validation-warnings-fatal \
+   ...
+     -e /usr/share/uos-heat-templates/environments/uos-billing.yaml \
+   ...
+
+.. Note::
+
+   deploy.sh 中 uos-billing.yaml 文件放在 uos-resource-register.yaml 文件之后任何位置都可以。
+   uos-billing.yaml 要放在 uos-raing.yaml 后面或着去掉 uos-rating.yaml。
+

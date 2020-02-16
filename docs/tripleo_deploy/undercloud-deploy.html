@@ -1,0 +1,375 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>4. UnderCloud 部署 &mdash; UOS Director  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="static/favicon-v2.ico"/>
+  
+
+  
+  
+    
+  
+
+  
+  
+    <link rel="stylesheet" href="static/css/theme.css" type="text/css" />
+  
+
+  
+
+  <link rel="stylesheet" href="static/css/header.css" />
+  <link rel="stylesheet" href="static/css/normalize.css" />
+  <link rel="stylesheet" href="static/css/footer.css" />
+        <link rel="index" title="Index" href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+
+    <link rel="top" title="UOS Director  documentation" href="index.html"/>
+        <link rel="next" title="5. OverCloud 部署" href="overcloud-deploy.html"/>
+        <link rel="prev" title="3. 种子节点部署" href="seed.html"/> 
+
+  
+  <script type="text/javascript" src="static/js/modernizr.min.js"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+    <div class="nav">
+      <a href="https://www.ustack.com" title="UnitedStack" class="logo"></a>
+      <div class="nav-inner-r">
+        <ul class="nav-menu"></ul>
+      </div>
+    </div>
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+
+        
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">1. UOS Director 简介</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plan.html">2. 环境规划与准备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seed.html">3. 种子节点部署</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">4. UnderCloud 部署</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">4.1. UnderCloud 部署需求</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">4.2. UnderCloud 网络</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#underrcloud">4.2.1. 配置 UnderrCloud 网络</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">4.3. UnderCloud 环境准备</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#stack">4.3.1. 创建 stack 用户</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sudo">4.3.2. 设置无密码 sudo 权限</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">4.3.3. 设置主机名</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">4.3.4. 设置软件源</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">4.3.5. 安装所需的软件包</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">4.3.6. 3.3.6 拷贝 UnderCloud 网卡配置文件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">4.3.7. 定义 UnderCloud 配置文件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">4.4. 安装 UnderCloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">4.5. UnderCloud 卸载</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">4.5.1. 备份配置文件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">4.5.2. 删除 UnderCloud</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="overcloud-deploy.html">5. OverCloud 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="add-on.html">6. 额外组件部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="post-deploy.html">7. OverCloud 初始化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opstools/index.html">8. 运维工具部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">9. UOS 升级</a></li>
+</ul>
+
+        
+      </div>
+
+      <div class="wy-side-nav-search">
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">UOS Director</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>4. UnderCloud 部署</li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="undercloud">
+<h1>4. UnderCloud 部署<a class="headerlink" href="#undercloud" title="Permalink to this headline">¶</a></h1>
+<p>UnderCloud 是位于种子节点上的一台虚拟机。</p>
+<div class="section" id="id1">
+<h2>4.1. UnderCloud 部署需求<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>UnderCloud 负责提供 PXE 服务并且管理着所有的 Overcloud 节点。</p>
+<ul class="simple">
+<li>8 核 64 位 x86 CPU 处理器并且支持 Intel 64 或者 AMD64 CPU 扩展</li>
+<li>最小 16G 内存</li>
+<li>最小 40G 磁盘，并且有 10G 剩余空间</li>
+<li>最少需要两块网卡（1Gbps）,当部署大规模（&gt;24台）OverCloud 集群时，推荐使用 10Gbps 作为 PXE 网卡</li>
+<li>CentOS 7.3/7.4 系统</li>
+<li>UnderCloud 系统必须启用 SELinux</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>4.2. UnderCloud 网络<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>部署网络 (PXE)
+- 连接同一网络内的 OverCloud 节点
+- 实现 DHCP 和 PXE BOOT
+- 物理机会通过这个网络来 PXE 启动
+- 提供 UnderCloud 的外部访问
+- 访问 OverCloud 节点的 SSH 网络
+- 访问 OverCloud 物理机的电源管理网络（IPMI）</li>
+<li>外部网络（External）
+- 访问 OverCloud 的 External 网络</li>
+</ul>
+<div class="section" id="underrcloud">
+<h3>4.2.1. 配置 UnderrCloud 网络<a class="headerlink" href="#underrcloud" title="Permalink to this headline">¶</a></h3>
+<p>配置 UnderCloud PXE 网络</p>
+<p>配置 UnderCloud External 网络</p>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>4.3. UnderCloud 环境准备<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="stack">
+<h3>4.3.1. 创建 stack 用户<a class="headerlink" href="#stack" title="Permalink to this headline">¶</a></h3>
+<p>安装 UnderCloud 时需要非 root 用户来执行。我们统一使用 stack 用户。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># useradd stack</span>
+<span class="c1"># passwd stack</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sudo">
+<h3>4.3.2. 设置无密码 sudo 权限<a class="headerlink" href="#sudo" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># echo &quot;stack ALL=(ALL) NOPASSWD:ALL&quot; | tee -a /etc/sudoers.d/stack</span>
+<span class="c1"># chmod 0440 /etc/sudoers.d/stack</span>
+</pre></div>
+</div>
+<p>切换到 stack 用户后，再 su 切换到 root，观察是否需要输入密码</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>root@undercloud ~<span class="o">]</span><span class="c1"># su - stack</span>
+<span class="o">[</span>stack@undercloud ~<span class="o">]</span>$ sudo su - root
+</pre></div>
+</div>
+<p>后面所有的操作均在 stack 用户下进行。</p>
+</div>
+<div class="section" id="id4">
+<h3>4.3.3. 设置主机名<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>UnderCloud 在安装时需要检测 FQDN，通过以下方式来设置主机名：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo hostnamectl set-hostname undercloud.example.com
+$ sudo hostnamectl set-hostname --transient undercloud.example.com
+</pre></div>
+</div>
+<p>UnderCloud 也需要主机名存在 hosts 文件中，在 hosts 文件中添加刚才设置的主机名。 注意设置 UnderCloud 主机名时也要添加短名。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo vim /etc/hosts
+<span class="m">127</span>.0.0.1 undercloud.example.com undercloud
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>4.3.4. 设置软件源<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 删除所有现有 repo</span>
+$ sudo rm -f /etc/yum.repos.d/*.repo
+
+<span class="c1"># 拷贝 repo 文件到 /etc/yum.repos.d/</span>
+$ sudo curl http://&lt;seed_node_ip&gt;/uos-4.0-production.repo -o /etc/yum.repos.d/uos-4.0-production.repo
+
+$ sudo yum clean metadata
+$ sudo yum makecache
+$ sudo yum install -y yum-plugin-priorities vim tmux
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h3>4.3.5. 安装所需的软件包<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo yum install -y python-tripleoclient  uos-heat-templates
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h3>4.3.6. 3.3.6 拷贝 UnderCloud 网卡配置文件<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo cp /usr/share/uos-heat-templates/nic-configs/undercloud/net-config.json.template ~/
+</pre></div>
+</div>
+</div>
+<div class="section" id="id8">
+<h3>4.3.7. 定义 UnderCloud 配置文件<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>拷贝 undercloud.conf 模板到当前用户目录</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo cp /usr/share/instack-undercloud/undercloud.conf.sample ~/undercloud.conf
+</pre></div>
+</div>
+<p>根据环境定义以下配置：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>DEFAULT<span class="o">]</span>
+<span class="c1"># UnderCloud PXE 网卡的 IP 地址</span>
+<span class="nv">local_ip</span> <span class="o">=</span> <span class="m">10</span>.0.160.20/24
+
+<span class="c1"># UnderCloud 以及 OverCloud br-ctlplan 网络的网关</span>
+<span class="nv">network_gateway</span> <span class="o">=</span> <span class="m">10</span>.0.160.1
+
+<span class="c1"># PXE 网络使用的网卡</span>
+<span class="nv">local_interface</span> <span class="o">=</span> eth0
+
+<span class="c1"># PXE 网络的 CIDR</span>
+<span class="nv">network_cidr</span> <span class="o">=</span> <span class="m">10</span>.0.160.0/24
+
+<span class="c1"># 与 PXE 网络一致</span>
+<span class="nv">masquerade_network</span> <span class="o">=</span> <span class="m">10</span>.0.160.0/24
+
+<span class="c1"># OverCloud node 通过 Neutron 分配获取到的地址</span>
+<span class="nv">dhcp_start</span> <span class="o">=</span> <span class="m">10</span>.0.160.5
+<span class="nv">dhcp_end</span> <span class="o">=</span> <span class="m">10</span>.0.160.24
+
+<span class="c1"># 为了能够使用 UOS Director UI 我们需要把网关起在 PXE 网络上,</span>
+<span class="c1"># 使用包含网关的网络配置模板来安装 Undercloud</span>
+<span class="nv">net_config_override</span> <span class="o">=</span> net-config.json.template
+
+<span class="c1"># inspection 网卡，默认使用 br-ctlplane 即可</span>
+<span class="nv">inspection_interface</span> <span class="o">=</span> br-ctlplane
+
+<span class="c1"># 对 OverCloud node 进行 introspection 时分配的 IP，注意不要和 dhcp_start, dhcp_end 重叠</span>
+<span class="c1"># 这个range 可以使用未分配给 OverCloud 的 PXE 地址段</span>
+<span class="nv">inspection_iprange</span> <span class="o">=</span> <span class="m">10</span>.0.160.100,10.0.160.120
+</pre></div>
+</div>
+<p>关闭docker-registry:</p>
+<p>在UOS4.0中暂未支持docker部署，所以需要关闭docker-registry。
+vim /home/stack/hiera_override.yaml,在其中添加:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">enable_docker_registry</span><span class="p">:</span> <span class="n">false</span>
+</pre></div>
+</div>
+<p>然后在~/undercloud.conf 中修改 hieradata_override</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hieradata_override</span> <span class="o">=</span> <span class="n">hiera_override</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id9">
+<h2>4.4. 安装 UnderCloud<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ openstack undercloud install
+</pre></div>
+</div>
+</div>
+<div class="section" id="id10">
+<h2>4.5. UnderCloud 卸载<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<p>在实施过程中会遇到需要卸载 UnderCloud 的情况：</p>
+<ul class="simple">
+<li>删除 Heat stack 失败</li>
+<li>删除 Ironic node 失败</li>
+<li>重新部署 UnderCloud</li>
+<li>删除 UnderCloud</li>
+</ul>
+<div class="section" id="id11">
+<h3>4.5.1. 备份配置文件<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">备份 undercloud.conf</p>
+</li>
+<li><p class="first">备份 templates</p>
+</li>
+<li><p class="first">删除 OverCloud</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">source</span> ~/stackrc
+$ openstack stack delete overcloud --wait
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="id12">
+<h3>4.5.2. 删除 UnderCloud<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">source</span> ~/stackrc
+$ rm /home/stack/undercloud-passwords.conf
+$ sudo systemctl list-unit-files <span class="p">|</span> grep openstack <span class="p">|</span> awk <span class="s1">&#39;{print $1}&#39;</span> <span class="p">|</span> xargs -I <span class="o">{}</span> sudo systemctl stop <span class="o">{}</span>
+$ sudo systemctl list-unit-files <span class="p">|</span> grep neutron <span class="p">|</span> awk <span class="s1">&#39;{print $1}&#39;</span> <span class="p">|</span> xargs -I <span class="o">{}</span> sudo systemctl stop <span class="o">{}</span>
+$ sudo systemctl stop keepalived
+$ sudo rm -rf /var/lib/mysql /var/lib/rabbitmq /etc/keystone /opt/stack/.undercloud-setup /root/stackrc /home/stack/stackrc  /var/opt/undercloud-stack /var/lib/ironic-discoverd/discoverd.sqlite /var/lib/ironic-inspector/inspector.sqlite  /home/stack/.instack /root/tripleo-undercloud-passwords
+$ <span class="nv">dirs</span><span class="o">=</span><span class="s2">&quot;ceilometer heat glance horizon ironic ironic-discoverd keystone neutron nova swift haproxy&quot;</span><span class="p">;</span> <span class="k">for</span> dir in <span class="nv">$dirs</span><span class="p">;</span> <span class="k">do</span> sudo rm -rf /etc/<span class="nv">$dir</span> <span class="p">;</span> sudo rm -rf /var/log/<span class="nv">$dir</span> <span class="p">;</span>  sudo rm -rf /var/lib/<span class="nv">$dir</span><span class="p">;</span> <span class="k">done</span>
+$ sudo yum remove -y rabbitmq-server mariadb haproxy keepalived <span class="k">$(</span>rpm -qa <span class="p">|</span> grep openstack<span class="k">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="overcloud-deploy.html" class="btn btn-neutral float-right" title="5. OverCloud 部署">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="seed.html" class="btn btn-neutral" title="3. 种子节点部署"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+      &#169; Copyright 2017, UnitedStack Inc. All Rights Reserved.
+  </div>
+
+  
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:'./',
+          VERSION:'',
+          COLLAPSE_INDEX:false,
+          FILE_SUFFIX:'.html',
+          HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="static/jquery.js"></script>
+      <script type="text/javascript" src="static/underscore.js"></script>
+      <script type="text/javascript" src="static/doctools.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+    jQuery(function () {
+      SphinxRtdTheme.StickyNav.enable();
+    });
+  </script>
+   
+
+</body>
+</html>
