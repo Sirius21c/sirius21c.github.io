@@ -1,21 +1,19 @@
+---
+layout: false
+title: "404"
+---
 
 <!DOCTYPE html>
 <html lang="en" id="loading">
-<head><meta name="generator" content="Hexo 3.9.0">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="format-detection" content="telephone=no">
 
-    <title>Page not found &bull; enStyled</title>
+    <title>Page not found</title>
 
-    <meta name="description" content="The portfolio of Emil Nikov, freelance web designer and developer">
-	<meta name="author" content="Emil Nikov">
-
-    <link href="css/style.css" rel="stylesheet">
-
-    <link rel="shortcut icon" type="image/png" href="img/favicon.png">
-    <link rel="apple-touch-icon-precomposed" type="image/png" href="img/apple-touch-icon-precomposed.png">
+    <link href="/css/404_style.css" rel="stylesheet">
 
     <noscript><style>#loading body { opacity: 1; transform: none; }</style></noscript>
 
@@ -45,7 +43,7 @@
 
 <body class="not-found">
 
-    
+
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-5">
@@ -58,7 +56,7 @@
 
 			<div class="col-sm-7">
 				<h2>Page not found</h2>
-				<p>The page you are looking for is not here.<br>Why don’t you try the <a href="/index.html">homepage</a>?</p>
+				<p>The page you are looking for is not here.<br />Why don’t you try the <a href="/index.html">homepage</a>?</p>
 			</div>
 		</div>
 	</div>
@@ -67,7 +65,7 @@
     <script src="https://use.typekit.net/jki7owr.js"></script>
 	<script>try{Typekit.load();}catch(e){}</script>
 
-    <script src="js/custom.js"></script>
+    <script src="/js/404.js"></script>
 
 </body>
 </html>
