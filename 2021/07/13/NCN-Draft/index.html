@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="en"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>NCN-Draft | Ian21c's Blog</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.4.0/jquery.min.js"></script><link rel="icon" mask sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">NCN-Draft</h1><a id="logo" href="/.">Ian21c's Blog</a><p class="description">Peace &amp; Love ! Learning to think independently !</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Home</i></a><a href="/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/about/"><i class="fa fa-user"> About</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">NCN-Draft</h1><div class="post-meta">Jul 13, 2021<span> | </span><span class="category"><a href="/categories/technology/">technology</a></span></div><div class="clear"><div class="toc-article" id="toc"><div class="toc-title">Contents</div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#设计理念"><span class="toc-number">1.</span> <span class="toc-text">设计理念</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#SDN-模型的选择"><span class="toc-number">1.1.</span> <span class="toc-text">SDN 模型的选择</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#转发模型的选择"><span class="toc-number">1.2.</span> <span class="toc-text">转发模型的选择</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#VPLS-IRB"><span class="toc-number">1.2.1.</span> <span class="toc-text">VPLS + IRB</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NBMA"><span class="toc-number">1.2.2.</span> <span class="toc-text">NBMA</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#UCloud"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">UCloud</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#QCloud-amp-Aliyun"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">QCloud &amp; Aliyun</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#数据面封装的选择"><span class="toc-number">2.</span> <span class="toc-text">数据面封装的选择</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#产品列表"><span class="toc-number">3.</span> <span class="toc-text">产品列表</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Net-Space"><span class="toc-number">3.1.</span> <span class="toc-text">Net Space</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Service-Pool"><span class="toc-number">3.2.</span> <span class="toc-text">Service Pool</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Address-Pool"><span class="toc-number">3.3.</span> <span class="toc-text">Address Pool</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Service-Function-Chain"><span class="toc-number">3.4.</span> <span class="toc-text">Service Function Chain</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Domain-Graph"><span class="toc-number">3.5.</span> <span class="toc-text">Domain Graph</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Quality-of-Service-and-Explicit-Congestion-Notification"><span class="toc-number">3.6.</span> <span class="toc-text">Quality of Service and Explicit Congestion Notification</span></a></li></ol></li></ol></div></div><div class="post-content"><p>NCN 意指 next cloud network，现在的 VPC 终极目标为虚拟网模拟传统网络提供给用户，但其实虚拟网和物理网面临着完全不同的技术问题，即以兼容和对传统网络协议畏缩的名义人为的造成用户业务形态和网络形态的割裂问题，解决方式是客户提高对传统网络的认知并适应虚拟网的逻辑，但此举无疑给甲乙双方都带来了不小的麻烦。NCN 意在屏蔽传统网络，向用户提供面向应用的 IaaS 产品形态。</p>
+<p>NCN 也意指 native cloud network，不仅提供云原生的解决方案，更是直接提供面向应用和业务的原生云。</p>
+<h1 id="设计理念"><a href="#设计理念" class="headerlink" title="设计理念"></a>设计理念</h1><h2 id="SDN-模型的选择"><a href="#SDN-模型的选择" class="headerlink" title="SDN 模型的选择"></a>SDN 模型的选择</h2><blockquote>
+<p>按照 Google Andromeda 对 SDN 网络的编程模型定义，可以划分为如下三种：</p>
+<ul>
+<li>Preprogrammed Model</li>
+<li>On Demand Model</li>
+<li>Gateway Model</li>
+</ul>
+</blockquote>
+<p>其中，三种模型都有各自的特点：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型</th>
+<th style="text-align:left">特点</th>
+<th style="text-align:left">优点</th>
+<th style="text-align:left">缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Pre programmed Model</td>
+<td style="text-align:left">预先下发 full-mesh 规则</td>
+<td style="text-align:left">一致性、性能可预测性</td>
+<td style="text-align:left">控制面复杂度是网络规模的 O(n2)，任何网络变化都需要传递至所有节点</td>
+</tr>
+<tr>
+<td style="text-align:left">On Demand Model</td>
+<td style="text-align:left">网络流的第一个包被送至控制面下发规则。</td>
+<td style="text-align:left">比第一种拥有更好的扩展性</td>
+<td style="text-align:left">1. 首包拥有非常高的时延； 2. 对控制面负载状态很敏感，且一旦控制面出现故障，新的网络连接将不再能建立； 3. 控制面会受到 DDoS 攻击</td>
+</tr>
+<tr>
+<td style="text-align:left">Gateway Model</td>
+<td style="text-align:left">VM 把所有流量都送到中心化网关处理</td>
+<td style="text-align:left">性能可预测性、扩展性</td>
+<td style="text-align:left">网络流量的均值和峰值差距非常大（可能超过 100 倍），导致网关模式的利用率很低、TCO很高</td>
+</tr>
+</tbody>
+</table>
+<p>基于此，Google 公开了其仙女座虚拟网络控制平面使用的模型: <strong>Hoverboard Model</strong></p>
+<p>但个人认为 Hoverboard 还有一些不足的地方，转发模型一节会详述：</p>
+<ol>
+<li>由控制面根据网络情况决定卸载流量过于理想化，应由数据面转发规则容量动态卸载；</li>
+<li>缺少网络的自愈性</li>
+</ol>
+<h2 id="转发模型的选择"><a href="#转发模型的选择" class="headerlink" title="转发模型的选择"></a>转发模型的选择</h2><h3 id="VPLS-IRB"><a href="#VPLS-IRB" class="headerlink" title="VPLS + IRB"></a>VPLS + IRB</h3><p>我们知道在云网络中，热迁是基本的需求，当寻址信息发生变化时，如何尽快的收敛网络？L2 的 FIB 不依赖 RIB，这是一个很好的选择，所以 VPLS 模型成为了首选。</p>
+<p>但同时 VPLS 存在一个严重的问题，需要数据层进行 flood-learn，这极大的限制了网络的规模，所以有了如 OpenStack L2Population 和 EVPN 这样的控制面。</p>
+<p>此时，L3 仍然可以通过 IP 地址聚合来提升控制面的规模和性能，但随着东西向跨子网流量的增加和网关利用率的问题，IRB 成为了必要的选择：</p>
+<ul>
+<li>OpenStack DVR：PBR + Namespace，其实更好的选择是 VRF</li>
+<li>OVN：本地具有全部的 Pipline，对端完成逻辑结果到物理的映射</li>
+<li>BGP EVPN：Asymmetric IRB or Symmetric IRB，简单点说就是 MPLS 在 L2 和 L3 VPN 方面的应用，并依靠 MP-BGP 分发控制面信息，数据面使用 VXLAN 替代</li>
+<li>Tungsten Fabric：本质上就是 MP-BGP，集中式的控制器相当于一个 RR</li>
+</ul>
+<p>这就有了一个好笑的现象，从一开始选择不依赖 RIB，到现在维护两套 RIB，这是不可取的。所以以此模型为基础的金山云、百度云等，乃至传统网络侵入云业务的分布式控制并不切合大规模公有云。</p>
+<h3 id="NBMA"><a href="#NBMA" class="headerlink" title="NBMA"></a>NBMA</h3><p>虚拟网中，R&amp;S 是否还有保留的必要？交换的本质是隔离冲突域，提高以太网这种广播型链路的交换效率，Mac 地址从来不是地址，而是一种标记信息。路由是分组交换网络收敛和寻址的基础，IP 作为寻址信息的一部分是有必要的，但完整的路由过程大可不必。</p>
+<p>路由过程分为 FEC 和 查找，FEC 只需要加上标签（详见数据面封装的选择）以支持地址重叠，查找又分为 IP Routing 查找 BD、Next Hop Resolve 得到 FIB 的目标（来源于 RIB 的 Next Hop，没有则通过下一跳的代理 ARP 获得，overlay 模型的对称路由模式则是 Remote Mac）、Destination Lookup 得到 FIB 的逃出接口（来源于 RIB 的 逃出接口，没有则根据下一跳递归查询，overlay 模式则是 Remote IP），显然我们只需要主机 FEC 和 Destination Lookup。</p>
+<h4 id="UCloud"><a href="#UCloud" class="headerlink" title="UCloud"></a>UCloud</h4><ul>
+<li>为了支持 IP 地址重叠，使用 Mac 地址作为寻址信息，如前所示，Mac 只应当看做一种标记信息，不能和 VPLS 栽在一个坑里</li>
+<li>数据面缺少基于 port 的标签映射信息，这导致转发规则成为了依赖于源信息的 P2M 虚链路，而不是基于目的信息的非广播多路访问，还要做额外的检验</li>
+<li>为了模拟路由过程，多了 Next Hop Resolve 这一步</li>
+<li>跨 VPC 逻辑不对，本质上应该是 IP Routing 的逻辑，而且放在东西向流量处理不是太合理，会逐渐与跨子网对于同子网同质化，无非是上面又多了一层</li>
+</ul>
+<h4 id="QCloud-amp-Aliyun"><a href="#QCloud-amp-Aliyun" class="headerlink" title="QCloud &amp; Aliyun"></a>QCloud &amp; Aliyun</h4><p>基于 IP 寻址，但同样不依赖主机路由，细节不清楚。</p>
+<p>理论上，基于附加标签的 IP 信息寻址，本地还原标记信息（Mac、Port 等）是最理想的方式。</p>
+<p>Hoverboard 的 Gateway 解决了 NBMA 无法依靠也绝对不能 flood 的问题，但不应该丢掉 Learn 这样高效收敛的方式。控制面信息无非两类：LSA 和 NLRI， 这里显然 NLRI 是最高效的方式，且没有任何隐患。那么，数据面学习的方式要好于控制面决定流量卸载的方式，即通过收到的报文获得网络可达性信息。至此，网络还少了一定的自愈性，比如当迁移后网络状态未达成一致时，Gateway 应该基于地址源信息和来源信息的不一致主动修复错误节点的转发信息，从而减少系统内发卡流量。</p>
+<h1 id="数据面封装的选择"><a href="#数据面封装的选择" class="headerlink" title="数据面封装的选择"></a>数据面封装的选择</h1><p><strong>VXLAN</strong> 是 VPLS 的产物，排除；<strong>Geneve</strong> 携带了更多的信息，比如 OVN 塞进了逻辑端口，VPLS + IRB 的产物，排除；<strong>GRE</strong>，腾讯使用的这个，但无论是在 NAT 穿越还是 ECMP Hash 上都不如 VXLAN（使用 UDP），排除；<strong>VXLAN-GPE</strong>，阿里使用的这个，没有前述的问题，但在支持一些特性上，比如 SFC 要再封装 NSH（直接基于 Port2Port 的策略转发增加了逻辑的复杂性），还有云网融合也不够友好，排除；<strong>MPLS</strong>，是 Peer2Peer 模式，泄露了寻址信息，但封装在 UDP 里就完美了，排除。所以，我的答案是——<strong>MPLSoUDP</strong>（且对 DCI 更友好，源路由成为可能）。</p>
+<p>另外，无论选择哪种封装方式，里面携带的信息是寻址的必要条件，数据面需要维护 Port 到该信息的映射关系，亦或是从 Port 进来就封装必要的信息（中间关系状态的映射或者最终的标签）。</p>
+<h1 id="产品列表"><a href="#产品列表" class="headerlink" title="产品列表"></a>产品列表</h1><p>只涉及 EW Traffic，nat/vpn/external/net space connection 等 NS Traffic 走异构网关。</p>
+<ul>
+<li>Net Space</li>
+<li>Service Pool</li>
+<li>Address Pool</li>
+<li>Service Function Chain</li>
+<li>Domain Graph</li>
+<li>Traffic Mirroring</li>
+<li>Quality of Service and Explicit Congestion Notification</li>
+</ul>
+<h2 id="Net-Space"><a href="#Net-Space" class="headerlink" title="Net Space"></a>Net Space</h2><p>相当于 VPC，但仅代表 DCN Spine-Leaf 交换矩阵内隔离出来的一部分网络资源，无论是跨地域还是本地域的 Net Space 间通信都属于另行组网，此时 IP 地址聚合。</p>
+<h2 id="Service-Pool"><a href="#Service-Pool" class="headerlink" title="Service Pool"></a>Service Pool</h2><p>相当于 Subnet，但不同于传统网络中子网的概念，1 个子网中 100 个 VM 和 100 个 VM 分布在 100 个子网中没有任何区别，要向用户屏蔽网络概念，Service Pool 的大小只跟业务 VM 需求量级和规划有关。</p>
+<p>另外，具有一些特殊的 Service Pool，比如 Public Service。</p>
+<ul>
+<li>Service Port</li>
+</ul>
+<p>向外暴露可提供的端口，类似于安全组放行的入向端口。内部是全端口双向放行的，外部需要通过 Domain Graph 建立连通性。</p>
+<ul>
+<li>Cluster</li>
+</ul>
+<p>Bool 类型，可提供 HA 或者 LB 的服务。</p>
+<h2 id="Address-Pool"><a href="#Address-Pool" class="headerlink" title="Address Pool"></a>Address Pool</h2><p>每个 Net Space 都有一份全量可用的地址空间，根据使用情况和 Service Pool 的 VM 预估量级自动打洞生成前缀供用户选择。</p>
+<h2 id="Service-Function-Chain"><a href="#Service-Function-Chain" class="headerlink" title="Service Function Chain"></a>Service Function Chain</h2><p>只支持 In-network 和 NAT 两种模式。</p>
+<h2 id="Domain-Graph"><a href="#Domain-Graph" class="headerlink" title="Domain Graph"></a>Domain Graph</h2><p>形象展示给用户目前连通域的信息，也是下发策略的重要依据，本质上就是个以 Service Pool 为点，连通性为边的有向图。</p>
+<p>连通性需要具有两个属性：Direction，依靠 ACL &amp; CT 实现；Transitivity，依靠权值进行判断。</p>
+<p>能否通信，即是否存在路径，连通域即为强连通分量。</p>
+<h2 id="Quality-of-Service-and-Explicit-Congestion-Notification"><a href="#Quality-of-Service-and-Explicit-Congestion-Notification" class="headerlink" title="Quality of Service and Explicit Congestion Notification"></a>Quality of Service and Explicit Congestion Notification</h2><p>共享资源的必要手段，尤其涉及 DCI 的产品。</p>
+</div><div class="tags"><a href="/tags/cloud/">cloud</a><a href="/tags/network/">network</a><a href="/tags/sdn/">sdn</a></div><div class="post-nav"><a class="next" href="/2021/03/17/主机路由详解/">主机路由详解</a></div><div id="container"></div><link rel="stylesheet" type="text/css" href="//unpkg.com/gitalk/dist/gitalk.css?v=0.0.0"><script type="text/javascript" src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js?v=0.0.0"></script><script type="text/javascript" src="//unpkg.com/gitalk/dist/gitalk.min.js?v=0.0.0"></script><script>var gitalk = new Gitalk({
+  clientID: 'cf6cbb233152befba374',
+  clientSecret: 'd1d9b814b36163460ad6241843c4d1be861fe7db',
+  repo: 'BlogComments',
+  owner: 'sirius21c',
+  admin: ['sirius21c'],
+  id: md5(location.pathname),
+  distractionFreeMode: false
+})
+gitalk.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"><input type="hidden" name="sitesearch" value="http://21c.me"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/emotion/">emotion</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/technology/">technology</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/cloud/" style="font-size: 20px;">cloud</a> <a href="/tags/network/" style="font-size: 21.67px;">network</a> <a href="/tags/sdn/" style="font-size: 18.33px;">sdn</a> <a href="/tags/travel/" style="font-size: 15px;">travel</a> <a href="/tags/neutron/" style="font-size: 23.33px;">neutron</a> <a href="/tags/openstack/" style="font-size: 25px;">openstack</a> <a href="/tags/Happy-Birthday/" style="font-size: 15px;">Happy Birthday</a> <a href="/tags/随笔/" style="font-size: 16.67px;">随笔</a> <a href="/tags/mac/" style="font-size: 15px;">mac</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/openflow/" style="font-size: 16.67px;">openflow</a> <a href="/tags/octavia/" style="font-size: 15px;">octavia</a> <a href="/tags/note/" style="font-size: 18.33px;">note</a> <a href="/tags/sfc/" style="font-size: 15px;">sfc</a> <a href="/tags/tripleo/" style="font-size: 15px;">tripleo</a> <a href="/tags/ovs/" style="font-size: 18.33px;">ovs</a> <a href="/tags/linux-bridge/" style="font-size: 15px;">linux bridge</a> <a href="/tags/firewall对接/" style="font-size: 18.33px;">firewall对接</a> <a href="/tags/security/" style="font-size: 16.67px;">security</a> <a href="/tags/devstack/" style="font-size: 15px;">devstack</a> <a href="/tags/calico/" style="font-size: 15px;">calico</a> <a href="/tags/k8s/" style="font-size: 16.67px;">k8s</a> <a href="/tags/poetry/" style="font-size: 15px;">poetry</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/边缘计算/" style="font-size: 15px;">边缘计算</a> <a href="/tags/5G/" style="font-size: 15px;">5G</a> <a href="/tags/kvm/" style="font-size: 15px;">kvm</a> <a href="/tags/SR-IOV/" style="font-size: 15px;">SR-IOV</a> <a href="/tags/VPNaaS/" style="font-size: 15px;">VPNaaS</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/07/13/NCN-Draft/">NCN-Draft</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/17/主机路由详解/">主机路由详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/05/不识庐山真面目——我在虚拟网的打怪升级之路/">不识庐山真面目——我在虚拟网的打怪升级之路</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/10/28/成都购房指北/">成都购房指北</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/07/15/所爱隔山海，山海难平——浅谈SDN/">所爱隔山海，山海难平——浅谈SDN</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/02/Mac使用zmodem传输文件/">Mac使用zmodem传输文件</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/06/PrivateNote-BCloudNet/">PrivateNote_BCloudNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/CentaraGrand/">CentaraGrand</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/19/虚拟网络优化与测试/">虚拟网络优化与测试</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/03/Distributed-Virtual-Routing/">Distributed Virtual Routing</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">Ian21c's Blog.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css"><script type="text/javascript" color="0,0,0" opacity="0.6" zindex="-1" count="55" src="//lib.baomitu.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
