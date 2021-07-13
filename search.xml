@@ -716,9 +716,9 @@
             
             <tag> neutron </tag>
             
-            <tag> ovs </tag>
-            
             <tag> openflow </tag>
+            
+            <tag> ovs </tag>
             
         </tags>
       
