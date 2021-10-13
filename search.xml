@@ -190,9 +190,9 @@
             
             <tag> network </tag>
             
-            <tag> neutron </tag>
-            
             <tag> cloud </tag>
+            
+            <tag> neutron </tag>
             
             <tag> note </tag>
             
@@ -567,9 +567,9 @@
             
             <tag> neutron </tag>
             
-            <tag> tripleo </tag>
-            
             <tag> ovs </tag>
+            
+            <tag> tripleo </tag>
             
             <tag> linux bridge </tag>
             
