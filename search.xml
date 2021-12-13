@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>ARP缓存更新机制</title>
+      <link href="/2021/11/29/ARP%E7%BC%93%E5%AD%98%E6%9B%B4%E6%96%B0%E6%9C%BA%E5%88%B6/"/>
+      <url>/2021/11/29/ARP%E7%BC%93%E5%AD%98%E6%9B%B4%E6%96%B0%E6%9C%BA%E5%88%B6/</url>
+      
+        <content type="html"><![CDATA[<p>众所周知，ARP 是一个链路层的地址解析协议，它以IP地址为键值，查询保有该IP地址主机的MAC地址。但是 ARP 协议的规范只是阐述了地址解析的细节，并没有规定协议栈的实现如何去维护ARP缓存，所以抽空搭建了环境，测试了下 ARP 缓存更新的一些机制。</p><p><em>Linux ARP 相关配置：/proc/sys/net/ipv4/neigh/ethX</em></p><h3 id="状态机"><a href="#状态机" class="headerlink" title="状态机"></a>状态机</h3><p><img src="/images/ARP缓存更新机制/状态机.png" alt="状态机"></p><h3 id="更新机制"><a href="#更新机制" class="headerlink" title="更新机制"></a>更新机制</h3><p><img src="/images/ARP缓存更新机制/更新机制.png" alt="更新机制"></p><h3 id="QA"><a href="#QA" class="headerlink" title="QA"></a>QA</h3><ul><li><p>为什么 stale 状态之后很久都不会被删除？<br>其实这是因为还有路由缓存项在使用它，此时删除路由缓存之后，arp表项很快被删除。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route flush cache</span><br></pre></td></tr></table></figure></li><li><p>为什么 request 可以更新缓存？ replay 却有限制？<br>（猜测未证实）”本地确认“机制不仅在 delay 状态有效，reachable 也有用，但需要注意的是 delay 状态是由于引用将状态由 stale 推进至 delay，虽然 reachable 不会改变状态，但单边的 replay 不存在本地引用的过程。笔者认为，add 的前提条件是本地确认和引用，update 的条件是本地确认，replay 虽然达成本地确认的条件，但由于 lock 或其它未知原因，只能暂时刷新。</p></li><li><p>不同 replay，为什么 windows 优选后者，linux 优选前者？<br>优选后者符合逻辑，Linux 存在锁定时间（cat /proc/sys/net/ipv4/neigh/eth0/locktime），但强制多次会暂时更新，且无论是否锁定时间已过，都只是暂时更新，停止 replay 会恢复。原因暂不明。</p></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> technology </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> linux </tag>
+            
+            <tag> network </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>NCN-Draft</title>
       <link href="/2021/07/13/NCN-Draft/"/>
       <url>/2021/07/13/NCN-Draft/</url>
@@ -192,9 +219,9 @@
             
             <tag> openstack </tag>
             
-            <tag> cloud </tag>
-            
             <tag> note </tag>
+            
+            <tag> cloud </tag>
             
         </tags>
       
