@@ -37,7 +37,7 @@
       <link href="/2022/06/21/SDN%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5%E6%80%9D%E8%80%83/"/>
       <url>/2022/06/21/SDN%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5%E6%80%9D%E8%80%83/</url>
       
-        <content type="html"><![CDATA[<h1 id="为什么需要-SDN"><a href="#为什么需要-SDN" class="headerlink" title="为什么需要 SDN"></a>为什么需要 SDN</h1><ol><li>广义的 SDN，统一的网络配置接口</li><li>狭义的 SDN：TE 和 Feature，以及收敛速度，CP -&gt; CA</li></ol><h1 id="网络的可用性和一致性"><a href="#网络的可用性和一致性" class="headerlink" title="网络的可用性和一致性"></a>网络的可用性和一致性</h1><p>网络不可避免的一定存在分区，而基于目的的寻址系统选择的一定是一致性，不然会造成环路和路由黑洞。规模相对较小的情况下为了保证可用性和一致性，采用了 DR、RR，亦或是 SDN，但牺牲的是不可分区（控制面的分区以及数控系统间的分区）。</p><p>这么看来，SDN 的思想是完全背离网络原则的。但在公有云场景中，面对过高的网络密度和变化速率对于网络收敛速度的要求，相比于 VPLS + IRB 组网，配上 SDN 打辅助的方式，我还是站队 SDN 主攻，因为在 DCN中，控制面分区是可以尽量避免的。</p><p>所以在 SDN 中，要保证的是控制面不可分区，数据面的分区容错依赖于控制面的一致性，且数据面的可用并不依赖控制面的可用性，数据面的一致性依赖于系统内的每个节点同控制面的一致性，后者是基本不可能做到的，则需要尽可能保证数据面系统单一，在 DCN 中这就是 Host Overlay 或者 Gateway Model。</p><p>我们知道 SDN 有三种模式：Reactive、Proactive、Predictive。Predictive？纵看整个网络的发展，目前还是很不现实的。我们看看前两者，因为控制面是 CA 的，面对压力问题，无非是一个拿时间换空间，另一个拿空间换时间。业界目前的主流解决方案是两种方式相结合：利用 Gateway 模型将控制面直接放到数据面，解决时间问题，且这里不完全与控制面相同，可以使用多副本写入不同步的方式，适当牺牲可分区系统间的一致性，扩大规模的同时提高可用性，数据面则反之；牺牲 Proactive 的可用性，换来分区容错解决空间问题。</p><p>这是控制面 CA + CP，数据面 AP 的方案。</p><h1 id="SDWAN-路在何方"><a href="#SDWAN-路在何方" class="headerlink" title="SDWAN 路在何方"></a>SDWAN 路在何方</h1><p>SDWAN 和 SDN 有着本质的不同，在 DCI 其控制面的分区不可避免，即不能同时保证可用性和一致性，前文说明过这里一定选择的是一致性，而非可用性。那这和传统网络又有何区别？所以 SDWAN 的控制面要求就是保证 AP 的数据面不用关心一致性，是一个 CP 的系统。</p><p>那么难点来了，CP 的控制面不难，但是如何帮助数据面在不一致的情况下进行正确的寻址呢？这跟 SDN 不同，既不能简化数据面的系统，又不能完全依附于控制面的可用性，且面对广域网的复杂度，链路状态的检测通告和路径计算这都是大问题，答案其实在传统网络中已经存在了很久了—— LFA。SDWAN 的路就是做一个更好的 LFA 控制面，连接 PQ 分区。</p><p>这是 CP + AP 的方案。</p><h1 id="云联网的理论支撑"><a href="#云联网的理论支撑" class="headerlink" title="云联网的理论支撑"></a>云联网的理论支撑</h1><p>综上，控制面的独立有利于降低数据面对一致性的要求，数据面再通过一定的方式（SDN 是简化系统，SDWAN 是具备独立的决策能力）解决可用性问题。云联网虽然业务比较趋向于 SDWAN，不能简化数据面系统，但分区却是可预测的，即给 SDN 化提供了可能性。</p><p>简单点说，云联网就是在各个数据面网关写静态，需要使用事务保证一致性。当控制面预料内的分区发生时，数据面流量仍然可以通过冗余的抽象连接（DCN 是 ECMP，DCI 是 SR）到达更新状态后的分区，需要注意的是，如果更新涉及隔离分区，虽然满足机制也不能写入。</p><p>这是 CP + AP 的方案。</p>]]></content>
+        <content type="html"><![CDATA[<h3 id="为什么需要-SDN"><a href="#为什么需要-SDN" class="headerlink" title="为什么需要 SDN"></a>为什么需要 SDN</h3><ol><li>广义的 SDN，统一的网络配置接口</li><li>狭义的 SDN：TE 和 Feature，以及收敛速度，CP -&gt; CA</li></ol><h3 id="网络的可用性和一致性"><a href="#网络的可用性和一致性" class="headerlink" title="网络的可用性和一致性"></a>网络的可用性和一致性</h3><p>网络不可避免的一定存在分区，而基于目的的寻址系统选择的一定是一致性，不然会造成环路和路由黑洞。规模相对较小的情况下为了保证可用性和一致性，采用了 DR、RR，亦或是 SDN，但牺牲的是不可分区（控制面的分区以及数控系统间的分区）。</p><p>这么看来，SDN 的思想是完全背离网络原则的。但在公有云场景中，面对过高的网络密度和变化速率对于网络收敛速度的要求，相比于 VPLS + IRB 组网，配上 SDN 打辅助的方式，我还是站队 SDN 主攻，因为在 DCN中，控制面分区是可以尽量避免的。</p><p>所以在 SDN 中，要保证的是控制面不可分区，数据面的分区容错依赖于控制面的一致性，且数据面的可用并不依赖控制面的可用性，数据面的一致性依赖于系统内的每个节点同控制面的一致性，后者是基本不可能做到的，则需要尽可能保证数据面系统单一，在 DCN 中这就是 Host Overlay 或者 Gateway Model。</p><p>我们知道 SDN 有三种模式：Reactive、Proactive、Predictive。Predictive？纵看整个网络的发展，目前还是很不现实的。我们看看前两者，因为控制面是 CA 的，面对压力问题，无非是一个拿时间换空间，另一个拿空间换时间。业界目前的主流解决方案是两种方式相结合：利用 Gateway 模型将控制面直接放到数据面，解决时间问题，且这里不完全与控制面相同，可以使用多副本写入不同步的方式，适当牺牲可分区系统间的一致性，扩大规模的同时提高可用性，数据面则反之；牺牲 Proactive 的可用性，换来分区容错解决空间问题。</p><p>这是控制面 CA + CP，数据面 AP 的方案。</p><h3 id="SDWAN-路在何方"><a href="#SDWAN-路在何方" class="headerlink" title="SDWAN 路在何方"></a>SDWAN 路在何方</h3><p>SDWAN 和 SDN 有着本质的不同，在 DCI 其控制面的分区不可避免，即不能同时保证可用性和一致性，前文说明过这里一定选择的是一致性，而非可用性。那这和传统网络又有何区别？所以 SDWAN 的控制面要求就是保证 AP 的数据面不用关心一致性，是一个 CP 的系统。</p><p>那么难点来了，CP 的控制面不难，但是如何帮助数据面在不一致的情况下进行正确的寻址呢？这跟 SDN 不同，既不能简化数据面的系统，又不能完全依附于控制面的可用性，且面对广域网的复杂度，链路状态的检测通告和路径计算这都是大问题，答案其实在传统网络中已经存在了很久了—— LFA。SDWAN 的路就是做一个更好的 LFA 控制面，连接 PQ 分区。</p><p>这是 CP + AP 的方案。</p><h3 id="云联网的理论支撑"><a href="#云联网的理论支撑" class="headerlink" title="云联网的理论支撑"></a>云联网的理论支撑</h3><p>综上，控制面的独立有利于降低数据面对一致性的要求，数据面再通过一定的方式（SDN 是简化系统，SDWAN 是具备独立的决策能力）解决可用性问题。云联网虽然业务比较趋向于 SDWAN，不能简化数据面系统，但分区却是可预测的，即给 SDN 化提供了可能性。</p><p>简单点说，云联网就是在各个数据面网关写静态，需要使用事务保证一致性。当控制面预料内的分区发生时，数据面流量仍然可以通过冗余的抽象连接（DCN 是 ECMP，DCI 是 SR）到达更新状态后的分区，需要注意的是，如果更新涉及隔离分区，虽然满足机制也不能写入。</p><p>这是 CP + AP 的方案。</p>]]></content>
       
       
       <categories>
@@ -308,9 +308,9 @@
             
             <tag> network </tag>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> note </tag>
             
@@ -395,9 +395,9 @@
             
             <tag> network </tag>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
         </tags>
       
@@ -453,9 +453,9 @@
             
             <tag> network </tag>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> openflow </tag>
             
@@ -484,9 +484,9 @@
             
             <tag> network </tag>
             
-            <tag> docker </tag>
-            
             <tag> k8s </tag>
+            
+            <tag> docker </tag>
             
         </tags>
       
@@ -563,11 +563,11 @@
             
             <tag> network </tag>
             
-            <tag> openstack </tag>
+            <tag> calico </tag>
             
             <tag> k8s </tag>
             
-            <tag> calico </tag>
+            <tag> openstack </tag>
             
         </tags>
       
@@ -594,9 +594,9 @@
             
             <tag> network </tag>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> firewall对接 </tag>
             
@@ -652,9 +652,9 @@
       
         <tags>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> ovs </tag>
             
@@ -681,9 +681,9 @@
       
         <tags>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> ovs </tag>
             
@@ -714,9 +714,9 @@
       
         <tags>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> VPNaaS </tag>
             
@@ -743,9 +743,9 @@
       
         <tags>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> octavia </tag>
             
@@ -772,9 +772,9 @@
       
         <tags>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> sfc </tag>
             
@@ -801,9 +801,9 @@
       
         <tags>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> devstack </tag>
             
@@ -830,9 +830,9 @@
       
         <tags>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> openflow </tag>
             
@@ -861,9 +861,9 @@
       
         <tags>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> firewall对接 </tag>
             
@@ -890,9 +890,9 @@
       
         <tags>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> firewall对接 </tag>
             
@@ -919,9 +919,9 @@
       
         <tags>
             
-            <tag> neutron </tag>
-            
             <tag> openstack </tag>
+            
+            <tag> neutron </tag>
             
             <tag> security </tag>
             
