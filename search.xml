@@ -109,9 +109,9 @@
             
             <tag> network </tag>
             
-            <tag> openflow </tag>
-            
             <tag> note </tag>
+            
+            <tag> openflow </tag>
             
             <tag> ovs </tag>
             
