@@ -358,11 +358,11 @@
             
             <tag> network </tag>
             
-            <tag> cloud </tag>
+            <tag> neutron </tag>
             
             <tag> openstack </tag>
             
-            <tag> neutron </tag>
+            <tag> cloud </tag>
             
             <tag> note </tag>
             
@@ -447,9 +447,9 @@
             
             <tag> network </tag>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
         </tags>
       
@@ -505,9 +505,9 @@
             
             <tag> network </tag>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
             <tag> openflow </tag>
             
@@ -536,9 +536,9 @@
             
             <tag> network </tag>
             
-            <tag> k8s </tag>
-            
             <tag> docker </tag>
+            
+            <tag> k8s </tag>
             
         </tags>
       
@@ -615,11 +615,11 @@
             
             <tag> network </tag>
             
-            <tag> calico </tag>
+            <tag> openstack </tag>
             
             <tag> k8s </tag>
             
-            <tag> openstack </tag>
+            <tag> calico </tag>
             
         </tags>
       
@@ -646,9 +646,9 @@
             
             <tag> network </tag>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
             <tag> firewall对接 </tag>
             
@@ -704,9 +704,9 @@
       
         <tags>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
             <tag> ovs </tag>
             
@@ -733,9 +733,9 @@
       
         <tags>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
             <tag> ovs </tag>
             
@@ -766,9 +766,9 @@
       
         <tags>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
             <tag> VPNaaS </tag>
             
@@ -795,9 +795,9 @@
       
         <tags>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
             <tag> octavia </tag>
             
@@ -824,9 +824,9 @@
       
         <tags>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
             <tag> sfc </tag>
             
@@ -853,9 +853,9 @@
       
         <tags>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
             <tag> devstack </tag>
             
@@ -882,9 +882,9 @@
       
         <tags>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
             <tag> openflow </tag>
             
@@ -913,9 +913,9 @@
       
         <tags>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
             <tag> firewall对接 </tag>
             
@@ -942,9 +942,9 @@
       
         <tags>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
             <tag> firewall对接 </tag>
             
@@ -971,9 +971,9 @@
       
         <tags>
             
-            <tag> openstack </tag>
-            
             <tag> neutron </tag>
+            
+            <tag> openstack </tag>
             
             <tag> security </tag>
             
