@@ -109,11 +109,11 @@
             
             <tag> network </tag>
             
-            <tag> note </tag>
-            
             <tag> openflow </tag>
             
             <tag> ovs </tag>
+            
+            <tag> note </tag>
             
         </tags>
       
@@ -677,9 +677,9 @@
       
         <tags>
             
-            <tag> Happy Birthday </tag>
-            
             <tag> 随笔 </tag>
+            
+            <tag> Happy Birthday </tag>
             
         </tags>
       
